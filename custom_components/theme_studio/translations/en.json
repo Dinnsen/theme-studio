@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Theme Studio",
+        "description": "Install Theme Studio services and asset bootstrapper.",
+        "data": {
+          "packages_path": "Packages path",
+          "lovelace_path": "Lovelace YAML path",
+          "workdir_path": "Theme Studio data path",
+          "themes_path": "Themes output path"
+        }
+      }
+    },
+    "error": {
+      "single_instance_allowed": "Only one Theme Studio instance is allowed."
+    },
+    "abort": {
+      "single_instance_allowed": "Theme Studio is already configured."
+    }
+  }
+}
