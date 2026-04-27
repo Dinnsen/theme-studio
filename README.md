@@ -16,6 +16,14 @@ Theme Studio for Home Assistant is a full dynamic theming system that lets you b
 - includes 10 **Built-in Themes** and allows custom user themes
 - builds final themes as YAML for Home Assistant
 
+## Table of content
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Workflow](#workflow)
+- [Notes](#notes)
+- [Fonts](#fonts)
+- [Navbar (Theme Studio integration)](#navbar-theme-studio-integration)
 
 ## What this package installs
 
