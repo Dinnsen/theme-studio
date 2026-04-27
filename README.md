@@ -1,6 +1,8 @@
 # Theme Studio
 
-![Theme Studio](https://raw.githubusercontent.com/Dinnsen/theme-studio/main/docs/assets/logo.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Dinnsen/theme-studio/main/docs/assets/logo.png" width="300">
+</p>
 
 [![GitHub Release][releases-shield]][releases]
 [![GitHub All Releases][download-all-shield]][releases]
@@ -115,4 +117,12 @@ Then apply CSS variables via theme or card_mod.
 
 ---
 
+
+[releases-shield]: https://img.shields.io/github/v/release/Dinnsen/theme-studio?style=for-the-badge
+[download-all-shield]: https://img.shields.io/github/downloads/Dinnsen/theme-studio/total?style=for-the-badge
+[hacs-shield]: https://img.shields.io/badge/HACS-Custom-blue.svg?style=for-the-badge
+[buymecoffee-shield]: https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge
+[releases]: https://github.com/Dinnsen/theme-studio/releases
+[hacs]: https://github.com/hacs/integration
+[buymecoffee]: https://buymeacoffee.com/dinnsen
 
