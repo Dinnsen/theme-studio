@@ -1,12 +1,12 @@
 {
   "domain": "theme_studio",
   "name": "Theme Studio",
-  "version": "0.1.0",
-  "documentation": "https://github.com/Dinnsen/theme-studio",
-  "issue_tracker": "https://github.com/Dinnsen/theme-studio/issues",
   "codeowners": ["@Dinnsen"],
   "config_flow": true,
-  "iot_class": "local_push",
-  "requirements": [],
+  "documentation": "https://github.com/Dinnsen/theme-studio",
   "integration_type": "service"
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/Dinnsen/theme-studio/issues",
+  "requirements": [],
+  "version": "0.1.0",
 }
