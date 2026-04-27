@@ -1,4 +1,6 @@
 {
   "name": "Theme Studio",
-  "render_readme": true
+  "homeassistant": "2025.1.0",
+  "render_readme": true,
+  "country": ["DK"]
 }
