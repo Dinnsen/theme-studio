@@ -1,0 +1,379 @@
+Theme Studio Dynamic:
+  primary-font-family: "Quicksand"
+  ha-font-family-body: "var(--primary-font-family)"
+  paper-font-common-base_-_font-family: "var(--primary-font-family)"
+  paper-font-common-code_-_font-family: "var(--primary-font-family)"
+  paper-font-body1_-_font-family: "var(--primary-font-family)"
+  paper-font-subhead_-_font-family: "var(--primary-font-family)"
+  paper-font-headline_-_font-family: "var(--primary-font-family)"
+  paper-font-caption_-_font-family: "var(--primary-font-family)"
+  paper-font-title_-_font-family: "var(--primary-font-family)"
+  ha-card-header-font-family: "var(--primary-font-family)"
+  text-color: "#ffffff"
+  primary-text-color: "var(--text-color)"
+  text-primary-color: "var(--text-color)"
+  sidebar-text-color: "var(--text-color)"
+  pbs-button-color: "var(--text-color)"
+  pbs-button-rgb-color: "var(--text-color)"
+  pbs-button-rgb-state-color: "var(--text-color)"
+  pbs-button-rgb-default-color: "var(--text-color)"
+  rgb-state-default-color: "var(--text-color)"
+  pbs-button-rgb-fallback: "var(--text-color)"
+  secondary-text-color: "hsl(240, 10%, 80%)"
+  text-medium-light-color: "rgba(255, 255, 255, 0.62)"
+  text-medium-color: "rgba(255, 255, 255, 0.52)"
+  disabled-text-color: "hsl(0, 0%, 54%)"
+  primary-color: "var(--accent-color)"
+  mdc-text-field-fill-color: "var(--ha-card-background)"
+  mdc-text-field-ink-color: "var(--primary-text-color)"
+  mdc-select-fill-color: "var(--ha-card-background)"
+  mdc-text-field-label-ink-color: "hsl(240, 10%, 80%)"
+  input-background-color: "var(--ha-card-background)"
+  ha-color-form-background: "var(--ha-card-background)"
+  ha-color-form-background-hover: "color-mix(in srgb, var(--primary-text-color) 8%, var(--ha-card-background))"
+  input-fill-color: "var(--ha-card-background)"
+  input-ink-color: "var(--primary-text-color)"
+  input-label-ink-color: "hsl(240, 10%, 80%)"
+  input-disabled-fill-color: "color-mix(in srgb, var(--ha-card-background) 70%, transparent)"
+  input-disabled-ink-color: "var(--disabled-text-color)"
+  input-disabled-label-ink-color: "var(--disabled-text-color)"
+  input-idle-line-color: "color-mix(in srgb, var(--secondary-text-color) 28%, transparent)"
+  input-dropdown-icon-color: "var(--secondary-text-color)"
+  input-hover-line-color: "var(--primary-color)"
+  code-editor-background-color: "hsl(239, 8%, 10%)"
+  codemirror-property: "var(--accent-color)"
+  app-header-background-color: "hsl(239, 8%, 13%)"
+  app-header-text-color: "hsl(0, 0%, 100%)"
+  header-height: "48px"
+  accent-color: "hsl(186, 100%, 50%)"
+  accent-medium-color: "var(--accent-color)"
+  background-color: "hsl(239, 8%, 12%)"
+  primary-background-color: "var(--background-color)"
+  background-color-2: "hsl(239, 8%, 10%)"
+  secondary-background-color: "hsl(270, 58%, 61%)"
+  markdown-code-background-color: "var(--background-color)"
+  theme-studio-navbar-background-color: "hsla(239, 8%, 24%, 0.84)"
+  theme-studio-navbar-primary-color: "#ffffff"
+  card-background-color: "var(--ha-card-background)"
+  ha-card-background: "hsla(249, 14%, 22%, 0.68)"
+  ha-card-box-shadow: "var(--theme-studio-card-shadow-css)"
+  ha-card-border-radius: "28px"
+  ha-card-border-style: "none !important"
+  ha-card-border-width: "none !important"
+  ha-card-border-color: "none !important"
+  border-color: "none"
+  grid-card-gap: "14px"
+  border-style: "none !important"
+  paper-item-icon-color: "hsl(0, 0%, 100%)"
+  paper-item-icon-active-color: "hsl(212, 100%, 67%)"
+  state-icon-color: "hsl(0, 0%, 100%)"
+  state-icon-active-color: "hsl(212, 100%, 67%)"
+  sidebar-background-color: "var(--background-color)"
+  sidebar-icon-color: "hsl(0, 0%, 100%)"
+  sidebar-selected-icon-color: "hsl(212, 100%, 67%)"
+  sidebar-selected-text-color: "var(--text-color)"
+  paper-listbox-background-color: "var(--sidebar-background-color)"
+  divider-color: "rgba(255, 255, 255, 0.14)"
+  light-primary-color: "var(--ha-card-background)"
+  paper-slider-knob-color: "var(--accent-color)"
+  paper-slider-pin-color: "var(--background-color-2)"
+  paper-slider-active-color: "hsla(300, 100%, 71%, 1.00)"
+  paper-slider-container-color: "var(--background-color-2)"
+  paper-toggle-button-checked-bar-color: "var(--accent-color)"
+  mdc-theme-primary: "var(--accent-color)"
+  switch-unchecked-color: "rgba(255, 255, 255, 0.52)"
+  switch-checked-button-color: "var(--accent-color)"
+  switch-unchecked-track-color: "var(--background-color-2)"
+  switch-checked-track-color: "var(--background-color-2)"
+  paper-radio-button-checked-color: "var(--accent-color)"
+  more-info-header-background: "var(--secondary-background-color)"
+  paper-dialog-background-color: "var(--background-color)"
+  table-row-background-color: "var(--background-color)"
+  table-row-alternative-background-color: "var(--ha-card-background)"
+  label-badge-background-color: "var(--background-color)"
+  label-badge-text-color: "var(--text-primary-color)"
+  label-badge-red: "hsl(14, 56%, 30%)"
+  label-badge-blue: "hsl(38, 53%, 28%)"
+  label-badge-green: "hsl(106, 50%, 29%)"
+  label-badge-yellow: "hsl(312, 67%, 21%)"
+  paper-input-container-focus-color: "var(--accent-color)"
+  ha-textfield-fill-color: "var(--ha-card-background)"
+  ha-textfield-input-text-color: "var(--primary-text-color)"
+  ha-textfield-text-color: "var(--primary-text-color)"
+  ha-textfield-label-text-color: "hsl(240, 10%, 80%)"
+  ha-textfield-caret-color: "var(--accent-color)"
+  ha-selector-fill-color: "var(--ha-card-background)"
+  md-filled-field-container-color: "var(--ha-card-background)"
+  md-filled-field-label-text-color: "hsl(240, 10%, 80%)"
+  md-filled-field-input-text-color: "var(--primary-text-color)"
+  md-filled-field-focus-label-text-color: "var(--accent-color)"
+  md-filled-field-caret-color: "var(--accent-color)"
+  md-filled-text-field-container-color: "var(--ha-card-background)"
+  md-filled-text-field-label-text-color: "hsl(240, 10%, 80%)"
+  md-filled-text-field-input-text-color: "var(--primary-text-color)"
+  md-filled-text-field-focus-label-text-color: "var(--accent-color)"
+  md-filled-text-field-caret-color: "var(--accent-color)"
+  md-outlined-field-label-text-color: "hsl(240, 10%, 80%)"
+  md-outlined-field-input-text-color: "var(--primary-text-color)"
+  md-outlined-field-focus-label-text-color: "var(--accent-color)"
+  mdc-theme-surface: "var(--ha-card-background)"
+  mdc-theme-on-surface: "var(--primary-text-color)"
+  mdc-select-ink-color: "var(--primary-text-color)"
+  mdc-select-label-ink-color: "hsl(240, 10%, 80%)"
+  mdc-select-idle-line-color: "color-mix(in srgb, var(--secondary-text-color) 28%, transparent)"
+  mdc-select-hover-line-color: "var(--accent-color)"
+  mdc-select-dropdown-icon-color: "hsl(240, 10%, 80%)"
+  mdc-text-field-idle-line-color: "color-mix(in srgb, var(--secondary-text-color) 28%, transparent)"
+  mdc-text-field-hover-line-color: "var(--accent-color)"
+  text-field-fill-color: "var(--ha-card-background)"
+  text-field-ink-color: "var(--primary-text-color)"
+  text-field-label-ink-color: "hsl(240, 10%, 80%)"
+  ch-background: "var(--background-color)"
+  ch-active-tab-color: "var(--accent-color)"
+  ch-notification-dot-color: "var(--accent-color)"
+  ch-all-tabs-color: "var(--sidebar-icon-color)"
+  ch-tab-indicator-color: "var(--accent-color)"
+  mini-media-player-base-color: "var(--text-color)"
+  mini-media-player-accent-color: "var(--accent-color)"
+  alarm-color-armed: "hsl(14, 56%, 30%)"
+  alarm-color-disarmed: "hsl(106, 50%, 29%)"
+  alarm-color-night: "hsl(38, 53%, 28%)"
+  card-mod-theme: "Theme Studio Dynamic"
+  theme-studio-signature: "theme-studio-dynamic"
+  card-mod-root-yaml: |
+    
+    ha-card:not(.theme-studio-no-fx) {
+      border-radius: 28px !important;
+      --ha-card-border-radius: 28px !important;
+      overflow: hidden;
+      border: var(--theme-studio-card-border-css, none) !important;
+      box-shadow: var(--theme-studio-card-shadow-css, none) !important;
+    }
+    
+    ha-card.theme-studio-no-fx {
+      border: none !important;
+      box-shadow: none !important;
+    }
+    
+    button-card,
+    .button-card-main,
+    button-card > * {
+      border-radius: 22px !important;
+    }
+    @media only screen and (max-width: 768px) {
+      .header {
+        display: none;
+        opacity: 0;
+      }
+    
+      #view {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        min-height: calc(100vh - env(safe-area-inset-top)) !important;
+      }
+    }
+    
+    #root {
+      --masonry-view-card-margin: 0px 0px 0px;
+    }
+    
+    #root > hui-card[hidden],
+    #root > hui-vertical-stack-card[hidden] {
+      margin: 0 !important;
+    }
+    
+    home-assistant,
+    home-assistant-main,
+    ha-app-layout,
+    app-drawer-layout,
+    partial-panel-resolver,
+    ha-panel-lovelace,
+    hui-root,
+    hui-view,
+    grid-layout,
+    .view,
+    #root,
+    hui-card {
+      --lovelace-background: transparent !important;
+      background: transparent !important;
+      background-color: transparent !important;
+    }
+    
+    .background {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      background-position: center top !important;
+      background-size: cover !important;
+      background-repeat: no-repeat !important;
+      pointer-events: none !important;
+      z-index: 0 !important;
+    }
+    
+    #view {
+      --lovelace-background: transparent !important;
+      position: relative;
+      min-height: 100vh !important;
+      min-height: 100dvh !important;
+      background: transparent !important;
+      background-color: transparent !important;
+      z-index: 1 !important;
+    }
+  card-mod-more-info-yaml: |
+    $: |
+      .mdc-dialog .mdc-dialog__scrim,
+      ha-dialog .mdc-dialog__scrim,
+      md-dialog::part(scrim) {
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        background: rgba(0,0,0,.6);
+      }
+      .mdc-dialog .mdc-dialog__container .mdc-dialog__surface,
+      ha-dialog .mdc-dialog__surface,
+      md-dialog {
+        box-shadow: none !important;
+        border-radius: var(--ha-card-border-radius);
+        background: var(--ha-card-background) !important;
+        color: var(--primary-text-color) !important;
+        --mdc-theme-surface: var(--ha-card-background);
+        --mdc-theme-on-surface: var(--primary-text-color);
+        --mdc-dialog-content-ink-color: var(--primary-text-color);
+        --mdc-dialog-heading-ink-color: var(--primary-text-color);
+        --mdc-text-button-label-text-color: var(--accent-color);
+        --md-sys-color-surface: var(--ha-card-background);
+        --md-sys-color-on-surface: var(--primary-text-color);
+        --md-sys-color-primary: var(--accent-color);
+      }
+      .mdc-dialog__title,
+      .mdc-dialog__content,
+      .mdc-dialog__button,
+      .mdc-button,
+      .mdc-button__label,
+      ha-dialog *,
+      md-dialog * {
+        color: var(--primary-text-color) !important;
+      }
+    .: |
+      :host {
+        --ha-card-box-shadow: none;
+      }
+  card-mod-view-yaml: |
+    hui-sidebar-view:
+      $: |
+        @media only screen and (min-width: 768px) {
+            .container {
+              max-width: 520px;
+              margin: auto !important;
+              width: -webkit-fill-available;
+            }
+        }
+        #wrapper: |
+          $: |
+            #progressContainer {
+                border-radius: 14px !important;
+        }
+      .: |
+        "#view>hui-view>hui-sidebar-view$#main>hui-card-options:nth-child(7)>vertical-stack-in-card$ha-card>div>hui-horizontal-stack-card$#root>hui-grid-card$#root>hui-entities-card$#states>div:nth-child(4)>slider-entity-row$div>ha-slider$#sliderBar$#progressContainer" {
+            border-radius: 14px !important;
+        }
+  card-mod-card: |
+    ha-card {
+      transition: none;
+      border-style: none !important
+    }
+  md-sys-color-primary: "var(--accent-color)"
+  md-sys-color-on-primary: "#ffffff"
+  md-sys-color-primary-container: "hsl(10, 80%, 26%)"
+  md-sys-color-on-primary-container: "#ffffff"
+  md-sys-color-secondary: "hsl(28, 73%, 20%)"
+  md-sys-color-on-secondary: "#ffffff"
+  md-sys-color-secondary-container: "hsl(28, 69%, 23%)"
+  md-sys-color-on-secondary-container: "#ffffff"
+  md-sys-color-tertiary: "hsl(312, 67%, 21%)"
+  md-sys-color-on-tertiary: "#ffffff"
+  md-sys-color-tertiary-container: "hsl(312, 64%, 24%)"
+  md-sys-color-on-tertiary-container: "#ffffff"
+  md-sys-color-surface: "hsl(239, 8%, 12%)"
+  md-sys-color-surface-dim: "hsl(239, 8%, 10%)"
+  md-sys-color-surface-bright: "hsl(239, 8%, 22%)"
+  md-sys-color-surface-container-low: "hsl(239, 8%, 18%)"
+  md-sys-color-surface-container: "hsl(239, 8%, 21%)"
+  md-sys-color-surface-container-high: "hsl(239, 8%, 24%)"
+  md-sys-color-surface-container-highest: "hsl(239, 8%, 27%)"
+  md-sys-color-on-surface: "#ffffff"
+  md-sys-color-on-surface-variant: "rgba(255, 255, 255, 0.74)"
+  md-sys-color-outline: "rgba(255, 255, 255, 0.18)"
+  md-sys-color-inverse-surface: "hsl(10, 8%, 92%)"
+  md-sys-color-inverse-on-surface: "hsl(239, 8%, 12%)"
+  md-sys-color-inverse-primary: "var(--accent-color)"
+  icon-primary-color: "var(--state-icon-color)"
+  icon-secondary-color: "var(--state-icon-active-color)"
+  my-card-blur: "14px"
+  my-card-opacity: "0.68"
+  my-chip-radius: "22px"
+  my-navbar-bg: "hsla(239, 8%, 24%, 0.84)"
+  my-glass-bg: "hsla(10, 8%, 20%, 0.72)"
+  my-chip-bg: "hsla(239, 8%, 25%, 0.72)"
+  d1nnsen-bubble-bg-color: "hsla(265, 13%, 22%, 0.41)"
+  d1nnsen-bubble-sub-button-bg: "hsla(239, 8%, 27%, 0.90)"
+  d1nnsen-bubble-accent-color: "hsla(300, 100%, 71%, 1.00)"
+  d1nnsen-bubble-text-color: "#ffffff"
+  d1nnsen-card-text-color: "#ffffff"
+  d1nnsen-popup-text-color: "#ffffff"
+  d1nnsen-font-label-color: "rgba(255, 255, 255, 0.74)"
+  d1nnsen-popup-bg-color: "hsla(257, 13%, 21%, 0.68)"
+  d1nnsen-header-fade-color: "hsl(239, 8%, 12%)"
+  d1nnsen-soft-bg-color: "hsl(239, 8%, 24%)"
+  d1nnsen-panel-bg: "hsl(239, 8%, 10%)"
+  d1nnsen-muted-icon-color: "hsl(240, 10%, 80%)"
+  theme-studio-border-type: "glass_edge"
+  theme-studio-shadow-type: "glass_glow"
+  theme-studio-border-css: "none"
+  theme-studio-card-border-css: "none"
+  theme-studio-shadow-css: "inset 0 1px 0 hsla(59, 4%, 54%, 0.70), inset 1px 0 0 hsla(59, 0%, 46%, 0.30), inset 0 -1px 0 hsla(59, 0%, 16%, 0.42), 0 0 0 1px hsla(59, 0%, 40%, 0.16), 0 4px 14px hsla(235, 16%, 0%, 0.48), 0 12px 24px -1px hsla(235, 16%, 0%, 0.34), 0 0 19px hsla(235, 34%, 42%, 0.34), 0 0 37px hsla(235, 40%, 56%, 0.20)"
+  theme-studio-card-shadow-css: "inset 0 1px 0 hsla(59, 4%, 54%, 0.70), inset 1px 0 0 hsla(59, 0%, 46%, 0.30), inset 0 -1px 0 hsla(59, 0%, 16%, 0.42), 0 0 0 1px hsla(59, 0%, 40%, 0.16), 0 4px 14px hsla(235, 16%, 0%, 0.48), 0 12px 24px -1px hsla(235, 16%, 0%, 0.34), 0 0 19px hsla(235, 34%, 42%, 0.34), 0 0 37px hsla(235, 40%, 56%, 0.20)"
+  theme-studio-bubble-border-css: "none"
+  theme-studio-bubble-shadow-css: "inset 0 1px 0 hsla(59, 4%, 54%, 0.70), inset 1px 0 0 hsla(59, 0%, 46%, 0.30), inset 0 -1px 0 hsla(59, 0%, 16%, 0.42), 0 0 0 1px hsla(59, 0%, 40%, 0.16), 0 4px 14px hsla(235, 16%, 0%, 0.48), 0 12px 24px -1px hsla(235, 16%, 0%, 0.34), 0 0 19px hsla(235, 34%, 42%, 0.34), 0 0 37px hsla(235, 40%, 56%, 0.20)"
+  theme-studio-popup-border-css: "none"
+  theme-studio-popup-shadow-css: "inset 0 1px 0 hsla(59, 4%, 54%, 0.70), inset 1px 0 0 hsla(59, 0%, 46%, 0.30), inset 0 -1px 0 hsla(59, 0%, 16%, 0.42), 0 0 0 1px hsla(59, 0%, 40%, 0.16), 0 4px 14px hsla(235, 16%, 0%, 0.48), 0 12px 24px -1px hsla(235, 16%, 0%, 0.34), 0 0 19px hsla(235, 34%, 42%, 0.34), 0 0 37px hsla(235, 40%, 56%, 0.20)"
+  theme-studio-border-effect-css: "inset 0 1px 0 hsla(59, 4%, 54%, 0.70), inset 1px 0 0 hsla(59, 0%, 46%, 0.30), inset 0 -1px 0 hsla(59, 0%, 16%, 0.42), 0 0 0 1px hsla(59, 0%, 40%, 0.16)"
+  theme-studio-border-color: "hsla(59, 0%, 38%, 1.00)"
+  theme-studio-border-highlight: "hsla(59, 4%, 54%, 0.70)"
+  theme-studio-background-image: "url('/local/background/CloudWhite.png')"
+  theme-studio-background-scrim: "linear-gradient(180deg, hsla(239, 8%, 12%, 0.13) 0%, hsla(239, 8%, 12%, 0.52) 54%, hsla(239, 8%, 12%, 0.73) 100%)"
+  theme-studio-background-overlay: "linear-gradient(180deg, hsl(239, 8%, 12%) 0px, hsl(239, 8%, 12%) 126px, hsla(239, 8%, 12%, 0.96) 215px, hsla(239, 8%, 12%, 0.00) 370px), repeating-linear-gradient(120deg, rgba(255,255,255,0.02) 0 8px, transparent 8px 16px), linear-gradient(180deg, rgba(255,255,255,0.00) 0px, rgba(255,255,255,0.00) 102px, rgba(255,255,255,0.02) 100%)"
+  theme-studio-background-overlay-preview: "repeating-linear-gradient(120deg, rgba(255,255,255,0.02) 0 8px, transparent 8px 16px), linear-gradient(180deg, rgba(255,255,255,0.00) 0px, rgba(255,255,255,0.00) 102px, rgba(255,255,255,0.02) 100%)"
+  d1nnsen-background-image: "var(--theme-studio-background-image)"
+  d1nnsen-background-scrim: "var(--theme-studio-background-scrim)"
+  d1nnsen-background-overlay: "var(--theme-studio-background-overlay)"
+  theme-studio-overlay-name: "soft_stripes"
+  theme-studio-overlay-contrast: "18"
+  theme-studio-background-contrast: "21"
+  theme-studio-background-image-url: "/local/background/CloudWhite.png"
+  theme-studio-header-blend-enabled: "1"
+  theme-studio-header-blend-height: "170px"
+  theme-studio-overlay-offset-y: "32"
+  theme-studio-overlay-scale: "75"
+  theme-studio-overlay-spread: "152"
+  lovelace-background: "center top / cover no-repeat fixed var(--theme-studio-background-overlay), center top / cover no-repeat fixed var(--theme-studio-background-scrim), center top / cover no-repeat fixed var(--theme-studio-background-image)"
+  bubble-main-background-color: "hsla(265, 13%, 22%, 0.41)"
+  bubble-border-css: "none"
+  bubble-shadow-css: "inset 0 1px 0 hsla(59, 4%, 54%, 0.70), inset 1px 0 0 hsla(59, 0%, 46%, 0.30), inset 0 -1px 0 hsla(59, 0%, 16%, 0.42), 0 0 0 1px hsla(59, 0%, 40%, 0.16), 0 4px 14px hsla(235, 16%, 0%, 0.48), 0 12px 24px -1px hsla(235, 16%, 0%, 0.34), 0 0 19px hsla(235, 34%, 42%, 0.34), 0 0 37px hsla(235, 40%, 56%, 0.20)"
+  bubble-button-main-background-color: "hsla(265, 13%, 22%, 0.41)"
+  bubble-main-box-shadow: "inset 0 1px 0 hsla(59, 4%, 54%, 0.70), inset 1px 0 0 hsla(59, 0%, 46%, 0.30), inset 0 -1px 0 hsla(59, 0%, 16%, 0.42), 0 0 0 1px hsla(59, 0%, 40%, 0.16), 0 4px 14px hsla(235, 16%, 0%, 0.48), 0 12px 24px -1px hsla(235, 16%, 0%, 0.34), 0 0 19px hsla(235, 34%, 42%, 0.34), 0 0 37px hsla(235, 40%, 56%, 0.20)"
+  bubble-box-shadow: "inset 0 1px 0 hsla(59, 4%, 54%, 0.70), inset 1px 0 0 hsla(59, 0%, 46%, 0.30), inset 0 -1px 0 hsla(59, 0%, 16%, 0.42), 0 0 0 1px hsla(59, 0%, 40%, 0.16), 0 4px 14px hsla(235, 16%, 0%, 0.48), 0 12px 24px -1px hsla(235, 16%, 0%, 0.34), 0 0 19px hsla(235, 34%, 42%, 0.34), 0 0 37px hsla(235, 40%, 56%, 0.20)"
+  bubble-main-border: "none"
+  bubble-border: "none"
+  bubble-select-main-background-color: "hsla(265, 13%, 22%, 0.41)"
+  bubble-climate-main-background-color: "hsla(265, 13%, 22%, 0.41)"
+  bubble-sub-button-background-color: "hsla(239, 8%, 27%, 0.90)"
+  bubble-accent-color: "hsla(300, 100%, 71%, 1.00)"
+  bubble-slider-main-background-color: "hsla(300, 100%, 71%, 1.00)"
+  bubble-pop-up-main-background-color: "hsla(257, 13%, 21%, 0.68)"
+  bubble-pop-up-box-shadow: "inset 0 1px 0 hsla(59, 4%, 54%, 0.70), inset 1px 0 0 hsla(59, 0%, 46%, 0.30), inset 0 -1px 0 hsla(59, 0%, 16%, 0.42), 0 0 0 1px hsla(59, 0%, 40%, 0.16), 0 4px 14px hsla(235, 16%, 0%, 0.48), 0 12px 24px -1px hsla(235, 16%, 0%, 0.34), 0 0 19px hsla(235, 34%, 42%, 0.34), 0 0 37px hsla(235, 40%, 56%, 0.20)"
+  bubble-pop-up-border: "none"
+  bubble-popup-border-css: "none"
+  bubble-popup-shadow-css: "inset 0 1px 0 hsla(59, 4%, 54%, 0.70), inset 1px 0 0 hsla(59, 0%, 46%, 0.30), inset 0 -1px 0 hsla(59, 0%, 16%, 0.42), 0 0 0 1px hsla(59, 0%, 40%, 0.16), 0 4px 14px hsla(235, 16%, 0%, 0.48), 0 12px 24px -1px hsla(235, 16%, 0%, 0.34), 0 0 19px hsla(235, 34%, 42%, 0.34), 0 0 37px hsla(235, 40%, 56%, 0.20)"
+  bubble-pop-up-background-color: "hsla(257, 13%, 21%, 0.68)"
