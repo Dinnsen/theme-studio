@@ -1,36 +1,39 @@
 # Theme Studio
 
-Theme Studio is a Home Assistant custom integration that bootstraps a live theme editor, preset storage, and build workflow for generated Home Assistant themes.
+![Theme Studio](https://raw.githubusercontent.com/Dinnsen/theme-studio/main/docs/assets/logo.png)
+
+[![GitHub Release][releases-shield]][releases]
+[![GitHub All Releases][download-all-shield]][releases]
+[![HACS][hacs-shield]][hacs]
+[![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
+
+Theme Studio for Home Assistant is a full dynamic theming system that lets you build, customize, and generate complete Home Assistant themes with live preview.
+
+- generates full themes based on a base color
+- live-updating **Theme Studio** while editing
+- supports separate **Light** and **Dark** theme workflows
+- supports custom background images
+- includes 10 **Built-in Themes** and allows custom user themes
+- builds final themes as YAML for Home Assistant
+
 
 ## What this package installs
 
 After installing the integration and adding it in Home Assistant, call the service `theme_studio.initialize_assets` once. The integration writes these files into your config directory:
 
-- `/config/packages/theme_studio.yaml`
-- `/config/lovelace/theme_studio_dashboard.yaml`
-- `/config/theme_studio/scripts/theme_studio_cli.py`
-- `/config/theme_studio/presets/glass.json`
-- `/config/theme_studio/presets/md3.json`
-- `/config/themes/theme_studio/theme_studio_dynamic.yaml`
-
-The installed assets then provide:
-
-- live-updating **Theme Studio Dynamic** while editing
-- save/load **Light** and **Dark** editor slots
-- preset files as JSON
-- built theme YAML output in `/config/themes/theme_studio`
-- a YAML dashboard for the Theme Studio UI
 
 ## Requirements
 
 Install these custom cards first:
 
-- `button-card`
-- `bubble-card`
-- `mod-card`
-- `simple-swipe-card`
+- [button-card](https://github.com/custom-cards/button-card)
+- [bubble-card](https://github.com/Clooos/Bubble-Card)
+- [mod-card](https://github.com/thomasloven/lovelace-card-mod)
+- [simple-swipe-card](https://github.com/danimart1991/simple-swipe-card)
 
 ## Installation
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?repository=https://github.com/Dinnsen/theme-studio&category=integration)
 
 1. Install this repository with HACS as an **integration**.
 2. Restart Home Assistant.
@@ -74,11 +77,34 @@ lovelace:
 - Built themes live in `/config/themes/theme_studio`.
 - This package ships a bootstrap dynamic theme so the editor always has a live theme target.
 
-## Before publishing your own fork
+# Fonts
 
-Update these files with your real GitHub repository details:
+Navigate to:
+Edit Dashboard → ⋮ → Manage resources
 
-- `custom_components/theme_studio/manifest.json`
-  - `documentation`
-  - `issue_tracker`
-  - `codeowners`
+Add:
+
+https://fonts.googleapis.com/css2?family=Inter
+https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono
+https://fonts.googleapis.com/css2?family=Josefin+Sans
+https://fonts.googleapis.com/css2?family=Orbitron
+https://fonts.googleapis.com/css2?family=Quicksand
+
+Set as Stylesheet and reload browser.
+
+---
+
+# Navbar (Theme Studio integration)
+
+Use decluttering template:
+
+decluttering_templates:
+  navbar_theme_studio:
+    card:
+      type: custom:navbar-card
+
+Then apply CSS variables via theme or card_mod.
+
+---
+
+
