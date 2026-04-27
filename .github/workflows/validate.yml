@@ -1,0 +1,35 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  structure:
+    name: Validate repository structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Check required Theme Studio files and folders
+        run: |
+          test -f README.md
+          test -f hacs.json
+          test -f custom_components/theme_studio/manifest.json
+          test -f custom_components/theme_studio/__init__.py
+          test -f custom_components/theme_studio/config_flow.py
+          test -f custom_components/theme_studio/const.py
+          test -f custom_components/theme_studio/services.yaml
+          test -f custom_components/theme_studio/asset_manager.py
+          test -f custom_components/theme_studio/brand/icon.png
+          test -d custom_components/theme_studio/templates
+          test -d custom_components/theme_studio/templates/packages
+          test -d custom_components/theme_studio/templates/lovelace
+          test -d custom_components/theme_studio/templates/themes
+          test -d custom_components/theme_studio/templates/theme_studio
+          test -d custom_components/theme_studio/templates/theme_studio/presets
+          test -d custom_components/theme_studio/templates/theme_studio/scripts
+          test -d custom_components/theme_studio/templates/theme_studio/user_themes
+          test -f custom_components/theme_studio/templates/theme_studio/user_themes/.gitkeep
