@@ -1,6 +1,7 @@
 {
   "name": "Theme Studio",
   "content_in_root": false,
-  "country": "DK",
-  "homeassistant": "2026.3.0"
+  "homeassistant": "2026.3.0",
+  "render_readme": true,
+  "country": ["DK"]
 }
