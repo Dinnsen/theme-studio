@@ -6,14 +6,32 @@ initialize_assets:
       name: Overwrite existing files
       description: Replace files that already exist.
       required: false
+      default: true
       selector:
-        boolean: {}
+        boolean:
+    backup:
+      name: Backup existing files
+      description: Create backups before overwriting files.
+      required: false
+      default: true
+      selector:
+        boolean:
+
 reinstall_assets:
   name: Reinstall assets
   description: Force-write the Theme Studio package assets again.
   fields:
     overwrite:
       name: Overwrite existing files
+      description: Replace files that already exist.
       required: false
+      default: true
       selector:
-        boolean: {}
+        boolean:
+    backup:
+      name: Backup existing files
+      description: Create backups before overwriting files.
+      required: false
+      default: true
+      selector:
+        boolean:
