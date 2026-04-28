@@ -205,3 +205,26 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Home Assistant local/dev files
+.storage/
+.homeassistant/
+deps/
+tts/
+known_devices.yaml
+secrets.yaml
+automations.yaml
+scenes.yaml
+scripts.yaml
+configuration.yaml
+
+# Local OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local test/debug output
+*.tmp
+*.bak
+*.backup
+*.orig
