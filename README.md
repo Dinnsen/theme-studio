@@ -41,7 +41,9 @@ Install these custom cards first:
 - [mod-card](https://github.com/thomasloven/lovelace-card-mod)
 - [simple-swipe-card](https://github.com/danimart1991/simple-swipe-card)
 - [mushroom-clips-card](https://github.com/danimart1991/simple-swipe-card)
-- 
+- [navbar-card](https://github.com/joseluis9595/lovelace-navbar-card)
+- [config-template-card](https://github.com/iantrich/config-template-card)
+- [decluttering-card](https://github.com/custom-cards/decluttering-card)
 
 ## Installation
 
