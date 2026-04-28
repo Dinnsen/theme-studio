@@ -1,17 +1,17 @@
 initialize_assets:
   name: Initialize assets
-  description: Write the package, dashboard, CLI script, presets, and live theme files into the Home Assistant config directory.
+  description: Install or update bundled Theme Studio files into /config.
   fields:
     overwrite:
-      name: Overwrite existing files
-      description: Replace files that already exist.
+      name: Overwrite managed files
+      description: Update bundled managed files if they already exist. User themes are never overwritten.
       required: false
       default: true
       selector:
         boolean:
     backup:
       name: Backup existing files
-      description: Create backups before overwriting files.
+      description: Create timestamped .bak files before overwriting managed files.
       required: false
       default: true
       selector:
@@ -19,18 +19,11 @@ initialize_assets:
 
 reinstall_assets:
   name: Reinstall assets
-  description: Force-write the Theme Studio package assets again.
+  description: Force reinstall bundled Theme Studio files into /config. User themes are never overwritten.
   fields:
-    overwrite:
-      name: Overwrite existing files
-      description: Replace files that already exist.
-      required: false
-      default: true
-      selector:
-        boolean:
     backup:
       name: Backup existing files
-      description: Create backups before overwriting files.
+      description: Create timestamped .bak files before overwriting managed files.
       required: false
       default: true
       selector:
