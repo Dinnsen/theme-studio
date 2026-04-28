@@ -40,6 +40,8 @@ Install these custom cards first:
 - [bubble-card](https://github.com/Clooos/Bubble-Card)
 - [mod-card](https://github.com/thomasloven/lovelace-card-mod)
 - [simple-swipe-card](https://github.com/danimart1991/simple-swipe-card)
+- [mushroom-clips-card](https://github.com/danimart1991/simple-swipe-card)
+- 
 
 ## Installation
 
