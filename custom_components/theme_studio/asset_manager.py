@@ -15,6 +15,7 @@ import logging
 import shutil
 from dataclasses import dataclass, field
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +39,10 @@ SKIP_SUFFIXES = {
     ".pyc",
     ".pyo",
 }
+
+PROTECTED_TARGET_DIRS = (
+    ("theme_studio", "user_themes"),
+)
 
 
 @dataclass
@@ -75,16 +80,7 @@ def initialize_assets(
     overwrite: bool = True,
     backup: bool = True,
 ) -> dict[str, Any]:
-    """Install or update Theme Studio assets in /config.
-
-    Args:
-        hass: Home Assistant instance.
-        overwrite: If true, bundled managed files are updated.
-        backup: If true, existing files are backed up before overwrite.
-
-    Returns:
-        A dict with installation details.
-    """
+    """Install or update Theme Studio assets in /config."""
     result = AssetInstallResult()
 
     if not TEMPLATES_DIR.exists():
@@ -103,77 +99,48 @@ def initialize_assets(
         "www": config_dir / "www",
     }
 
-    # Always create base runtime folders.
     for path in target_dirs.values():
         _mkdir(path, result)
 
-    # Critical runtime dirs.
     _mkdir(config_dir / "theme_studio" / "presets", result)
     _mkdir(config_dir / "theme_studio" / "scripts", result)
     _mkdir(config_dir / "theme_studio" / "user_themes", result)
     _mkdir(config_dir / "www" / "background", result)
 
     copy_jobs = [
-        # /config/packages/theme_studio_dynamic.yaml
-        (
-            TEMPLATES_DIR / "packages",
-            config_dir / "packages",
-            True,
-        ),
-        # /config/lovelace/theme_studio_dashboard.yaml
-        (
-            TEMPLATES_DIR / "lovelace",
-            config_dir / "lovelace",
-            True,
-        ),
-        # /config/themes/theme_studio/theme_studio_dynamic.yaml
-        (
-            TEMPLATES_DIR / "themes",
-            config_dir / "themes",
-            True,
-        ),
-        # /config/theme_studio/presets/*.json
-        (
-            TEMPLATES_DIR / "theme_studio" / "presets",
-            config_dir / "theme_studio" / "presets",
-            True,
-        ),
-        # /config/theme_studio/scripts/theme_studio_cli.py
-        (
-            TEMPLATES_DIR / "theme_studio" / "scripts",
-            config_dir / "theme_studio" / "scripts",
-            True,
-        ),
-        # /config/www/background/*
-        (
-            TEMPLATES_DIR / "www" / "background",
-            config_dir / "www" / "background",
-            True,
-        ),
+        (TEMPLATES_DIR / "packages", config_dir / "packages"),
+        (TEMPLATES_DIR / "lovelace", config_dir / "lovelace"),
+        (TEMPLATES_DIR / "themes", config_dir / "themes"),
+        (TEMPLATES_DIR / "theme_studio" / "presets", config_dir / "theme_studio" / "presets"),
+        (TEMPLATES_DIR / "theme_studio" / "scripts", config_dir / "theme_studio" / "scripts"),
+        (TEMPLATES_DIR / "www" / "background", config_dir / "www" / "background"),
     ]
 
-    for source, destination, managed in copy_jobs:
+    for source, destination in copy_jobs:
         _copy_tree_contents(
             source=source,
             destination=destination,
+            config_dir=config_dir,
             result=result,
-            overwrite=overwrite if managed else False,
+            overwrite=overwrite,
             backup=backup,
         )
 
-    # user_themes is special:
-    # Create the folder, but never copy/overwrite contents.
-    _mkdir(config_dir / "theme_studio" / "user_themes", result)
-
     _LOGGER.info(
-        "Theme Studio assets installed. copied=%s updated=%s skipped=%s errors=%s",
+        "Theme Studio assets installed. copied=%s updated=%s skipped=%s backups=%s errors=%s",
         len(result.copied_files),
         len(result.updated_files),
         len(result.skipped_files),
+        len(result.backups),
         len(result.errors),
     )
 
     return result.as_dict()
+
+
+# Backwards-compatible alias.
+# Keeps old imports working if __init__.py or tests still import install_assets.
+install_assets = initialize_assets
 
 
 async def async_initialize_assets(
@@ -184,10 +151,12 @@ async def async_initialize_assets(
 ) -> dict[str, Any]:
     """Install Theme Studio assets using executor thread."""
     return await hass.async_add_executor_job(
-        initialize_assets,
-        hass,
-        overwrite,
-        backup,
+        partial(
+            initialize_assets,
+            hass,
+            overwrite=overwrite,
+            backup=backup,
+        )
     )
 
 
@@ -209,6 +178,7 @@ def _copy_tree_contents(
     *,
     source: Path,
     destination: Path,
+    config_dir: Path,
     result: AssetInstallResult,
     overwrite: bool,
     backup: bool,
@@ -220,6 +190,11 @@ def _copy_tree_contents(
         result.errors.append(msg)
         return
 
+    if _is_protected_target(destination, config_dir):
+        result.skipped_files.append(_display(destination))
+        _LOGGER.info("Skipping protected Theme Studio runtime directory: %s", destination)
+        return
+
     _mkdir(destination, result)
 
     for item in source.iterdir():
@@ -228,10 +203,16 @@ def _copy_tree_contents(
 
         target = destination / item.name
 
+        if _is_protected_target(target, config_dir):
+            result.skipped_files.append(_display(target))
+            _LOGGER.info("Skipping protected Theme Studio runtime path: %s", target)
+            continue
+
         if item.is_dir():
             _copy_tree_contents(
                 source=item,
                 destination=target,
+                config_dir=config_dir,
                 result=result,
                 overwrite=overwrite,
                 backup=backup,
@@ -241,6 +222,7 @@ def _copy_tree_contents(
         _copy_file(
             source=item,
             destination=target,
+            config_dir=config_dir,
             result=result,
             overwrite=overwrite,
             backup=backup,
@@ -251,12 +233,18 @@ def _copy_file(
     *,
     source: Path,
     destination: Path,
+    config_dir: Path,
     result: AssetInstallResult,
     overwrite: bool,
     backup: bool,
 ) -> None:
     """Copy a single file."""
     try:
+        if _is_protected_target(destination, config_dir):
+            result.skipped_files.append(_display(destination))
+            _LOGGER.info("Skipping protected Theme Studio runtime file: %s", destination)
+            return
+
         _mkdir(destination.parent, result)
 
         if destination.exists():
@@ -283,6 +271,19 @@ def _copy_file(
         msg = f"Could not copy {source} to {destination}: {err}"
         _LOGGER.exception(msg)
         result.errors.append(msg)
+
+
+def _is_protected_target(path: Path, config_dir: Path) -> bool:
+    """Return true if target path is protected runtime data."""
+    try:
+        relative_parts = path.resolve().relative_to(config_dir.resolve()).parts
+    except ValueError:
+        return False
+
+    return any(
+        relative_parts[: len(protected)] == protected
+        for protected in PROTECTED_TARGET_DIRS
+    )
 
 
 def _same_file_content(source: Path, destination: Path) -> bool:
