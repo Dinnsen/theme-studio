@@ -120,7 +120,7 @@ Everything updates live using Home Assistant variables.
 Add these in
 Dashboard → ⋮ → Resources → Add resource → Type: Stylesheet
 
-```https://fonts.googleapis.com/css2?family=Inter```
+```yaml https://fonts.googleapis.com/css2?family=Inter```
 ```https://fonts.googleapis.com/css2?family=Orbitron```
 
 ```https://fonts.googleapis.com/css2?family=Quicksand```
