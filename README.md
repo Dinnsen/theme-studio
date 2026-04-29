@@ -117,6 +117,8 @@ Everything updates live using Home Assistant variables.
 
 ## 🔤 Fonts
 
+[![Open Home Assistant resources](https://my.home-assistant.io/badges/lovelace_resources.svg)](https://my.home-assistant.io/redirect/lovelace_resources/)
+
 Add these in
 Dashboard → ⋮ → Resources → Add resource → Type: Stylesheet
 
