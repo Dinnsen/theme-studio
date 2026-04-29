@@ -132,9 +132,13 @@ https://fonts.googleapis.com/css2?family=Orbitron
 https://fonts.googleapis.com/css2?family=Quicksand
 ```
 
-```https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono```
+```yaml
+https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono
+```
 
-```https://fonts.googleapis.com/css2?family=Josefin+Sans```
+```yaml
+https://fonts.googleapis.com/css2?family=Josefin+Sans
+```
 
 ---
 
