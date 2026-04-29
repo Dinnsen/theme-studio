@@ -117,11 +117,14 @@ Everything updates live using Home Assistant variables.
 
 ## 🔤 Fonts
 
-Add in **Dashboard → Resources**:
+Add these in
+Dashboard → ⋮ → Resources → Add resource → Type: Stylesheet
 
-https://fonts.googleapis.com/css2?family=Inter  
-https://fonts.googleapis.com/css2?family=Orbitron  
-https://fonts.googleapis.com/css2?family=Quicksand  
+`https://fonts.googleapis.com/css2?family=Inter`
+`https://fonts.googleapis.com/css2?family=Orbitron`
+`https://fonts.googleapis.com/css2?family=Quicksand`
+`https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono`
+`https://fonts.googleapis.com/css2?family=Josefin+Sans`
 
 ---
 
