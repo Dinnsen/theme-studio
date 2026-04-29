@@ -4,55 +4,58 @@
   <img src="https://raw.githubusercontent.com/Dinnsen/theme-studio/main/docs/assets/logo.png" width="300">
 </p>
 
-[![GitHub Release][releases-shield]][releases]
-[![GitHub All Releases][download-all-shield]][releases]
-[![HACS][hacs-shield]][hacs]
-[![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
+<p align="center">
+  <b>Advanced dynamic theming system for Home Assistant</b><br>
+  Build, customize and generate complete themes with live preview.
+</p>
 
-Theme Studio for Home Assistant is a full dynamic theming system that lets you build, customize, and generate complete Home Assistant themes with live preview.
+<p align="center">
+  <a href="https://github.com/Dinnsen/theme-studio/releases"><img src="https://img.shields.io/github/v/release/Dinnsen/theme-studio?style=for-the-badge"></a>
+  <a href="https://github.com/Dinnsen/theme-studio/releases"><img src="https://img.shields.io/github/downloads/Dinnsen/theme-studio/total?style=for-the-badge"></a>
+  <a href="https://github.com/hacs/integration"><img src="https://img.shields.io/badge/HACS-Custom-blue.svg?style=for-the-badge"></a>
+  <a href="https://buymeacoffee.com/dinnsen"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge"></a>
+</p>
 
-- generates full themes based on a base color
-- live-updating **Theme Studio** while editing
-- supports separate **Light** and **Dark** theme workflows
-- supports custom background images
-- includes 10 **Built-in Themes** and allows custom user themes
-- builds final themes as YAML for Home Assistant
+---
 
-## Table of content
+## ✨ Features
 
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Workflow](#workflow)
-- [Notes](#notes)
-- [Fonts](#fonts)
-- [Navbar (Theme Studio integration)](#navbar-theme-studio-integration)
+- 🎨 Generate full themes from a **single base color**
+- ⚡ Live preview while editing
+- 🌗 Separate **Light / Dark** workflows
+- 🧩 Built-in presets + custom user themes
+- 🖼️ Background images & overlays
+- 🧠 Smart color system (Material You inspired)
+- 📦 Full YAML theme export
 
-## What this package installs
+---
 
-After installing the integration and adding it in Home Assistant, call the service `theme_studio.initialize_assets` once. The integration writes these files into your config directory:
+## 🖼️ Preview
 
+> Add screenshots/GIFs here (recommended)
 
-## Requirements
+```
+/docs/assets/preview-1.png
+/docs/assets/preview-2.gif
+```
 
-Install these custom cards first:
+---
 
-- [button-card](https://github.com/custom-cards/button-card)
-- [bubble-card](https://github.com/Clooos/Bubble-Card)
-- [mod-card](https://github.com/thomasloven/lovelace-card-mod)
-- [simple-swipe-card](https://github.com/danimart1991/simple-swipe-card)
-- [mushroom-clips-card](https://github.com/danimart1991/simple-swipe-card)
-- [navbar-card](https://github.com/joseluis9595/lovelace-navbar-card)
-- [decluttering-card](https://github.com/custom-cards/decluttering-card)
+## 🚀 Installation
 
-## Installation
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Dinnsen&repository=theme-studio&category=integration)
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Dinnsen&repository=theme-studio&category=Integration)
+### Step-by-step
 
-1. Install this repository with HACS as an **integration**.
-2. Restart Home Assistant.
-3. Add **Theme Studio** in **Settings → Devices & Services**.
-4. Call the service `theme_studio.initialize_assets`.
-5. Make sure your `configuration.yaml` contains:
+1. Install via **HACS (Integration)**
+2. Restart Home Assistant
+3. Add **Theme Studio** (Settings → Devices & Services)
+
+👉 Assets install automatically
+
+---
+
+### Required configuration
 
 ```yaml
 homeassistant:
@@ -71,61 +74,93 @@ lovelace:
       filename: /config/lovelace/theme_studio_dashboard.yaml
 ```
 
-6. Restart Home Assistant again.
-7. In your HA user profile, select **Theme Studio Dynamic** while editing.
-
-## Workflow
-
-1. Open **Theme Studio** dashboard.
-2. Create or select a preset.
-3. Adjust settings with live preview.
-4. Save **Light** and **Dark** slots.
-5. Build the final theme YAML.
-6. Select the built theme in your HA user profile.
-
-## Notes
-
-- Included starter presets: **Glass** and **MD3**.
-- Presets live in `/config/theme_studio/presets`.
-- Built themes live in `/config/themes/theme_studio`.
-- This package ships a bootstrap dynamic theme so the editor always has a live theme target.
-
-# Fonts
-
-Navigate to:
-Edit Dashboard → ⋮ → Manage resources
-
-Add:
-
-https://fonts.googleapis.com/css2?family=Inter
-https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono
-https://fonts.googleapis.com/css2?family=Josefin+Sans
-https://fonts.googleapis.com/css2?family=Orbitron
-https://fonts.googleapis.com/css2?family=Quicksand
-
-Set as Stylesheet and reload browser.
+4. Restart Home Assistant again
 
 ---
 
-# Navbar (Theme Studio integration)
+## 🧭 Workflow
 
-Use decluttering template:
+1. Open Theme Studio dashboard
+2. Choose preset or create new
+3. Adjust colors, surfaces, FX
+4. Save Light & Dark variants
+5. Build theme
+6. Select in your profile
 
+---
+
+## 📂 File Structure
+
+```
+/config/theme_studio/
+  presets/
+  user_themes/
+  scripts/
+
+/config/themes/theme_studio/
+/config/packages/
+/config/lovelace/
+```
+
+---
+
+## 🧠 How it works
+
+Theme Studio generates a dynamic theme based on:
+
+- Base color
+- Color adjustments
+- Manual overrides
+- Surface & FX system
+
+Everything updates live using Home Assistant variables.
+
+---
+
+## 🔤 Fonts
+
+Add in **Dashboard → Resources**:
+
+https://fonts.googleapis.com/css2?family=Inter  
+https://fonts.googleapis.com/css2?family=Orbitron  
+https://fonts.googleapis.com/css2?family=Quicksand  
+
+---
+
+## 🧩 Navbar integration
+
+```yaml
 decluttering_templates:
   navbar_theme_studio:
     card:
       type: custom:navbar-card
-
-Then apply CSS variables via theme or card_mod.
+```
 
 ---
 
+## 💡 Tips
 
-[releases-shield]: https://img.shields.io/github/v/release/Dinnsen/theme-studio?style=for-the-badge
-[download-all-shield]: https://img.shields.io/github/downloads/Dinnsen/theme-studio/total?style=for-the-badge
-[hacs-shield]: https://img.shields.io/badge/HACS-Custom-blue.svg?style=for-the-badge
-[buymecoffee-shield]: https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge
-[releases]: https://github.com/Dinnsen/theme-studio/releases
-[hacs]: https://github.com/hacs/integration
-[buymecoffee]: https://buymeacoffee.com/dinnsen
+- Restart is required after install
+- Use dark/light variants properly
+- Keep user themes separate from presets
+
+---
+
+## ❤️ Support
+
+If you like this project:
+
+👉 https://buymeacoffee.com/dinnsen
+
+---
+
+## 📈 SEO Keywords
+
+home assistant theme  
+home assistant themes  
+material you home assistant  
+home assistant dashboard theme  
+lovelace theme generator  
+
+---
 
