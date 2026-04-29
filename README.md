@@ -53,9 +53,7 @@
 
 👉 Assets install automatically
 
----
-
-### Required configuration
+4. Update `configuration.yaml`
 
 ```yaml
 homeassistant:
@@ -74,7 +72,8 @@ lovelace:
       filename: /config/lovelace/theme_studio_dashboard.yaml
 ```
 
-4. Restart Home Assistant again
+5. Restart Home Assistant again
+6. In your HA user profile, select **Theme Studio Dynamic** while editing.
 
 ---
 
