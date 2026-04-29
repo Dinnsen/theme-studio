@@ -28,7 +28,7 @@
 - 🧠 Smart color system (Material You inspired)
 - 📦 Full YAML theme export
 
----
+
 
 ## 🖼️ Preview
 
@@ -39,7 +39,7 @@
 /docs/assets/preview-2.gif
 ```
 
----
+
 
 ## 🚀 Installation
 
@@ -74,7 +74,7 @@ lovelace:
 5. Restart Home Assistant again
 6. In your HA user profile, select **Theme Studio Dynamic** while editing.
 
----
+
 
 ## 🧭 Workflow
 
@@ -85,7 +85,7 @@ lovelace:
 5. Build theme
 6. Select in your profile
 
----
+
 
 ## 📂 File Structure
 
@@ -100,7 +100,7 @@ lovelace:
 /config/lovelace/
 ```
 
----
+
 
 ## 🧠 How it works
 
@@ -113,7 +113,7 @@ Theme Studio generates a dynamic theme based on:
 
 Everything updates live using Home Assistant variables.
 
----
+
 
 ## 🔤 Fonts
 
@@ -140,7 +140,7 @@ https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono
 https://fonts.googleapis.com/css2?family=Josefin+Sans
 ```
 
----
+
 
 ## 🧩 Navbar integration
 
@@ -151,7 +151,7 @@ decluttering_templates:
       type: custom:navbar-card
 ```
 
----
+
 
 ## 💡 Tips
 
@@ -159,7 +159,7 @@ decluttering_templates:
 - Use dark/light variants properly
 - Keep user themes separate from presets
 
----
+
 
 ## ❤️ Support
 
@@ -167,7 +167,7 @@ If you like this project:
 
 👉 https://buymeacoffee.com/dinnsen
 
----
+
 
 ## 📈 SEO Keywords
 
