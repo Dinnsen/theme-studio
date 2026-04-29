@@ -50,8 +50,9 @@
 1. Install via **HACS (Integration)**
 2. Restart Home Assistant
 3. Add **Theme Studio** (Settings → Devices & Services)
+
      👉 Assets install automatically
-4. Update `configuration.yaml`
+5. Update `configuration.yaml`
 
 ```yaml
 homeassistant:
