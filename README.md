@@ -30,13 +30,13 @@
 
 ## Table of content
 
-- [Preview](#preview)
+- [Preview](#-preview)
 - [Requirements](#requirements)
-- [Installation](#installation)
-- [Workflow](#workflow)
-- [File Structure](#file-structure)
-- [Fonts](#fonts)
-- [Navbar](#navbar)
+- [Installation](#-installation)
+- [Workflow](#-workflow)
+- [File Structure](#-file-structure)
+- [Fonts](#-fonts)
+- [Navbar](#-navbar)
 
 ## 🖼️ Preview
 
