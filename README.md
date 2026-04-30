@@ -25,10 +25,18 @@
 - 🌗 Separate **Light / Dark** workflows
 - 🧩 Built-in presets + custom user themes
 - 🖼️ Background images & overlays
-- 🧠 Smart color system (Material You inspired)
+- 🧠 Smart color system 
 - 📦 Full YAML theme export
 
+## Table of content
 
+- [Preview](#preview)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Workflow](#workflow)
+- [File Structure](#file-structure)
+- [Fonts](#fonts)
+- [Navbar](#navbar)
 
 ## 🖼️ Preview
 
@@ -39,7 +47,16 @@
 /docs/assets/preview-2.gif
 ```
 
+## Requirements
 
+Install these custom cards first:
+
+- [button-card](https://github.com/custom-cards/button-card)
+- [bubble-card](https://github.com/Clooos/Bubble-Card)
+- [mod-card](https://github.com/thomasloven/lovelace-card-mod)
+- [simple-swipe-card](https://github.com/danimart1991/simple-swipe-card)
+- [navbar-card](https://github.com/joseluis9595/lovelace-navbar-card)
+- [decluttering-card](https://github.com/custom-cards/decluttering-card)
 
 ## 🚀 Installation
 
@@ -80,7 +97,7 @@ lovelace:
 ## 🧭 Workflow
 
 1. Open Theme Studio dashboard
-2. Choose preset or create new
+2. Choose a **Built-In Preset** or create a new
 3. Adjust colors, surfaces, FX
 4. Save Light & Dark variants
 5. Build theme
@@ -89,6 +106,8 @@ lovelace:
 
 
 ## 📂 File Structure
+
+Theme Studio automatically installes the following folders:
 
 ```
 /config/theme_studio/
@@ -100,19 +119,6 @@ lovelace:
 /config/packages/
 /config/lovelace/
 ```
-
-
-
-## 🧠 How it works
-
-Theme Studio generates a dynamic theme based on:
-
-- Base color
-- Color adjustments
-- Manual overrides
-- Surface & FX system
-
-Everything updates live using Home Assistant variables.
 
 
 
@@ -145,7 +151,7 @@ https://fonts.googleapis.com/css2?family=Josefin+Sans
 
 
 
-## 🧩 Navbar integration
+## 🧩 Navbar
 
 ```yaml
 decluttering_templates:
@@ -153,14 +159,6 @@ decluttering_templates:
     card:
       type: custom:navbar-card
 ```
-
-
-
-## 💡 Tips
-
-- Restart is required after install
-- Use dark/light variants properly
-- Keep user themes separate from presets
 
 
 
