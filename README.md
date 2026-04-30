@@ -30,7 +30,6 @@
 
 ## Table of content
 
-- [Preview](#-preview)
 - [Requirements](#requirements)
 - [Installation](#-installation)
 - [Workflow](#-workflow)
