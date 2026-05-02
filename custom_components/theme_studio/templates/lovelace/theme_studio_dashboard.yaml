@@ -853,32 +853,102 @@ views:
             grid_options:
               columns: 12
               rows: 1
-          - type: custom:mushroom-chips-card
-            chips:
-              - type: entity
-                entity: input_button.theme_studio_new_theme
-                name: Save as new
-                content_info: name
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                name: |
+                  [[[
+                    const raw = states['input_text.theme_studio_busy_message']?.state || '';
+                    const busy = raw.toLowerCase();
+                    const active = busy.includes('saving') || busy.includes('save');
+                    return active ? 'Saving…' : 'Save as new';
+                  ]]]
+                icon: mdi:content-save-plus
                 tap_action:
-                  action: toggle
-              - type: entity
-                entity: input_button.theme_studio_delete_theme
+                  action: call-service
+                  service: input_button.press
+                  target:
+                    entity_id: input_button.theme_studio_new_theme
+                styles:
+                  card:
+                    - border-radius: 999px
+                    - padding: 6px 12px
+                    - height: 36px
+                    - background: var(--ha-card-background)
+                    - border: 1px solid var(--divider-color)
+                    - opacity: |
+                        [[[
+                          const busy = (states['input_text.theme_studio_busy_message']?.state || '').toLowerCase();
+                          const active = busy.includes('saving') || busy.includes('deleting') || busy.includes('building') || busy.includes('refreshing');
+                          return active ? '0.55' : '1';
+                        ]]]
+                    - pointer-events: |
+                        [[[
+                          const busy = (states['input_text.theme_studio_busy_message']?.state || '').toLowerCase();
+                          const active = busy.includes('saving') || busy.includes('deleting') || busy.includes('building') || busy.includes('refreshing');
+                          return active ? 'none' : 'auto';
+                        ]]]
+                  name:
+                    - font-size: 11px
+                  icon:
+                    - width: 28px
+              - type: custom:button-card
                 name: Delete
-                content_info: name
+                icon: mdi:delete
                 tap_action:
-                  action: toggle
-              - type: entity
-                entity: input_button.theme_studio_build_theme
+                  action: call-service
+                  service: input_button.press
+                  target:
+                    entity_id: input_button.theme_studio_delete_theme
+                styles:
+                  card:
+                    - border-radius: 999px
+                    - padding: 6px 12px
+                    - height: 36px
+                    - background: color-mix(in srgb, red 12%, var(--ha-card-background))
+                    - border: 1px solid var(--divider-color)
+                  name:
+                    - font-size: 11px
+                  icon:
+                    - width: 18px
+              - type: custom:button-card
                 name: Build theme
-                content_info: name
+                icon: mdi:hammer
                 tap_action:
-                  action: toggle
-              - type: entity
-                entity: input_button.theme_studio_refresh_theme_presets
+                  action: call-service
+                  service: input_button.press
+                  target:
+                    entity_id: input_button.theme_studio_build_theme
+                styles:
+                  card:
+                    - border-radius: 999px
+                    - padding: 6px 12px
+                    - height: 36px
+                    - background: var(--accent-color)
+                    - color: var(--text-primary-color)
+                  name:
+                    - font-size: 11px
+                  icon:
+                    - width: 18px
+              - type: custom:button-card
                 name: Refresh
-                content_info: name
+                icon: mdi:refresh
                 tap_action:
-                  action: toggle
+                  action: call-service
+                  service: input_button.press
+                  target:
+                    entity_id: input_button.theme_studio_refresh_theme_presets
+                styles:
+                  card:
+                    - border-radius: 999px
+                    - padding: 6px 12px
+                    - height: 36px
+                    - background: var(--ha-card-background)
+                    - border: 1px solid var(--divider-color)
+                  name:
+                    - font-size: 11px
+                  icon:
+                    - width: 18px
       - type: grid
         cards:
           - type: custom:bubble-card
