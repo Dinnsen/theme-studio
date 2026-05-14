@@ -87,8 +87,9 @@ lovelace:
       filename: /config/lovelace/theme_studio_dashboard.yaml
 ```
 
-5. Restart Home Assistant again
-6. In your HA user profile, select **Theme Studio Dynamic** while editing.
+5. Add [Fonts](#-fonts) as **Resources**
+6. Restart Home Assistant again
+7. In your HA user profile, select **Theme Studio Dynamic** while editing.
 
 [![Open your Home Assistant profile](https://my.home-assistant.io/badges/profile.svg)](https://my.home-assistant.io/redirect/profile/)
 
