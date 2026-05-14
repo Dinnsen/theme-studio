@@ -7,8 +7,10 @@
         "data": {
           "packages_path": "Packages path",
           "lovelace_path": "Lovelace YAML path",
-          "workdir_path": "Theme Studio data path",
-          "themes_path": "Themes output path"
+          "theme_studio_path": "Theme Studio data path",
+          "themes_path": "Themes output path",
+          "overwrite": "Overwrite existing managed files",
+          "backup": "Create backups before overwriting"
         }
       }
     },
@@ -17,6 +19,18 @@
     },
     "abort": {
       "single_instance_allowed": "Theme Studio is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Theme Studio options",
+        "description": "Control how Theme Studio reinstalls managed assets.",
+        "data": {
+          "overwrite": "Overwrite existing managed files",
+          "backup": "Create backups before overwriting"
+        }
+      }
     }
   }
 }

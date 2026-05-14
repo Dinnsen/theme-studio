@@ -30,8 +30,6 @@ class ThemeStudioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(DOMAIN)
         self._abort_if_unique_id_configured()
 
-        errors: dict[str, str] = {}
-
         if user_input is not None:
             return self.async_create_entry(
                 title=TITLE,
@@ -45,27 +43,39 @@ class ThemeStudioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 },
             )
 
-        schema = vol.Schema(
-            {
-                vol.Required("packages_path", default=DEFAULT_PACKAGES_PATH): str,
-                vol.Required("lovelace_path", default=DEFAULT_LOVELACE_PATH): str,
-                vol.Required("theme_studio_path", default=DEFAULT_THEME_STUDIO_PATH): str,
-                vol.Required("themes_path", default=DEFAULT_THEMES_PATH): str,
-                vol.Optional("overwrite", default=True): bool,
-                vol.Optional("backup", default=True): bool,
-            }
-        )
-
         return self.async_show_form(
             step_id="user",
-            data_schema=schema,
-            errors=errors,
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "packages_path",
+                        default=DEFAULT_PACKAGES_PATH,
+                    ): str,
+                    vol.Required(
+                        "lovelace_path",
+                        default=DEFAULT_LOVELACE_PATH,
+                    ): str,
+                    vol.Required(
+                        "theme_studio_path",
+                        default=DEFAULT_THEME_STUDIO_PATH,
+                    ): str,
+                    vol.Required(
+                        "themes_path",
+                        default=DEFAULT_THEMES_PATH,
+                    ): str,
+                    vol.Optional("overwrite", default=True): bool,
+                    vol.Optional("backup", default=True): bool,
+                }
+            ),
+            errors={},
             description_placeholders={},
         )
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> config_entries.OptionsFlow:
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> ThemeStudioOptionsFlow:
         """Return the options flow."""
         return ThemeStudioOptionsFlow(config_entry)
 
@@ -75,23 +85,33 @@ class ThemeStudioOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
+        self._config_entry = config_entry
 
     async def async_step_init(
         self,
         user_input: dict[str, Any] | None = None,
     ) -> config_entries.ConfigFlowResult:
         """Manage Theme Studio options."""
+        data = {
+            **dict(self._config_entry.data),
+            **dict(self._config_entry.options),
+        }
+
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        data = {**self.config_entry.data, **self.config_entry.options}
-
-        schema = vol.Schema(
-            {
-                vol.Required("overwrite", default=data.get("overwrite", True)): bool,
-                vol.Required("backup", default=data.get("backup", True)): bool,
-            }
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        "overwrite",
+                        default=data.get("overwrite", True),
+                    ): bool,
+                    vol.Optional(
+                        "backup",
+                        default=data.get("backup", True),
+                    ): bool,
+                }
+            ),
         )
-
-        return self.async_show_form(step_id="init", data_schema=schema)
