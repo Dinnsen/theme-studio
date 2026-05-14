@@ -39,12 +39,9 @@
 
 ## 🖼️ Preview
 
-> Add screenshots/GIFs here (recommended)
-
-```
-/docs/assets/preview-1.png
-/docs/assets/preview-2.gif
-```
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Dinnsen/theme-studio/main/docs/assets/tablet_presets.png">
+</p>
 
 ## Requirements
 
