@@ -40,7 +40,7 @@
 ## 🖼️ Preview
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Dinnsen/theme-studio/main/docs/assets/tablet_presets.png">
+  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/tablet_presets.png">
 </p>
 
 ## Requirements
