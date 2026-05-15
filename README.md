@@ -39,12 +39,9 @@
 
 ## 🖼️ Preview
 
-> Add screenshots/GIFs here (recommended)
-
-```
-/docs/assets/preview-1.png
-/docs/assets/preview-2.gif
-```
+<p align="center">
+  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/preview.png">
+</p>
 
 ## Requirements
 
@@ -151,7 +148,7 @@ https://fonts.googleapis.com/css2?family=Josefin+Sans
 
 
 
-## 🧩 Navbar
+## 🧭 Navbar
 
 ```yaml
 decluttering_templates:
@@ -160,7 +157,27 @@ decluttering_templates:
       type: custom:navbar-card
 ```
 
+## ⚙️ Functions
 
+<p align="center">
+  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/functions.png">
+</p>
+
+## 🧩 Presets
+
+<p align="center">
+  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/tablet_presets.png">
+</p>
+
+<p align="center">
+  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/iphone_presets.png">
+</p>
+
+## 🎨 Color Palettes
+
+<p align="center">
+  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/color_palette.png">
+</p>
 
 ## ❤️ Support
 
