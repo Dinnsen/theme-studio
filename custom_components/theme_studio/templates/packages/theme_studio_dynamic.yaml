@@ -4777,6 +4777,9 @@ automation:
   condition:
   - condition: template
     value_template: '{{ trigger.to_state.state not in [''unknown'',''unavailable'','''',''index'',''None''] }}'
+  - condition: state
+    entity_id: input_boolean.theme_studio_busy
+    state: 'off'
   action:
   - variables:
       current_variant: '{% set v = states(''input_text.theme_studio_loaded_variant'') %} {% if v in [''Light'', ''Dark''] %}{{ v }}{% else %}Dark{% endif %}'
@@ -4849,6 +4852,9 @@ automation:
   condition:
   - condition: template
     value_template: '{{ trigger.to_state.state not in [''unknown'',''unavailable'','''',''None''] }}'
+  - condition: state
+    entity_id: input_boolean.theme_studio_busy
+    state: 'off'
   action:
   - variables:
       current_variant: '{% set v = states(''input_text.theme_studio_loaded_variant'') %} {% if v in [''Light'', ''Dark''] %}{{ v }}{% else %}Dark{% endif %}'
@@ -5073,11 +5079,6 @@ automation:
   - service: input_number.set_value
     target:
       entity_id: input_number.theme_studio_light_shadow_size
-    data:
-      value: '{{ states(''input_number.theme_studio_theme_shadow_size'') }}'
-  - service: input_number.set_value
-    target:
-      entity_id: input_number.theme_studio_dark_shadow_size
     data:
       value: '{{ states(''input_number.theme_studio_theme_shadow_size'') }}'
   - choose:
