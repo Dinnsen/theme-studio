@@ -40,7 +40,7 @@
 ## 🖼️ Preview
 
 <p align="center">
-  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/preview.png">
+  <img src="docs/assets/preview.png" alt="Preview" width="700">
 </p>
 
 ## Requirements
@@ -94,13 +94,16 @@ lovelace:
 ## 🧭 Workflow
 
 1. Open Theme Studio dashboard
-2. Choose a **Built-In Preset** or create a new
-3. Adjust colors, surfaces, FX
-4. Save Light & Dark variants
-5. Build theme
-6. Select in your profile
+2. Choose a **Built-In Preset** as starting point
+3. Type in a **Theme Name** and press **Save as new**
+4. Adjust colors, surfaces, FX
+5. Save Light/Dark **Preset Mode** before switching 
+6. **Build theme**
+7. Select **Theme** in your user profile or use Theme Studio directly
 
-
+<p align="center">
+  <img src="https://github.com/Dinnsen/theme-studio/tree/main/docs/assets/startup.png">
+</p>
 
 ## 📂 File Structure
 
