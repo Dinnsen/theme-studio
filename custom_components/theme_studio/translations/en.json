@@ -5,10 +5,6 @@
         "title": "Theme Studio",
         "description": "Install Theme Studio services and asset bootstrapper.",
         "data": {
-          "packages_path": "Packages path",
-          "lovelace_path": "Lovelace YAML path",
-          "theme_studio_path": "Theme Studio data path",
-          "themes_path": "Themes output path",
           "overwrite": "Overwrite existing managed files",
           "backup": "Create backups before overwriting"
         }
