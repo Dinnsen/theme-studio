@@ -102,7 +102,7 @@ lovelace:
 7. Select **Theme** in your user profile or use Theme Studio directly
 
 <p align="center">
-  <img src="docs/assets/startup.png" alt="Startup" width="500">
+  <img src="docs/assets/startup.png" alt="Startup" width="700">
 </p>
 
 ## 📂 File Structure
@@ -163,23 +163,23 @@ decluttering_templates:
 ## ⚙️ Functions
 
 <p align="center">
-  <img src="docs/assets/functions.png" alt="Functions" width="500">
+  <img src="docs/assets/functions.png" alt="Functions">
 </p>
 
 ## 🧩 Presets
 
 <p align="center">
-  <img src="docs/assets/tablet_presets.png" alt="TabletPresets" width="500">
+  <img src="docs/assets/tablet_presets.png" alt="TabletPresets">
 </p>
 
 <p align="center">
-  <img src="docs/assets/iphone_presets.png" alt="iPhonePresets" width="500">
+  <img src="docs/assets/iphone_presets.png" alt="iPhonePresets">
 </p>
 
 ## 🎨 Color Palettes
 
 <p align="center">
-  <img src="docs/assets/color_palette.png" alt="ColoPalette" width="500">
+  <img src="docs/assets/color_palette.png" alt="ColoPalette">
 </p>
 
 ## ❤️ Support
