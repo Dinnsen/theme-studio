@@ -40,7 +40,7 @@
 ## 🖼️ Preview
 
 <p align="center">
-  <img src="docs/assets/preview.png" alt="Preview" width="700">
+  <img src="docs/assets/preview.png" alt="Preview" width="500">
 </p>
 
 ## Requirements
@@ -102,7 +102,7 @@ lovelace:
 7. Select **Theme** in your user profile or use Theme Studio directly
 
 <p align="center">
-  <img src="https://github.com/Dinnsen/theme-studio/tree/main/docs/assets/startup.png">
+  <img src="docs/assets/startup.png" alt="Startup" width="500">
 </p>
 
 ## 📂 File Structure
@@ -163,23 +163,23 @@ decluttering_templates:
 ## ⚙️ Functions
 
 <p align="center">
-  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/functions.png">
+  <img src="docs/assets/functions.png" alt="Functions" width="500">
 </p>
 
 ## 🧩 Presets
 
 <p align="center">
-  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/tablet_presets.png">
+  <img src="docs/assets/tablet_presets.png" alt="TabletPresets" width="500">
 </p>
 
 <p align="center">
-  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/iphone_presets.png">
+  <img src="docs/assets/iphone_presets.png" alt="iPhonePresets" width="500">
 </p>
 
 ## 🎨 Color Palettes
 
 <p align="center">
-  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/color_palette.png">
+  <img src="docs/assets/color_palette.png" alt="ColoPalette" width="500">
 </p>
 
 ## ❤️ Support
