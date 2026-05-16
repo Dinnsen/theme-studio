@@ -1652,6 +1652,13 @@ def cmd_live(args):
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(''.join(out), encoding='utf-8')
 
+def cmd_live_json(args):
+    payload = json.loads(args.payload)
+    live_args = argparse.Namespace(
+        **{key: payload.get(key, '') for key in LIVE_ARGUMENT_KEYS}
+    )
+    cmd_live(live_args)
+
 def cmd_save_preset(args):
     payload = json.loads(args.payload)
     name = (payload.get('name') or 'My Theme').strip()
@@ -1835,28 +1842,49 @@ def cmd_build_theme(args):
     write_theme_yaml(display_name, {'light': light_vals, 'dark': dark_vals}, output_path)
     print(json.dumps({'ok': True, 'output': output_path, 'theme': display_name, 'file': file_slug}))
 
+LIVE_ARGUMENT_KEYS = [
+    'base', 'contrast', 'hue_shift', 'saturation', 'tone', 'accent_strength',
+    'neutrality', 'surface_lift', 'card_opacity', 'blur_strength', 'radius',
+    'chip_radius', 'use_custom_background_color', 'custom_background_color',
+    'use_background_image', 'background_image_url', 'background_overlay',
+    'background_overlay_strength', 'background_contrast',
+    'enable_header_blend', 'header_blend_height', 'overlay_offset_y',
+    'overlay_scale', 'overlay_spread', 'use_custom_text_color',
+    'custom_text_color', 'use_custom_icon_color', 'custom_icon_color',
+    'use_custom_navbar_icon_color', 'custom_navbar_icon_color',
+    'navbar_bg_override', 'bubble_slider_color_override',
+    'bubble_slider_contrast', 'bubble_slider_hue_shift',
+    'bubble_slider_saturation', 'bubble_slider_opacity', 'accent_contrast',
+    'card_bg_contrast', 'bubble_bg_contrast', 'popup_bg_contrast',
+    'accent_color_override', 'card_bg_override', 'bubble_bg_override',
+    'popup_bg_override', 'secondary_background_color_override',
+    'secondary_text_color_override', 'disabled_text_color_override',
+    'app_header_background_color_override', 'app_header_text_color_override',
+    'divider_color_override', 'sidebar_icon_color_override',
+    'state_icon_color_override', 'state_icon_active_color_override',
+    'primary_font_family', 'use_custom_font', 'custom_font_family',
+    'custom_font_path', 'accent_hue_shift', 'accent_saturation',
+    'card_bg_hue_shift', 'card_bg_saturation', 'bubble_bg_hue_shift',
+    'bubble_bg_saturation', 'popup_bg_hue_shift', 'popup_bg_saturation',
+    'bubble_bg_opacity', 'popup_bg_opacity', 'navbar_bg_opacity',
+    'border_type', 'shadow_type', 'bubble_use_fx', 'popup_use_fx',
+    'border_contrast', 'border_hue_shift', 'border_saturation',
+    'border_opacity', 'border_size', 'shadow_contrast', 'shadow_hue_shift',
+    'shadow_saturation', 'shadow_opacity', 'shadow_size', 'output'
+]
+
 def make_parser():
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest='command', required=True)
 
     p_live = sub.add_parser('live')
-    for k in [
-        'base', 'contrast', 'hue_shift', 'saturation', 'tone', 'accent_strength', 'neutrality', 'surface_lift', 'card_opacity', 'blur_strength', 'radius', 'chip_radius',
-        'use_custom_background_color', 'custom_background_color', 'use_background_image', 'background_image_url',
-        'background_overlay', 'background_overlay_strength', 'background_contrast',
-        'enable_header_blend', 'header_blend_height', 'overlay_offset_y', 'overlay_scale', 'overlay_spread',
-        'use_custom_text_color', 'custom_text_color', 'use_custom_icon_color', 'custom_icon_color', 'use_custom_navbar_icon_color', 'custom_navbar_icon_color', 'navbar_bg_override', 'bubble_slider_color_override', 'bubble_slider_contrast', 'bubble_slider_hue_shift', 'bubble_slider_saturation', 'bubble_slider_opacity',
-        'accent_contrast', 'card_bg_contrast', 'bubble_bg_contrast', 'popup_bg_contrast',
-        'accent_color_override', 'card_bg_override', 'bubble_bg_override', 'popup_bg_override',
-        'secondary_background_color_override', 'secondary_text_color_override', 'disabled_text_color_override',
-        'app_header_background_color_override', 'app_header_text_color_override', 'divider_color_override',
-        'sidebar_icon_color_override', 'state_icon_color_override', 'state_icon_active_color_override', 'primary_font_family', 'use_custom_font', 'custom_font_family','custom_font_path',
-        'accent_hue_shift', 'accent_saturation', 'card_bg_hue_shift', 'card_bg_saturation', 'bubble_bg_hue_shift', 'bubble_bg_saturation', 'popup_bg_hue_shift', 'popup_bg_saturation', 'bubble_bg_opacity', 'popup_bg_opacity', 'navbar_bg_opacity',
-        'border_type', 'shadow_type', 'bubble_use_fx', 'popup_use_fx', 'border_contrast', 'border_hue_shift', 'border_saturation', 'border_opacity', 'border_size', 'shadow_contrast', 'shadow_hue_shift', 'shadow_saturation', 'shadow_opacity', 'shadow_size',
-        'output'
-    ]:
+    for k in LIVE_ARGUMENT_KEYS:
         p_live.add_argument(f'--{k}', required=True)
     p_live.set_defaults(func=cmd_live)
+
+    p_live_json = sub.add_parser('live-json')
+    p_live_json.add_argument('--payload', required=True)
+    p_live_json.set_defaults(func=cmd_live_json)
 
     p_save = sub.add_parser('save-preset')
     p_save.add_argument('--preset-dir', required=True)
