@@ -115,3 +115,14 @@ def test_package_keeps_stable_live_command_and_copy_flow() -> None:
     assert "Save as new blocked" in package
     assert "name: theme_studio_selected_preset" in package
     assert "read-preset --preset-dir /config/theme_studio/presets --name '{{" not in package
+
+
+def test_package_trims_variant_comparisons_before_branching() -> None:
+    package = PACKAGE_PATH.read_text(encoding="utf-8")
+
+    assert "current_variant == ''Light''" not in package
+    assert "original_variant == ''Light''" not in package
+    assert "active_variant == ''Light''" not in package
+    assert "current_variant | trim == ''Light''" in package
+    assert "original_variant | trim == ''Light''" in package
+    assert "active_variant | trim == ''Light''" in package
