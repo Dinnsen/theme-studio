@@ -193,3 +193,10 @@ def test_selected_preset_sensor_handles_missing_value_json() -> None:
     package = PACKAGE_PATH.read_text(encoding="utf-8")
 
     assert "value_json is defined and value_json.name is defined" in package
+
+
+def test_command_line_sensors_use_explicit_refresh_friendly_polling() -> None:
+    package = PACKAGE_PATH.read_text(encoding="utf-8")
+
+    assert package.count("scan_interval: 3600") == 4
+    assert package.count("command_timeout: 10") == 4
