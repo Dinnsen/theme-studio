@@ -1700,6 +1700,11 @@ shell_command:
         "preview_mode": states("input_select.theme_studio_dark_preview_mode")
       }
     } | tojson | replace("'", "'\"'\"'") }}'
+  theme_studio_copy_preset_as_user_theme: >-
+    python3 /config/theme_studio/scripts/theme_studio_cli.py copy-preset
+    --preset-dir /config/theme_studio/presets
+    --source '{{ (states("input_select.theme_studio_theme_presets") if states("input_select.theme_studio_theme_presets") not in ["", "None", "unknown", "unavailable"] else (states("input_select.theme_studio_user_themes") if states("input_select.theme_studio_user_themes") not in ["", "None", "unknown", "unavailable"] else states("input_text.theme_studio_selected_user_theme"))) | replace("'", "'\"'\"'") }}'
+    --name '{{ states("input_text.theme_studio_theme_name") | replace("'", "'\"'\"'") }}'
   theme_studio_delete_preset: python3 /config/theme_studio/scripts/theme_studio_cli.py delete-preset --preset-dir /config/theme_studio/presets --name '{{ (states(''input_select.theme_studio_user_themes'') if states(''input_select.theme_studio_user_themes'') not in [''unknown'',''unavailable'','''',''None''] else (states(''input_select.theme_studio_theme_presets'') if states(''input_select.theme_studio_theme_presets'') not in [''unknown'',''unavailable'','''',''None''] else ''Default'')) | replace("'", "'\"'\"'") }}'
   theme_studio_delete_theme: python3 /config/theme_studio/scripts/theme_studio_cli.py delete-preset --preset-dir /config/theme_studio/presets --name '{{ (states(''input_select.theme_studio_user_themes'') if states(''input_select.theme_studio_user_themes'') not in [''unknown'',''unavailable'','''',''None''] else states(''input_text.theme_studio_selected_user_theme'')) | replace("'", "'\"'\"'") }}'
   theme_studio_build_theme: python3 /config/theme_studio/scripts/theme_studio_cli.py build-theme --preset-dir /config/theme_studio/presets --output-dir /config/themes/theme_studio --name '{{ (states(''input_select.theme_studio_user_themes'') if states(''input_select.theme_studio_user_themes'') not in [''unknown'',''unavailable'','''',''None''] else states(''input_select.theme_studio_theme_presets'')) | replace("'", "'\"'\"'") }}'
@@ -4243,6 +4248,19 @@ automation:
         {% else %}
           {{ v }}
         {% endif %}
+      source_name: >-
+        {% set preset = states('input_select.theme_studio_theme_presets') | trim %}
+        {% set user_theme = states('input_select.theme_studio_user_themes') | trim %}
+        {% set fallback = states('input_text.theme_studio_selected_user_theme') | trim %}
+        {% if preset not in ['', 'None', 'unknown', 'unavailable'] %}
+          {{ preset }}
+        {% elif user_theme not in ['', 'None', 'unknown', 'unavailable'] %}
+          {{ user_theme }}
+        {% elif fallback not in ['', 'None', 'unknown', 'unavailable'] %}
+          {{ fallback }}
+        {% else %}
+          Default
+        {% endif %}
       original_variant: >-
         {% set v = states('input_text.theme_studio_loaded_variant') | trim %}
         {% if v in ['Light', 'Dark'] %}
@@ -4258,143 +4276,30 @@ automation:
     target:
       entity_id: input_text.theme_studio_busy_message
     data:
-      value: 'Save as new: {{ desired_name }}'
+      value: 'Copying {{ source_name }} as {{ desired_name }}'
   - service: input_text.set_value
     target:
       entity_id: input_text.theme_studio_pending_new_theme_name
     data:
       value: '{{ desired_name }}'
-  - service: homeassistant.update_entity
-    target:
-      entity_id: sensor.theme_studio_selected_preset
-  - delay: 00:00:01
-
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ original_variant == ''Light'' }}'
-      sequence:
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.theme_studio_busy_message
-        data:
-          value: 'Saving current Light: {{ desired_name }}'
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.theme_studio_theme_name
-        data:
-          value: '{{ desired_name }}'
-      - service: input_button.press
-        target:
-          entity_id: input_button.theme_studio_theme_save_light_theme
-      - delay: 00:00:01
-
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.theme_studio_busy_message
-        data:
-          value: Loading source Dark
-      - service: input_button.press
-        target:
-          entity_id: input_button.theme_studio_theme_load_dark_theme
-      - delay: 00:00:02
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.theme_studio_loaded_variant
-        data:
-          value: Dark
-
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.theme_studio_busy_message
-        data:
-          value: 'Saving source Dark: {{ desired_name }}'
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.theme_studio_theme_name
-        data:
-          value: '{{ desired_name }}'
-      - service: input_button.press
-        target:
-          entity_id: input_button.theme_studio_theme_save_dark_theme
-      - delay: 00:00:01
-
-    default:
-    - service: input_text.set_value
-      target:
-        entity_id: input_text.theme_studio_busy_message
-      data:
-        value: 'Saving current Dark: {{ desired_name }}'
-    - service: input_text.set_value
-      target:
-        entity_id: input_text.theme_studio_theme_name
-      data:
-        value: '{{ desired_name }}'
-    - service: input_button.press
-      target:
-        entity_id: input_button.theme_studio_theme_save_dark_theme
-    - delay: 00:00:01
-
-    - service: input_text.set_value
-      target:
-        entity_id: input_text.theme_studio_busy_message
-      data:
-        value: Loading source Light
-    - service: input_button.press
-      target:
-        entity_id: input_button.theme_studio_theme_load_light_theme
-    - delay: 00:00:02
-    - service: input_text.set_value
-      target:
-        entity_id: input_text.theme_studio_loaded_variant
-      data:
-        value: Light
-
-    - service: input_text.set_value
-      target:
-        entity_id: input_text.theme_studio_busy_message
-      data:
-        value: 'Saving source Light: {{ desired_name }}'
-    - service: input_text.set_value
-      target:
-        entity_id: input_text.theme_studio_theme_name
-      data:
-        value: '{{ desired_name }}'
-    - service: input_button.press
-      target:
-        entity_id: input_button.theme_studio_theme_save_light_theme
-    - delay: 00:00:01
-
-  - service: input_text.set_value
-    target:
-      entity_id: input_text.theme_studio_busy_message
-    data:
-      value: 'Writing theme file: {{ desired_name }}'
   - service: input_text.set_value
     target:
       entity_id: input_text.theme_studio_theme_name
     data:
       value: '{{ desired_name }}'
-  - service: shell_command.theme_studio_save_preset
+
+  - service: shell_command.theme_studio_copy_preset_as_user_theme
   - delay: 00:00:01
 
-  - service: input_text.set_value
-    target:
-      entity_id: input_text.theme_studio_busy_message
-    data:
-      value: Refreshing themes...
   - service: shell_command.theme_studio_refresh_preset_index
   - delay: 00:00:01
   - service: homeassistant.update_entity
     target:
       entity_id:
       - sensor.theme_studio_user_theme_index
-      - sensor.theme_studio_background_image_index
       - sensor.theme_studio_selected_preset
   - delay: 00:00:01
-  - service: script.turn_on
-    target:
-      entity_id: script.theme_studio_sync_background_image_options
+
   - service: script.turn_on
     target:
       entity_id: script.theme_studio_sync_preset_options
@@ -4418,6 +4323,8 @@ automation:
       entity_id: input_text.theme_studio_selected_user_theme
     data:
       value: '{{ desired_name }}'
+  - delay: 00:00:01
+
   - service: homeassistant.update_entity
     target:
       entity_id: sensor.theme_studio_selected_preset
@@ -4432,7 +4339,7 @@ automation:
         target:
           entity_id: input_text.theme_studio_busy_message
         data:
-          value: 'Loading new theme Light: {{ desired_name }}'
+          value: 'Loading copied Light: {{ desired_name }}'
       - service: input_button.press
         target:
           entity_id: input_button.theme_studio_theme_load_light_theme
@@ -4442,13 +4349,12 @@ automation:
           entity_id: input_text.theme_studio_loaded_variant
         data:
           value: Light
-
     default:
     - service: input_text.set_value
       target:
         entity_id: input_text.theme_studio_busy_message
       data:
-        value: 'Loading new theme Dark: {{ desired_name }}'
+        value: 'Loading copied Dark: {{ desired_name }}'
     - service: input_button.press
       target:
         entity_id: input_button.theme_studio_theme_load_dark_theme
@@ -4473,6 +4379,7 @@ automation:
     target:
       entity_id: input_boolean.theme_studio_busy
   mode: restart
+
 - id: theme_studio_delete_theme
   alias: Theme Studio - delete theme
   trigger:
