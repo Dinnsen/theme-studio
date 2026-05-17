@@ -1618,7 +1618,6 @@ THEME_STUDIO_DYNAMIC_ONLY_KEYS = {
 
 
 def strip_dynamic_only_theme_keys(values: dict) -> dict:
-    """Remove dynamic/live-only keys from generated user theme files."""
     if not isinstance(values, dict):
         return {}
 
@@ -1634,7 +1633,6 @@ def write_theme_yaml(theme_name: str, modes: dict, output_path: str):
 
     for mode_name, vals in modes.items():
         clean_vals = strip_dynamic_only_theme_keys(vals)
-
         out.append(f"    {mode_name}:\n")
         for k, v in clean_vals.items():
             out.append(emit_value(k, v, indent=6))
@@ -1700,6 +1698,61 @@ def cmd_copy_preset(args):
     user_dir.mkdir(parents=True, exist_ok=True)
 
     output = user_dir / f'{new_slug}.json'
+    output.write_text(json.dumps(copied, indent=2, ensure_ascii=False), encoding='utf-8')
+
+    print(json.dumps({
+        'ok': True,
+        'source': source_name,
+        'name': new_name,
+        'slug': new_slug,
+        'output': str(output),
+    }, ensure_ascii=False))
+
+def cmd_copy_preset(args):
+    source_name = (args.source or '').strip()
+    new_name = (args.name or '').strip()
+
+    if not source_name:
+        print(json.dumps({'ok': False, 'reason': 'missing_source'}))
+        return
+
+    if not new_name:
+        print(json.dumps({'ok': False, 'reason': 'missing_name'}))
+        return
+
+    new_slug = slugify(new_name)
+
+    if new_slug in RESERVED_PRESETS:
+        print(json.dumps({'ok': False, 'reason': 'reserved'}))
+        return
+
+    source = resolve_preset(args.preset_dir, source_name)
+    if not source or not source.exists():
+        print(json.dumps({'ok': False, 'reason': 'source_not_found', 'source': source_name}))
+        return
+
+    try:
+        data = json.loads(source.read_text(encoding='utf-8'))
+    except Exception as err:
+        print(json.dumps({'ok': False, 'reason': 'invalid_source_json', 'error': str(err)}))
+        return
+
+    user_dir = Path(USER_THEME_DIR)
+    user_dir.mkdir(parents=True, exist_ok=True)
+
+    output = user_dir / f'{new_slug}.json'
+    if output.exists():
+        print(json.dumps({'ok': False, 'reason': 'target_exists', 'name': new_name, 'slug': new_slug}))
+        return
+
+    copied = {
+        'name': new_name,
+        'slug': new_slug,
+        'theme': data.get('theme', {}),
+        'light': data.get('light', data.get('theme', {})),
+        'dark': data.get('dark', data.get('light', data.get('theme', {}))),
+    }
+
     output.write_text(json.dumps(copied, indent=2, ensure_ascii=False), encoding='utf-8')
 
     print(json.dumps({
