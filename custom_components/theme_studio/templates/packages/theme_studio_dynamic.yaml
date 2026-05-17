@@ -5153,7 +5153,7 @@ command_line:
       python3 /config/theme_studio/scripts/theme_studio_cli.py read-preset
       --preset-dir /config/theme_studio/presets
       --name "{{ (states('input_select.theme_studio_user_themes') if states('input_select.theme_studio_user_themes') not in ['unknown','unavailable','','None'] else (states('input_select.theme_studio_theme_presets') if states('input_select.theme_studio_theme_presets') not in ['unknown','unavailable','','None'] else 'Default')) }}"
-    value_template: '{{ value_json.name if value_json.name is defined else "none" }}'
+    value_template: '{{ value_json.name if value_json is defined and value_json.name is defined else "none" }}'
     json_attributes:
     - name
     - slug
