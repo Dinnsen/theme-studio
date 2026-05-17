@@ -1905,6 +1905,11 @@ def make_parser():
     p_live_json.add_argument('--payload', required=True)
     p_live_json.set_defaults(func=cmd_live_json)
 
+    p_save = sub.add_parser('save-preset')
+    p_save.add_argument('--preset-dir', required=True)
+    p_save.add_argument('--payload', required=True)
+    p_save.set_defaults(func=cmd_save_preset)
+
     p_copy = sub.add_parser('copy-preset')
     p_copy.add_argument('--preset-dir', required=True)
     p_copy.add_argument('--source', required=True)
