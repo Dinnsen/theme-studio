@@ -4543,22 +4543,6 @@ automation:
     target:
       entity_id: sensor.theme_studio_selected_preset
   - delay: 00:00:01
-  - service: input_button.press
-    target:
-      entity_id: input_button.theme_studio_theme_load_light_theme
-  - delay: 00:00:01
-  - service: input_button.press
-    target:
-      entity_id: input_button.theme_studio_theme_save_light_theme
-  - delay: 00:00:01
-  - service: input_button.press
-    target:
-      entity_id: input_button.theme_studio_theme_load_dark_theme
-  - delay: 00:00:01
-  - service: input_button.press
-    target:
-      entity_id: input_button.theme_studio_theme_save_dark_theme
-  - delay: 00:00:01
   - choose:
     - conditions:
       - condition: template
@@ -4636,22 +4620,6 @@ automation:
   - service: homeassistant.update_entity
     target:
       entity_id: sensor.theme_studio_selected_preset
-  - delay: 00:00:01
-  - service: input_button.press
-    target:
-      entity_id: input_button.theme_studio_theme_load_light_theme
-  - delay: 00:00:01
-  - service: input_button.press
-    target:
-      entity_id: input_button.theme_studio_theme_save_light_theme
-  - delay: 00:00:01
-  - service: input_button.press
-    target:
-      entity_id: input_button.theme_studio_theme_load_dark_theme
-  - delay: 00:00:01
-  - service: input_button.press
-    target:
-      entity_id: input_button.theme_studio_theme_save_dark_theme
   - delay: 00:00:01
   - choose:
     - conditions:

@@ -171,3 +171,19 @@ def test_package_trims_variant_comparisons_before_branching() -> None:
     assert "current_variant | trim == ''Light''" in package
     assert "original_variant | trim == ''Light''" in package
     assert "active_variant | trim == ''Light''" in package
+
+
+def test_autoload_flows_do_not_save_inactive_variant_helpers() -> None:
+    package = PACKAGE_PATH.read_text(encoding="utf-8")
+    preset_autoload = package.split("- id: theme_studio_autoload_dark_on_select", 1)[1].split(
+        "- id: theme_studio_autoload_user_theme_on_select", 1
+    )[0]
+    user_autoload = package.split("- id: theme_studio_autoload_user_theme_on_select", 1)[1].split(
+        "- id: theme_studio_apply_default_when_none_selected", 1
+    )[0]
+
+    for section in (preset_autoload, user_autoload):
+        assert "input_button.theme_studio_theme_load_light_theme" in section
+        assert "input_button.theme_studio_theme_load_dark_theme" in section
+        assert "input_button.theme_studio_theme_save_light_theme" not in section
+        assert "input_button.theme_studio_theme_save_dark_theme" not in section
