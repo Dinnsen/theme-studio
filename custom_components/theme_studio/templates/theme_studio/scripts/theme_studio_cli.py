@@ -1387,7 +1387,7 @@ hui-card {
         'alarm-color-disarmed': alarm_disarmed,
         'alarm-color-night': alarm_night,
         'card-mod-theme': THEME_NAME,
-	'theme-studio-signature': THEME_NAME.lower().replace(' ', '-'),
+        'theme-studio-signature': 'theme-studio-dynamic',
         'card-mod-root-yaml': card_mod_root,
         'card-mod-more-info-yaml': "$: |\n  .mdc-dialog .mdc-dialog__scrim,\n  ha-dialog .mdc-dialog__scrim,\n  md-dialog::part(scrim) {\n    backdrop-filter: blur(15px);\n    -webkit-backdrop-filter: blur(15px);\n    background: rgba(0,0,0,.6);\n  }\n  .mdc-dialog .mdc-dialog__container .mdc-dialog__surface,\n  ha-dialog .mdc-dialog__surface,\n  md-dialog {\n    box-shadow: none !important;\n    border-radius: var(--ha-card-border-radius);\n    background: var(--ha-card-background) !important;\n    color: var(--primary-text-color) !important;\n    --mdc-theme-surface: var(--ha-card-background);\n    --mdc-theme-on-surface: var(--primary-text-color);\n    --mdc-dialog-content-ink-color: var(--primary-text-color);\n    --mdc-dialog-heading-ink-color: var(--primary-text-color);\n    --mdc-text-button-label-text-color: var(--accent-color);\n    --md-sys-color-surface: var(--ha-card-background);\n    --md-sys-color-on-surface: var(--primary-text-color);\n    --md-sys-color-primary: var(--accent-color);\n  }\n  .mdc-dialog__title,\n  .mdc-dialog__content,\n  .mdc-dialog__button,\n  .mdc-button,\n  .mdc-button__label,\n  ha-dialog *,\n  md-dialog * {\n    color: var(--primary-text-color) !important;\n  }\n.: |\n  :host {\n    --ha-card-box-shadow: none;\n  }\n",
         'card-mod-view-yaml': "hui-sidebar-view:\n  $: |\n    @media only screen and (min-width: 768px) {\n        .container {\n          max-width: 520px;\n          margin: auto !important;\n          width: -webkit-fill-available;\n        }\n    }\n    #wrapper: |\n      $: |\n        #progressContainer {\n            border-radius: 14px !important;\n    }\n  .: |\n    \"#view>hui-view>hui-sidebar-view$#main>hui-card-options:nth-child(7)>vertical-stack-in-card$ha-card>div>hui-horizontal-stack-card$#root>hui-grid-card$#root>hui-entities-card$#states>div:nth-child(4)>slider-entity-row$div>ha-slider$#sliderBar$#progressContainer\" {\n        border-radius: 14px !important;\n    }\n",
@@ -1606,11 +1606,34 @@ def namespace_from_settings(settings: dict, output_path: str):
     }
     return argparse.Namespace(**mapped)
 
+THEME_STUDIO_DYNAMIC_ONLY_KEYS = {
+    'card-mod-theme',
+    'card-mod-root-yaml',
+    'card-mod-more-info-yaml',
+    'card-mod-view-yaml',
+    'card-mod-card',
+    '--theme-studio-signature',
+    'theme-studio-signature',
+}
+
+
+def strip_dynamic_only_theme_keys(values: dict) -> dict:
+    if not isinstance(values, dict):
+        return {}
+
+    return {
+        key: value
+        for key, value in values.items()
+        if key not in THEME_STUDIO_DYNAMIC_ONLY_KEYS
+    }
+
+
 def write_theme_yaml(theme_name: str, modes: dict, output_path: str):
     out = [f"{theme_name}:\n", "  modes:\n"]
     for mode_name, vals in modes.items():
+        clean_vals = strip_dynamic_only_theme_keys(vals)
         out.append(f"    {mode_name}:\n")
-        for k, v in vals.items():
+        for k, v in clean_vals.items():
             out.append(emit_value(k, v, indent=6))
     p = Path(output_path)
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -1656,6 +1679,61 @@ def cmd_save_preset(args):
     p = user_dir / f"{slug}.json"
     p.write_text(json.dumps(preset, indent=2, ensure_ascii=False), encoding='utf-8')
     print(json.dumps({'ok': True, 'name': name, 'slug': slug, 'folder': str(user_dir)}))
+
+def cmd_copy_preset(args):
+    source_name = (args.source or '').strip()
+    new_name = (args.name or '').strip()
+
+    if not source_name:
+        print(json.dumps({'ok': False, 'reason': 'missing_source'}))
+        return
+
+    if not new_name:
+        print(json.dumps({'ok': False, 'reason': 'missing_name'}))
+        return
+
+    new_slug = slugify(new_name)
+
+    if new_slug in RESERVED_PRESETS:
+        print(json.dumps({'ok': False, 'reason': 'reserved'}))
+        return
+
+    source = resolve_preset(args.preset_dir, source_name)
+    if not source or not source.exists():
+        print(json.dumps({'ok': False, 'reason': 'source_not_found', 'source': source_name}))
+        return
+
+    try:
+        data = json.loads(source.read_text(encoding='utf-8'))
+    except Exception as err:
+        print(json.dumps({'ok': False, 'reason': 'invalid_source_json', 'error': str(err)}))
+        return
+
+    user_dir = Path(USER_THEME_DIR)
+    user_dir.mkdir(parents=True, exist_ok=True)
+
+    output = user_dir / f'{new_slug}.json'
+    if output.exists():
+        print(json.dumps({'ok': False, 'reason': 'target_exists', 'name': new_name, 'slug': new_slug}))
+        return
+
+    copied = {
+        'name': new_name,
+        'slug': new_slug,
+        'theme': data.get('theme', {}),
+        'light': data.get('light', data.get('theme', {})),
+        'dark': data.get('dark', data.get('light', data.get('theme', {}))),
+    }
+
+    output.write_text(json.dumps(copied, indent=2, ensure_ascii=False), encoding='utf-8')
+
+    print(json.dumps({
+        'ok': True,
+        'source': source_name,
+        'name': new_name,
+        'slug': new_slug,
+        'output': str(output),
+    }, ensure_ascii=False))
 
 def resolve_preset(preset_dir: str, name: str):
     wanted = (name or '').strip()
@@ -1835,6 +1913,12 @@ def make_parser():
     p_save.add_argument('--preset-dir', required=True)
     p_save.add_argument('--payload', required=True)
     p_save.set_defaults(func=cmd_save_preset)
+
+    p_copy = sub.add_parser('copy-preset')
+    p_copy.add_argument('--preset-dir', required=True)
+    p_copy.add_argument('--source', required=True)
+    p_copy.add_argument('--name', required=True)
+    p_copy.set_defaults(func=cmd_copy_preset)
 
     p_del = sub.add_parser('delete-preset')
     p_del.add_argument('--preset-dir', required=True)
