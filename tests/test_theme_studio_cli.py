@@ -187,3 +187,9 @@ def test_autoload_flows_do_not_save_inactive_variant_helpers() -> None:
         assert "input_button.theme_studio_theme_load_dark_theme" in section
         assert "input_button.theme_studio_theme_save_light_theme" not in section
         assert "input_button.theme_studio_theme_save_dark_theme" not in section
+
+
+def test_selected_preset_sensor_handles_missing_value_json() -> None:
+    package = PACKAGE_PATH.read_text(encoding="utf-8")
+
+    assert "value_json is defined and value_json.name is defined" in package
