@@ -5130,12 +5130,16 @@ automation:
 command_line:
 - sensor:
     name: theme_studio_background_image_index
+    scan_interval: 3600
+    command_timeout: 10
     command: 'python3 -c "import json, pathlib; root=pathlib.Path(''/config/www/background''); exts={''.png'',''.jpg'',''.jpeg'',''.webp'',''.gif'',''.svg''}; files=sorted([p.name for p in root.iterdir() if p.is_file() and p.suffix.lower() in exts]) if root.exists() else []; print(json.dumps({''count'': len(files), ''options'': files}))"'
     value_template: '{{ value_json.count if value_json.count is defined else 0 }}'
     json_attributes:
     - options
 - sensor:
     name: theme_studio_preset_index
+    scan_interval: 3600
+    command_timeout: 10
     command: printf '%s' '{"count":11,"options":["Default","Glass","MD3","Dark Blue","Flavors","Vision","Dark Green","Purple","Pink Mono","Black White","Aurora"],"builtin_options":["Default","Glass","MD3","Dark Blue","Flavors","Vision","Dark Green","Purple","Pink Mono","Black White","Aurora"]}'
     value_template: '{{ value_json.count if value_json.count is defined else 11 }}'
     json_attributes:
@@ -5143,12 +5147,16 @@ command_line:
     - builtin_options
 - sensor:
     name: theme_studio_user_theme_index
+    scan_interval: 3600
+    command_timeout: 10
     command: 'python3 -c "import json, pathlib; p = pathlib.Path(''/config/theme_studio/user_themes/index.json''); print(p.read_text(encoding=''utf-8'') if p.exists() else json.dumps({''count'': 0, ''options'': []}))"'
     value_template: '{{ value_json.count if value_json.count is defined else 0 }}'
     json_attributes:
     - options
 - sensor:
     name: theme_studio_selected_preset
+    scan_interval: 3600
+    command_timeout: 10
     command: >-
       python3 /config/theme_studio/scripts/theme_studio_cli.py read-preset
       --preset-dir /config/theme_studio/presets
