@@ -1661,6 +1661,7 @@ def cmd_save_preset(args):
     payload = json.loads(args.payload)
     name = (payload.get('name') or 'My Theme').strip()
     slug = slugify(name)
+    active_variant = (payload.get('active_variant') or '').strip().lower()
 
     if slug in RESERVED_PRESETS:
         print(json.dumps({'ok': False, 'reason': 'reserved'}))
@@ -1677,12 +1678,20 @@ def cmd_save_preset(args):
         except Exception:
             current = {}
 
+    light = payload.get('light', current.get('light', {}))
+    dark = payload.get('dark', current.get('dark', {}))
+
+    if active_variant == 'light':
+        dark = current.get('dark', dark)
+    elif active_variant == 'dark':
+        light = current.get('light', light)
+
     preset = {
         'name': name,
         'slug': slug,
         'theme': payload.get('theme', current.get('theme', {})),
-        'light': payload.get('light', current.get('light', {})),
-        'dark': payload.get('dark', current.get('dark', {})),
+        'light': light,
+        'dark': dark,
     }
 
     p = user_dir / f"{slug}.json"

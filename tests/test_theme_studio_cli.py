@@ -104,6 +104,50 @@ def test_copy_preset_does_not_overwrite_existing_user_theme(tmp_path, monkeypatc
     assert copied == {"name": "Existing"}
 
 
+def test_save_preset_updates_only_active_variant(tmp_path, monkeypatch, capsys) -> None:
+    cli = load_cli_module()
+    preset_dir = tmp_path / "presets"
+    user_dir = tmp_path / "user_themes"
+    preset_dir.mkdir()
+    user_dir.mkdir()
+
+    existing = user_dir / "my_theme.json"
+    existing.write_text(
+        json.dumps(
+            {
+                "name": "My Theme",
+                "slug": "my_theme",
+                "light": {"base_color": "#ffffff"},
+                "dark": {"base_color": "#000000"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(cli, "USER_THEME_DIR", str(user_dir))
+
+    cli.cmd_save_preset(
+        argparse.Namespace(
+            preset_dir=str(preset_dir),
+            payload=json.dumps(
+                {
+                    "name": "My Theme",
+                    "active_variant": "Light",
+                    "light": {"base_color": "#eeeeee"},
+                    "dark": {"base_color": "#badbad"},
+                }
+            ),
+        )
+    )
+
+    result = json.loads(capsys.readouterr().out)
+    saved = json.loads(existing.read_text(encoding="utf-8"))
+
+    assert result["ok"] is True
+    assert saved["light"]["base_color"] == "#eeeeee"
+    assert saved["dark"]["base_color"] == "#000000"
+
+
 def test_package_keeps_stable_live_command_and_copy_flow() -> None:
     package = PACKAGE_PATH.read_text(encoding="utf-8")
 
@@ -111,6 +155,7 @@ def test_package_keeps_stable_live_command_and_copy_flow() -> None:
     assert "theme_studio_cli.py live --base" in package
     assert "theme_studio_copy_preset_as_user_theme" in package
     assert "shell_command.theme_studio_copy_preset_as_user_theme" in package
+    assert '\\"active_variant\\": states(\\"input_text.theme_studio_loaded_variant\\")' in package
     assert "Save as new handles loading the newly created user theme" in package
     assert "Save as new blocked" in package
     assert "name: theme_studio_selected_preset" in package
