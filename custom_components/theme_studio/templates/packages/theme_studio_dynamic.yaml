@@ -1774,7 +1774,7 @@ script:
     - choose:
       - conditions:
         - condition: template
-          value_template: '{{ current_variant == ''Light'' }}'
+          value_template: '{{ current_variant | trim == ''Light'' }}'
         sequence:
         - service: input_text.set_value
           target:
@@ -4084,7 +4084,7 @@ automation:
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ original_variant == ''Light'' }}'
+        value_template: '{{ original_variant | trim == ''Light'' }}'
       sequence:
       - service: input_text.set_value
         target:
@@ -4260,7 +4260,7 @@ automation:
     target:
       entity_id: input_text.theme_studio_busy_message
     data:
-      value: 'Saving {{ active_variant }}: {{ selected_user_theme }}'
+      value: 'Saving {{ active_variant | trim }}: {{ selected_user_theme }}'
   - service: input_select.select_option
     target:
       entity_id: input_select.theme_studio_theme_presets
@@ -4284,7 +4284,7 @@ automation:
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ active_variant == ''Light'' }}'
+        value_template: '{{ active_variant | trim == ''Light'' }}'
       sequence:
       - service: input_button.press
         target:
@@ -4347,7 +4347,7 @@ automation:
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ active_variant == ''Light'' }}'
+        value_template: '{{ active_variant | trim == ''Light'' }}'
       sequence:
       - service: input_button.press
         target:
@@ -4562,7 +4562,7 @@ automation:
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ current_variant == ''Light'' }}'
+        value_template: '{{ current_variant | trim == ''Light'' }}'
       sequence:
       - service: input_button.press
         target:
@@ -4656,7 +4656,7 @@ automation:
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ current_variant == ''Light'' }}'
+        value_template: '{{ current_variant | trim == ''Light'' }}'
       sequence:
       - service: input_button.press
         target:
