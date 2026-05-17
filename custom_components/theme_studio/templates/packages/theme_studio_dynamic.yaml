@@ -4777,8 +4777,6 @@ automation:
   condition:
   - condition: template
     value_template: '{{ trigger.to_state.state not in [''unknown'',''unavailable'','''',''index'',''None''] }}'
-  - condition: template
-    value_template: '{{ states(''input_text.theme_studio_pending_new_theme_name'') | trim == '''' }}'
   action:
   - variables:
       current_variant: '{% set v = states(''input_text.theme_studio_loaded_variant'') %} {% if v in [''Light'', ''Dark''] %}{{ v }}{% else %}Dark{% endif %}'
@@ -4851,9 +4849,29 @@ automation:
   condition:
   - condition: template
     value_template: '{{ trigger.to_state.state not in [''unknown'',''unavailable'','''',''None''] }}'
-  - condition: template
-    value_template: '{{ states(''input_text.theme_studio_pending_new_theme_name'') | trim == '''' }}'
   action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: >-
+          {{
+            is_state('input_boolean.theme_studio_busy', 'on')
+            and states('input_text.theme_studio_pending_new_theme_name') | trim == trigger.to_state.state
+          }}
+      sequence:
+      - stop: Save as new handles loading the newly created user theme
+    - conditions:
+      - condition: template
+        value_template: >-
+          {{
+            states('input_text.theme_studio_pending_new_theme_name') | trim == trigger.to_state.state
+          }}
+      sequence:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.theme_studio_pending_new_theme_name
+        data:
+          value: ''
   - variables:
       current_variant: '{% set v = states(''input_text.theme_studio_loaded_variant'') %} {% if v in [''Light'', ''Dark''] %}{{ v }}{% else %}Dark{% endif %}'
   - service: input_boolean.turn_on
