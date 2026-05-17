@@ -5179,6 +5179,11 @@ automation:
       entity_id: input_number.theme_studio_dark_shadow_opacity
     data:
       value: '{{ states(''input_number.theme_studio_theme_shadow_opacity'') }}'
+  - service: input_number.set_value
+    target:
+      entity_id: input_number.theme_studio_dark_shadow_size
+    data:
+      value: '{{ states(''input_number.theme_studio_theme_shadow_size'') }}'
   - choose:
     - conditions: '{{ is_state(''input_boolean.theme_studio_theme_bubble_use_fx'', ''on'') }}'
       sequence:
