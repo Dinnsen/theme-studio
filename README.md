@@ -18,29 +18,29 @@
 
 ---
 
-## ✨ Features
+## Features
 
-- 🎨 Generate full themes from a **single base color**
-- ⚡ Live preview while editing
-- 🌗 Separate **Light / Dark** workflows
-- 🧩 Built-in presets + custom user themes
-- 🖼️ Background images & overlays
-- 🧠 Smart color system 
-- 📦 Full YAML theme export
+- Generate full themes from a **single base color**
+- Live preview while editing
+- Separate **Light / Dark** workflows
+- Built-in presets + custom user themes
+- Background images & overlays
+- Smart color system
+- Full YAML theme export
 
-## Table of content
+## Table of Content
 
 - [Requirements](#requirements)
-- [Installation](#-installation)
-- [Workflow](#-workflow)
-- [File Structure](#-file-structure)
-- [Fonts](#-fonts)
-- [Navbar](#-navbar)
+- [Installation](#installation)
+- [Workflow](#workflow)
+- [File Structure](#file-structure)
+- [Fonts](#fonts)
+- [Navbar](#navbar)
 
-## 🖼️ Preview
+## Preview
 
 <p align="center">
-  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/preview.png">
+  <img src="docs/assets/preview.png" alt="Preview" width="500">
 </p>
 
 ## Requirements
@@ -54,18 +54,16 @@ Install these custom cards first:
 - [navbar-card](https://github.com/joseluis9595/lovelace-navbar-card)
 - [decluttering-card](https://github.com/custom-cards/decluttering-card)
 
-## 🚀 Installation
+## Installation
 
 [![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Dinnsen&repository=theme-studio&category=integration)
 
 ### Step-by-step
 
-1. Install via **HACS (Integration)**
-2. Restart Home Assistant
-3. Add **Theme Studio** (Settings → Devices & Services)
-
-     👉 Assets install automatically
-5. Update `configuration.yaml`
+1. Install via **HACS (Integration)**.
+2. Restart Home Assistant.
+3. Add **Theme Studio** from Settings -> Devices & Services. Assets install automatically into the standard `/config` folders.
+4. Update `configuration.yaml`.
 
 ```yaml
 homeassistant:
@@ -84,29 +82,31 @@ lovelace:
       filename: /config/lovelace/theme_studio_dashboard.yaml
 ```
 
-5. Add [Fonts](#-fonts) as **Resources**
-6. Restart Home Assistant again
-7. In your HA user profile, select **Theme Studio Dynamic** while editing.
+5. Add [Fonts](#fonts) as **Resources**.
+6. Restart Home Assistant again.
+7. In your Home Assistant user profile, select **Theme Studio Dynamic** while editing.
 
 [![Open your Home Assistant profile](https://my.home-assistant.io/badges/profile.svg)](https://my.home-assistant.io/redirect/profile/)
 
+## Workflow
 
-## 🧭 Workflow
+1. Open Theme Studio dashboard.
+2. Choose a **Built-In Preset** as starting point.
+3. Type in a **Theme Name** and press **Save as new**.
+4. Adjust colors, surfaces, and FX.
+5. Save Light/Dark **Preset Mode** before switching.
+6. **Build theme**.
+7. Select **Theme** in your user profile or use Theme Studio directly.
 
-1. Open Theme Studio dashboard
-2. Choose a **Built-In Preset** or create a new
-3. Adjust colors, surfaces, FX
-4. Save Light & Dark variants
-5. Build theme
-6. Select in your profile
+<p align="center">
+  <img src="docs/assets/startup.png" alt="Startup" width="700">
+</p>
 
+## File Structure
 
+Theme Studio automatically installs the following folders:
 
-## 📂 File Structure
-
-Theme Studio automatically installes the following folders:
-
-```
+```text
 /config/theme_studio/
   presets/
   user_themes/
@@ -115,40 +115,24 @@ Theme Studio automatically installes the following folders:
 /config/themes/theme_studio/
 /config/packages/
 /config/lovelace/
+/config/www/background/
 ```
 
-
-
-## 🔤 Fonts
+## Fonts
 
 [![Open Home Assistant resources](https://my.home-assistant.io/badges/lovelace_resources.svg)](https://my.home-assistant.io/redirect/lovelace_resources/)
 
-Add these in
-Dashboard → ⋮ → Resources → Add resource → Type: Stylesheet
+Add these in Dashboard -> menu -> Resources -> Add resource -> Type: Stylesheet.
 
-```yaml
+```text
 https://fonts.googleapis.com/css2?family=Inter
-```
-
-```yaml
 https://fonts.googleapis.com/css2?family=Orbitron
-```
-
-```yaml
 https://fonts.googleapis.com/css2?family=Quicksand
-```
-
-```yaml
 https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono
-```
-
-```yaml
 https://fonts.googleapis.com/css2?family=Josefin+Sans
 ```
 
-
-
-## 🧭 Navbar
+## Navbar
 
 ```yaml
 decluttering_templates:
@@ -157,43 +141,40 @@ decluttering_templates:
       type: custom:navbar-card
 ```
 
-## ⚙️ Functions
+## Functions
 
 <p align="center">
-  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/functions.png">
+  <img src="docs/assets/functions.png" alt="Functions">
 </p>
 
-## 🧩 Presets
+## Presets
 
 <p align="center">
-  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/tablet_presets.png">
+  <img src="docs/assets/tablet_presets.png" alt="TabletPresets">
 </p>
 
 <p align="center">
-  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/iphone_presets.png">
+  <img src="docs/assets/iphone_presets.png" alt="iPhonePresets">
 </p>
 
-## 🎨 Color Palettes
+## Color Palettes
 
 <p align="center">
-  <img src="https://github.com/Dinnsen/theme-studio/blob/v0.1.7/docs/assets/color_palette.png">
+  <img src="docs/assets/color_palette.png" alt="ColorPalette">
 </p>
 
-## ❤️ Support
+## Support
 
 If you like this project:
 
-👉 https://buymeacoffee.com/dinnsen
+https://buymeacoffee.com/dinnsen
 
+## SEO Keywords
 
-
-## 📈 SEO Keywords
-
-home assistant theme  
-home assistant themes  
-material you home assistant  
-home assistant dashboard theme  
-lovelace theme generator  
+home assistant theme
+home assistant themes
+material you home assistant
+home assistant dashboard theme
+lovelace theme generator
 
 ---
-

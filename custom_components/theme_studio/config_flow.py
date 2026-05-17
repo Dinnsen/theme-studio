@@ -11,11 +11,6 @@ from homeassistant.core import callback
 
 from .const import DOMAIN, TITLE
 
-DEFAULT_PACKAGES_PATH = "/config/packages"
-DEFAULT_LOVELACE_PATH = "/config/lovelace"
-DEFAULT_THEME_STUDIO_PATH = "/config/theme_studio"
-DEFAULT_THEMES_PATH = "/config/themes/theme_studio"
-
 
 class ThemeStudioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Theme Studio."""
@@ -34,10 +29,6 @@ class ThemeStudioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_create_entry(
                 title=TITLE,
                 data={
-                    "packages_path": user_input["packages_path"].strip(),
-                    "lovelace_path": user_input["lovelace_path"].strip(),
-                    "theme_studio_path": user_input["theme_studio_path"].strip(),
-                    "themes_path": user_input["themes_path"].strip(),
                     "overwrite": user_input.get("overwrite", True),
                     "backup": user_input.get("backup", True),
                 },
@@ -47,22 +38,6 @@ class ThemeStudioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(
-                        "packages_path",
-                        default=DEFAULT_PACKAGES_PATH,
-                    ): str,
-                    vol.Required(
-                        "lovelace_path",
-                        default=DEFAULT_LOVELACE_PATH,
-                    ): str,
-                    vol.Required(
-                        "theme_studio_path",
-                        default=DEFAULT_THEME_STUDIO_PATH,
-                    ): str,
-                    vol.Required(
-                        "themes_path",
-                        default=DEFAULT_THEMES_PATH,
-                    ): str,
                     vol.Optional("overwrite", default=True): bool,
                     vol.Optional("backup", default=True): bool,
                 }

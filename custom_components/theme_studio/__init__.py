@@ -61,10 +61,16 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Theme Studio from a config entry and install assets automatically."""
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = dict(entry.data)
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
-    overwrite = bool(entry.data.get("overwrite", True))
-    backup = bool(entry.data.get("backup", True))
+    data = {
+        **dict(entry.data),
+        **dict(entry.options),
+    }
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = data
+
+    overwrite = bool(data.get("overwrite", True))
+    backup = bool(data.get("backup", True))
 
     try:
         result = await async_initialize_assets(hass, overwrite=overwrite, backup=backup)
@@ -80,6 +86,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         return False
 
     return True
+
+
+async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload Theme Studio when config entry options change."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

@@ -9,7 +9,7 @@ input_text:
     max: 9
   theme_studio_theme_background_image_url:
     name: theme_studio theme - background image url
-    initial: /local/background/HomeAssistantBG_White.png
+    initial: /local/background/CloudWhite.png
     max: 255
   theme_studio_theme_custom_text_color:
     name: theme_studio theme - custom text color
@@ -1450,7 +1450,7 @@ shell_command:
 template:
 - sensor:
   - name: theme_studio theme summary
-    state: '{{ states(''input_text.theme_studio_theme_base_color'') }} · overlay {{ states(''input_select.theme_studio_theme_background_overlay'') }} · o{{ states(''input_number.theme_studio_theme_overlay_contrast'') }} · bg{{ states(''input_number.theme_studio_theme_background_contrast'') }}'
+    state: '{{ states(''input_text.theme_studio_theme_base_color'') }} - overlay {{ states(''input_select.theme_studio_theme_background_overlay'') }} - o{{ states(''input_number.theme_studio_theme_overlay_contrast'') }} - bg{{ states(''input_number.theme_studio_theme_background_contrast'') }}'
     attributes:
       background: '{{ states(''input_text.theme_studio_theme_custom_background_color'') if is_state(''input_boolean.theme_studio_theme_use_custom_background_color'',''on'') else ''auto'' }}'
       image: '{{ states(''input_select.theme_studio_theme_background_image_select'') if is_state(''input_boolean.theme_studio_theme_use_background_image'',''on'') else ''none'' }}'
@@ -4058,6 +4058,7 @@ automation:
     target:
       entity_id: script.theme_studio_sync_user_theme_options
   - delay: 00:00:01
+
   - service: input_select.select_option
     target:
       entity_id: input_select.theme_studio_theme_presets
@@ -4074,10 +4075,12 @@ automation:
     data:
       value: '{{ desired_name }}'
   - delay: 00:00:01
+
   - service: homeassistant.update_entity
     target:
       entity_id: sensor.theme_studio_selected_preset
   - delay: 00:00:01
+
   - choose:
     - conditions:
       - condition: template
@@ -4091,6 +4094,12 @@ automation:
       - service: input_button.press
         target:
           entity_id: input_button.theme_studio_theme_load_light_theme
+      - delay: 00:00:02
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.theme_studio_loaded_variant
+        data:
+          value: Light
     default:
     - service: input_text.set_value
       target:
@@ -4100,9 +4109,13 @@ automation:
     - service: input_button.press
       target:
         entity_id: input_button.theme_studio_theme_load_dark_theme
-  - wait_template: '{{ is_state(''input_boolean.theme_studio_busy'', ''off'') }}'
-    timeout: 00:00:20
-    continue_on_timeout: true
+    - delay: 00:00:02
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.theme_studio_loaded_variant
+      data:
+        value: Dark
+
   - service: input_text.set_value
     target:
       entity_id: input_text.theme_studio_pending_new_theme_name
@@ -4117,6 +4130,7 @@ automation:
     target:
       entity_id: input_boolean.theme_studio_busy
   mode: restart
+
 - id: theme_studio_delete_theme
   alias: Theme Studio - delete theme
   trigger:
@@ -4124,18 +4138,27 @@ automation:
     entity_id: input_button.theme_studio_delete_theme
   action:
   - variables:
-      delete_name: "{% set v = states('input_select.theme_studio_user_themes') | trim %} {% if v in ['', 'None', 'unknown', 'unavailable'] %}\n  None\n{% else %}\n  {{ v }}\n{% endif %}"
+      delete_name: >-
+        {% set v = states('input_select.theme_studio_user_themes') | trim %}
+        {% set fallback = states('input_text.theme_studio_selected_user_theme') | trim %}
+        {% if v not in ['', 'None', 'unknown', 'unavailable'] %}
+          {{ v }}
+        {% elif fallback not in ['', 'None', 'unknown', 'unavailable'] %}
+          {{ fallback }}
+        {% else %}
+          None
+        {% endif %}
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ delete_name == ''None'' }}'
+        value_template: "{{ delete_name | trim == 'None' }}"
       sequence:
       - service: input_text.set_value
         target:
           entity_id: input_text.theme_studio_busy_message
         data:
-          value: 'Delete blocked: no user theme selected'
-      - stop: No selected user theme to delete
+          value: "Delete blocked: no user theme selected"
+      - stop: "No selected user theme to delete"
   - service: input_boolean.turn_on
     target:
       entity_id: input_boolean.theme_studio_busy
@@ -4143,7 +4166,7 @@ automation:
     target:
       entity_id: input_text.theme_studio_busy_message
     data:
-      value: 'Deleting User Theme: {{ delete_name }}'
+      value: "Deleting User Theme: {{ delete_name | trim }}"
   - service: shell_command.theme_studio_delete_theme
   - delay: 00:00:01
   - service: shell_command.theme_studio_refresh_preset_index
@@ -4153,6 +4176,7 @@ automation:
       entity_id:
       - sensor.theme_studio_user_theme_index
       - sensor.theme_studio_background_image_index
+      - sensor.theme_studio_selected_preset
   - delay: 00:00:01
   - service: script.turn_on
     target:
@@ -4183,6 +4207,12 @@ automation:
     target:
       entity_id: input_text.theme_studio_busy_message
     data:
+      value: Theme deleted
+  - delay: 00:00:02
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.theme_studio_busy_message
+    data:
       value: Idle
   - service: input_boolean.turn_off
     target:
@@ -4195,12 +4225,27 @@ automation:
     entity_id: input_button.theme_studio_theme_save_current
   action:
   - variables:
-      selected_user_theme: "{% set v = states('input_select.theme_studio_user_themes') | trim %} {% if v in ['', 'None', 'unknown', 'unavailable'] %}\n  None\n{% else %}\n  {{ v }}\n{% endif %}"
-      selected_preset: "{% set v = states('input_select.theme_studio_theme_presets') | trim %} {% if v in ['', 'unknown', 'unavailable'] %}\n  None\n{% else %}\n  {{ v }}\n{% endif %}"
+      selected_user_theme: >-
+        {% set v = states('input_select.theme_studio_user_themes') | trim %}
+        {% set fallback = states('input_text.theme_studio_selected_user_theme') | trim %}
+        {% if v not in ['', 'None', 'unknown', 'unavailable'] %}
+          {{ v }}
+        {% elif fallback not in ['', 'None', 'unknown', 'unavailable'] %}
+          {{ fallback }}
+        {% else %}
+          None
+        {% endif %}
+      active_variant: >-
+        {% set v = states('input_text.theme_studio_loaded_variant') | trim %}
+        {% if v in ['Light', 'Dark'] %}
+          {{ v }}
+        {% else %}
+          Dark
+        {% endif %}
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{ selected_user_theme == ''None'' }}'
+        value_template: '{{ selected_user_theme | trim == ''None'' }}'
       sequence:
       - service: input_text.set_value
         target:
@@ -4215,7 +4260,22 @@ automation:
     target:
       entity_id: input_text.theme_studio_busy_message
     data:
-      value: 'Refreshing current theme: {{ selected_user_theme }}'
+      value: 'Saving {{ active_variant }}: {{ selected_user_theme }}'
+  - service: input_select.select_option
+    target:
+      entity_id: input_select.theme_studio_theme_presets
+    data:
+      option: None
+  - service: input_select.select_option
+    target:
+      entity_id: input_select.theme_studio_user_themes
+    data:
+      option: '{{ selected_user_theme }}'
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.theme_studio_selected_user_theme
+    data:
+      value: '{{ selected_user_theme }}'
   - service: input_text.set_value
     target:
       entity_id: input_text.theme_studio_theme_name
@@ -4223,24 +4283,13 @@ automation:
       value: '{{ selected_user_theme }}'
   - choose:
     - conditions:
-      - condition: state
-        entity_id: input_text.theme_studio_loaded_variant
-        state: Light
+      - condition: template
+        value_template: '{{ active_variant == ''Light'' }}'
       sequence:
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.theme_studio_busy_message
-        data:
-          value: 'Saving Light: {{ selected_user_theme }}'
       - service: input_button.press
         target:
           entity_id: input_button.theme_studio_theme_save_light_theme
     default:
-    - service: input_text.set_value
-      target:
-        entity_id: input_text.theme_studio_busy_message
-      data:
-        value: 'Saving Dark: {{ selected_user_theme }}'
     - service: input_button.press
       target:
         entity_id: input_button.theme_studio_theme_save_dark_theme
@@ -4264,6 +4313,7 @@ automation:
       entity_id:
       - sensor.theme_studio_user_theme_index
       - sensor.theme_studio_background_image_index
+      - sensor.theme_studio_selected_preset
   - delay: 00:00:01
   - service: script.turn_on
     target:
@@ -4293,6 +4343,30 @@ automation:
   - service: homeassistant.update_entity
     target:
       entity_id: sensor.theme_studio_selected_preset
+  - delay: 00:00:01
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ active_variant == ''Light'' }}'
+      sequence:
+      - service: input_button.press
+        target:
+          entity_id: input_button.theme_studio_theme_load_light_theme
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.theme_studio_loaded_variant
+        data:
+          value: Light
+    default:
+    - service: input_button.press
+      target:
+        entity_id: input_button.theme_studio_theme_load_dark_theme
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.theme_studio_loaded_variant
+      data:
+        value: Dark
+  - delay: 00:00:02
   - service: input_text.set_value
     target:
       entity_id: input_text.theme_studio_busy_message
@@ -4301,7 +4375,7 @@ automation:
   - service: input_boolean.turn_off
     target:
       entity_id: input_boolean.theme_studio_busy
-  mode: single
+  mode: restart
 - id: theme_studio_build_theme
   alias: Theme Studio - build theme
   trigger:
@@ -4335,15 +4409,27 @@ automation:
   trigger:
   - platform: state
     entity_id: input_button.theme_studio_refresh_theme_presets
-  - platform: homeassistant
-    event: start
   action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.theme_studio_busy
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.theme_studio_busy_message
+    data:
+      value: Refreshing Theme Studio
   - service: shell_command.theme_studio_refresh_preset_index
   - delay: 00:00:01
   - service: homeassistant.update_entity
     target:
-      entity_id: sensor.theme_studio_user_theme_index
+      entity_id:
+      - sensor.theme_studio_user_theme_index
+      - sensor.theme_studio_background_image_index
+      - sensor.theme_studio_selected_preset
   - delay: 00:00:01
+  - service: script.turn_on
+    target:
+      entity_id: script.theme_studio_sync_background_image_options
   - service: script.turn_on
     target:
       entity_id: script.theme_studio_sync_preset_options
@@ -4353,9 +4439,24 @@ automation:
   - service: script.turn_on
     target:
       entity_id: script.theme_studio_select_current_name
+  - delay: 00:00:01
   - service: homeassistant.update_entity
     target:
       entity_id: sensor.theme_studio_selected_preset
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.theme_studio_busy_message
+    data:
+      value: Theme Studio refreshed
+  - delay: 00:00:02
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.theme_studio_busy_message
+    data:
+      value: Idle
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.theme_studio_busy
   mode: single
 - id: theme_studio_user_theme_index_changed
   alias: Theme Studio - sync user themes on index change
@@ -4426,7 +4527,7 @@ automation:
     target:
       entity_id: input_text.theme_studio_busy_message
     data:
-      value: Loading preset…
+      value: Loading preset...
   - service: input_select.select_option
     target:
       entity_id: input_select.theme_studio_user_themes
@@ -4520,7 +4621,7 @@ automation:
     target:
       entity_id: input_text.theme_studio_busy_message
     data:
-      value: Loading user theme…
+      value: Loading user theme...
   - service: input_select.select_option
     target:
       entity_id: input_select.theme_studio_theme_presets
@@ -4622,13 +4723,27 @@ automation:
   - platform: homeassistant
     event: start
   action:
-  - delay: 00:00:03
+  - delay: 00:00:05
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.theme_studio_busy
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.theme_studio_busy_message
+    data:
+      value: Initializing Theme Studio
   - service: shell_command.theme_studio_refresh_preset_index
-  - delay: 00:00:01
+  - delay: 00:00:02
   - service: homeassistant.update_entity
     target:
-      entity_id: sensor.theme_studio_user_theme_index
-  - delay: 00:00:01
+      entity_id:
+      - sensor.theme_studio_user_theme_index
+      - sensor.theme_studio_background_image_index
+      - sensor.theme_studio_selected_preset
+  - delay: 00:00:02
+  - service: script.turn_on
+    target:
+      entity_id: script.theme_studio_sync_background_image_options
   - service: script.turn_on
     target:
       entity_id: script.theme_studio_sync_preset_options
@@ -4638,9 +4753,19 @@ automation:
   - service: script.turn_on
     target:
       entity_id: script.theme_studio_select_current_name
+  - delay: 00:00:02
   - service: homeassistant.update_entity
     target:
       entity_id: sensor.theme_studio_selected_preset
+  - delay: 00:00:01
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.theme_studio_busy_message
+    data:
+      value: Idle
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.theme_studio_busy
   mode: single
 - id: theme_studio_surface_fx_regenerate
   alias: Theme Studio - regenerate on surface fx change
@@ -4736,11 +4861,6 @@ automation:
       entity_id: input_number.theme_studio_light_shadow_size
     data:
       value: '{{ states(''input_number.theme_studio_theme_shadow_size'') }}'
-  - service: input_number.set_value
-    target:
-      entity_id: input_number.theme_studio_dark_shadow_size
-    data:
-      value: '{{ states(''input_number.theme_studio_theme_shadow_size'') }}'
   - choose:
     - conditions: '{{ is_state(''input_boolean.theme_studio_theme_bubble_use_fx'', ''on'') }}'
       sequence:
@@ -4823,6 +4943,11 @@ automation:
       entity_id: input_number.theme_studio_dark_shadow_opacity
     data:
       value: '{{ states(''input_number.theme_studio_theme_shadow_opacity'') }}'
+  - service: input_number.set_value
+    target:
+      entity_id: input_number.theme_studio_dark_shadow_size
+    data:
+      value: '{{ states(''input_number.theme_studio_theme_shadow_size'') }}'
   - choose:
     - conditions: '{{ is_state(''input_boolean.theme_studio_theme_bubble_use_fx'', ''on'') }}'
       sequence:
@@ -5056,7 +5181,7 @@ command_line:
     - options
 - sensor:
     name: theme_studio_selected_preset
-    command: python3 /config/theme_studio/scripts/theme_studio_cli.py read-preset --preset-dir /config/theme_studio/presets --name "{{ states('input_select.theme_studio_user_themes') if states('input_select.theme_studio_user_themes') not in ['unknown','unavailable','','None'] else (states('input_select.theme_studio_theme_presets') if states('input_select.theme_studio_theme_presets') not in ['unknown','unavailable','','None'] else 'Default') }}"
+    command: python3 /config/theme_studio/scripts/theme_studio_cli.py read-preset --preset-dir /config/theme_studio/presets --name '{{ (states(''input_select.theme_studio_user_themes'') if states(''input_select.theme_studio_user_themes'') not in [''unknown'',''unavailable'','''',''None''] else (states(''input_select.theme_studio_theme_presets'') if states(''input_select.theme_studio_theme_presets'') not in [''unknown'',''unavailable'','''',''None''] else ''Default'')) | replace("'", "'\"'\"'") }}'
     value_template: '{{ value_json.name if value_json.name is defined else "none" }}'
     json_attributes:
     - name

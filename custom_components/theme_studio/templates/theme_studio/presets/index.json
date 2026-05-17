@@ -1,5 +1,5 @@
 {
-  "count": 22,
+  "count": 11,
   "options": [
     "Default",
     "Glass",
@@ -11,18 +11,7 @@
     "Purple",
     "Pink Mono",
     "Black White",
-    "Aurora",
-    "Dark Blue-test",
-    "Dark Blue-test3",
-    "Dark Blue-test4",
-    "Flavors-test",
-    "Glass-test",
-    "Glass-test2",
-    "Glass-test3",
-    "Pink Mono-test",
-    "Purple-test",
-    "Purple-test2",
-    "Vision-test"
+    "Aurora"
   ],
   "builtin_options": [
     "Default",
@@ -36,18 +25,5 @@
     "Pink Mono",
     "Black White",
     "Aurora"
-  ],
-  "user_options": [
-    "Dark Blue-test",
-    "Dark Blue-test3",
-    "Dark Blue-test4",
-    "Flavors-test",
-    "Glass-test",
-    "Glass-test2",
-    "Glass-test3",
-    "Pink Mono-test",
-    "Purple-test",
-    "Purple-test2",
-    "Vision-test"
   ]
 }
