@@ -4746,8 +4746,6 @@ automation:
   trigger:
   - platform: state
     entity_id: input_button.theme_studio_refresh_theme_presets
-  - platform: homeassistant
-    event: start
   action:
   - service: input_boolean.turn_on
     target:
@@ -5062,13 +5060,27 @@ automation:
   - platform: homeassistant
     event: start
   action:
-  - delay: 00:00:03
+  - delay: 00:00:05
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.theme_studio_busy
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.theme_studio_busy_message
+    data:
+      value: Initializing Theme Studio
   - service: shell_command.theme_studio_refresh_preset_index
-  - delay: 00:00:01
+  - delay: 00:00:02
   - service: homeassistant.update_entity
     target:
-      entity_id: sensor.theme_studio_user_theme_index
-  - delay: 00:00:01
+      entity_id:
+      - sensor.theme_studio_user_theme_index
+      - sensor.theme_studio_background_image_index
+      - sensor.theme_studio_selected_preset
+  - delay: 00:00:02
+  - service: script.turn_on
+    target:
+      entity_id: script.theme_studio_sync_background_image_options
   - service: script.turn_on
     target:
       entity_id: script.theme_studio_sync_preset_options
@@ -5078,9 +5090,19 @@ automation:
   - service: script.turn_on
     target:
       entity_id: script.theme_studio_select_current_name
+  - delay: 00:00:02
   - service: homeassistant.update_entity
     target:
       entity_id: sensor.theme_studio_selected_preset
+  - delay: 00:00:01
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.theme_studio_busy_message
+    data:
+      value: Idle
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.theme_studio_busy
   mode: single
 - id: theme_studio_surface_fx_regenerate
   alias: Theme Studio - regenerate on surface fx change
