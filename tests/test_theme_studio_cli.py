@@ -113,3 +113,5 @@ def test_package_keeps_stable_live_command_and_copy_flow() -> None:
     assert "shell_command.theme_studio_copy_preset_as_user_theme" in package
     assert "Save as new handles loading the newly created user theme" in package
     assert "Save as new blocked" in package
+    assert "name: theme_studio_selected_preset" in package
+    assert "read-preset --preset-dir /config/theme_studio/presets --name '{{" not in package
