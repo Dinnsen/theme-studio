@@ -1659,37 +1659,56 @@ def cmd_live_json(args):
     )
     cmd_live(live_args)
 
-def cmd_save_preset(args):
-    payload = json.loads(args.payload)
-    name = (payload.get('name') or 'My Theme').strip()
-    slug = slugify(name)
+def cmd_copy_preset(args):
+    source_name = (args.source or '').strip()
+    new_name = (args.name or '').strip()
 
-    if slug in RESERVED_PRESETS:
+    if not source_name:
+        print(json.dumps({'ok': False, 'reason': 'missing_source'}))
+        return
+
+    if not new_name:
+        print(json.dumps({'ok': False, 'reason': 'missing_name'}))
+        return
+
+    new_slug = slugify(new_name)
+
+    if new_slug in RESERVED_PRESETS:
         print(json.dumps({'ok': False, 'reason': 'reserved'}))
         return
+
+    source = resolve_preset(args.preset_dir, source_name)
+    if not source or not source.exists():
+        print(json.dumps({'ok': False, 'reason': 'source_not_found', 'source': source_name}))
+        return
+
+    try:
+        data = json.loads(source.read_text(encoding='utf-8'))
+    except Exception as err:
+        print(json.dumps({'ok': False, 'reason': 'invalid_source_json', 'error': str(err)}))
+        return
+
+    copied = {
+        'name': new_name,
+        'slug': new_slug,
+        'theme': data.get('theme', {}),
+        'light': data.get('light', data.get('theme', {})),
+        'dark': data.get('dark', data.get('light', data.get('theme', {}))),
+    }
 
     user_dir = Path(USER_THEME_DIR)
     user_dir.mkdir(parents=True, exist_ok=True)
 
-    existing = resolve_preset(args.preset_dir, name)
-    current = {}
-    if existing and existing.exists():
-        try:
-            current = json.loads(existing.read_text(encoding='utf-8'))
-        except Exception:
-            current = {}
+    output = user_dir / f'{new_slug}.json'
+    output.write_text(json.dumps(copied, indent=2, ensure_ascii=False), encoding='utf-8')
 
-    preset = {
-        'name': name,
-        'slug': slug,
-        'theme': payload.get('theme', current.get('theme', {})),
-        'light': payload.get('light', current.get('light', {})),
-        'dark': payload.get('dark', current.get('dark', {})),
-    }
-
-    p = user_dir / f"{slug}.json"
-    p.write_text(json.dumps(preset, indent=2, ensure_ascii=False), encoding='utf-8')
-    print(json.dumps({'ok': True, 'name': name, 'slug': slug, 'folder': str(user_dir)}))
+    print(json.dumps({
+        'ok': True,
+        'source': source_name,
+        'name': new_name,
+        'slug': new_slug,
+        'output': str(output),
+    }, ensure_ascii=False))
 
 def resolve_preset(preset_dir: str, name: str):
     wanted = (name or '').strip()
@@ -1886,10 +1905,11 @@ def make_parser():
     p_live_json.add_argument('--payload', required=True)
     p_live_json.set_defaults(func=cmd_live_json)
 
-    p_save = sub.add_parser('save-preset')
-    p_save.add_argument('--preset-dir', required=True)
-    p_save.add_argument('--payload', required=True)
-    p_save.set_defaults(func=cmd_save_preset)
+    p_copy = sub.add_parser('copy-preset')
+    p_copy.add_argument('--preset-dir', required=True)
+    p_copy.add_argument('--source', required=True)
+    p_copy.add_argument('--name', required=True)
+    p_copy.set_defaults(func=cmd_copy_preset)
 
     p_del = sub.add_parser('delete-preset')
     p_del.add_argument('--preset-dir', required=True)
