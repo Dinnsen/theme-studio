@@ -49,12 +49,7 @@ _STDOUT_LOCK = threading.Lock()
 
 def _variant_setting_keys(cli: ModuleType) -> list[str]:
     """Every per-variant setting: the CLI's keys plus the surface FX keys the editor stores."""
-    prefix = "theme_studio_light_"
-    stored = {
-        definition.key[len(prefix):]
-        for definition in load_definitions()
-        if definition.key.startswith(prefix) and definition.platform != "button"
-    }
+    stored = {definition.setting for definition in load_definitions() if definition.setting}
     return sorted(set(cli.SETTING_KEYS) | stored)
 
 
@@ -404,4 +399,60 @@ class ThemeEngine:
             "colours": palette["colours"],
             "failing": failing,
         }
+
+    # Save and load ---------------------------------------------------------
+
+    def read_theme(self, name: str) -> dict[str, Any] | None:
+        """A built-in preset or user theme by name, or None."""
+        path = self.cli.resolve_preset(str(self.preset_dir), name)
+        if not path or not path.exists():
+            return None
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        if not isinstance(data, dict):
+            return None
+        data["_user_theme"] = path.resolve().parent == self.user_theme_dir.resolve()
+        data["_path"] = str(path)
+        return data
+
+    def save_variant(self, name: str, variant: str, settings: dict[str, Any]) -> dict[str, Any]:
+        """Write one variant of a user theme; the other variant is kept as it is."""
+        theme = self.read_theme(name)
+        if theme is None:
+            return {"ok": False, "reason": "not_found", "name": name}
+        if not theme["_user_theme"]:
+            return {"ok": False, "reason": "built_in", "name": name}
+        path = Path(theme.pop("_path"))
+        theme.pop("_user_theme")
+        theme[variant] = {**(theme.get(variant) or {}), **settings}
+        path.write_text(json.dumps(theme, indent=2, ensure_ascii=False), encoding="utf-8")
+        return {"ok": True, "name": theme.get("name", name), "variant": variant}
+
+    def save_as_new(
+        self, name: str, source: str, variant: str, settings: dict[str, Any]
+    ) -> dict[str, Any]:
+        """New user theme: the editor becomes ``variant``, the other variant comes from ``source``."""
+        name = name.strip()
+        if not name:
+            return {"ok": False, "reason": "missing_name"}
+        slug = self.cli.slugify(name)
+        if slug in self._user_theme_slugs():
+            return {"ok": False, "reason": "exists", "name": name}
+        base = self.read_theme(source) or self.read_theme("Default") or {}
+        stored = {
+            "name": name,
+            "slug": slug,
+            "theme": base.get("theme", {}),
+            "light": dict(base.get("light") or {}),
+            "dark": dict(base.get("dark") or {}),
+        }
+        stored[variant] = {**stored[variant], **settings}
+        self.user_theme_dir.mkdir(parents=True, exist_ok=True)
+        target = self.user_theme_dir / f"{slug}.json"
+        if target.exists():
+            return {"ok": False, "reason": "exists", "name": name}
+        target.write_text(json.dumps(stored, indent=2, ensure_ascii=False), encoding="utf-8")
+        return {"ok": True, "name": name, "slug": slug, "variant": variant}
 

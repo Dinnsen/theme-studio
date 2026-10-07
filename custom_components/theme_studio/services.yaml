@@ -70,6 +70,46 @@ copy_variant:
             - light
             - dark
 
+save:
+  fields:
+    variant:
+      required: false
+      example: dark
+      selector:
+        select:
+          options:
+            - light
+            - dark
+    name:
+      required: false
+      example: My Theme
+      selector:
+        text:
+
+load:
+  fields:
+    variant:
+      required: false
+      example: light
+      selector:
+        select:
+          options:
+            - light
+            - dark
+    name:
+      required: false
+      example: Glass
+      selector:
+        text:
+
+save_as_new:
+  fields:
+    name:
+      required: false
+      example: My Theme
+      selector:
+        text:
+
 undo:
 
 export_user_theme:

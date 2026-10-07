@@ -111,13 +111,15 @@ Theme Studio copies its managed files into `/config` when the integration starts
 2. Restart again. The new package loads and the old helpers, `shell_command`s and `command_line` sensors disappear. From 0.6.1 Theme Studio also removes the leftover registry entries of the old helpers, so they do not linger as unavailable entities.
 3. If your own dashboards or automations use Theme Studio helpers, change the domain (for example `input_text.theme_studio_theme_base_color` -> `text.theme_studio_theme_base_color`). The sensors are renamed to `sensor.theme_studio_preset_catalog`, `sensor.theme_studio_user_theme_catalog`, `sensor.theme_studio_background_image_catalog` and `sensor.theme_studio_active_preset`.
 
+**Upgrading to 0.9.** Save and load now run inside the integration (`theme_studio.save`, `theme_studio.load`, `theme_studio.save_as_new`) and read and write the theme files directly. The second set of light/dark copies of every setting (`*.theme_studio_light_*` and `*.theme_studio_dark_*`, about 170 entities) is no longer needed; Theme Studio removes them from the entity registry on start. Your user themes are not changed. Restart twice as usual. If your own automations use those entities, read the values from the user theme file or call `theme_studio.load` instead.
+
 ## Workflow
 
 1. Open Theme Studio dashboard.
 2. Choose a **Built-In Preset** as starting point.
 3. Type in a **Theme Name** and press **Save as new**.
 4. Adjust colors, surfaces, and FX.
-5. Save Light/Dark **Preset Mode** before switching.
+5. Press **Save** for the variant you edited (Light or Dark) before switching. Saving one variant never changes the other.
 6. **Build theme**.
 7. Select **Theme** in your user profile or use Theme Studio directly.
 
@@ -132,6 +134,7 @@ Theme Studio copies its managed files into `/config` when the integration starts
 - **Your default theme is left alone.** Theme Studio only sets *Theme Studio Dynamic* as the Home Assistant default theme when `switch.theme_studio_set_as_default_theme` is on (off by default).
 - **No shell commands.** Generating, saving, copying, deleting and building themes run inside the integration as services (see [Services](#services)). Nothing starts a `python3` subprocess, and the live theme is only reloaded on your screens when it actually changed.
 - **Readable colours by default.** Automatic text, icon, navbar and header colours are picked by real (WCAG) contrast against the page, the cards and Bubble cards, and an automatic accent is darkened or lightened until it reaches 3:1. Text on the accent colour (badges, chips) follows the accent. Colours you set yourself are never changed; the studio shows a contrast warning instead (`sensor.theme_studio_contrast`).
+- **Two colour models.** *Colour model* in the Core Color view picks how shades are calculated: **hsl** (classic, the default) or **oklch**, which keeps the perceived brightness even across hues. It is saved per variant; themes saved before 0.9 use hsl.
 - **No global layout CSS.** Themes no longer hide the header, change view padding, blur every card or limit the width of sidebar views. Use [Kiosk Mode](https://github.com/NemesisRE/kiosk-mode) or your own card-mod if you want that.
 
 ## File Structure
@@ -213,7 +216,10 @@ card_mod:
 | Service | What it does |
 | --- | --- |
 | `theme_studio.generate` | Builds the live preview theme from the editor entities. Reloads themes only when the file changed. |
-| `theme_studio.save_preset` | Saves the active variant (light or dark) of a user theme. |
+| `theme_studio.save` | Saves the editor into the selected user theme, only for the loaded variant (or the `variant` you pass). The other variant is kept. Built-in presets are never written. |
+| `theme_studio.load` | Loads a variant of a user theme or preset into the editor. Only values the theme file contains are changed. |
+| `theme_studio.save_as_new` | Creates a new user theme from the editor; the other variant comes from the selected theme. Never overwrites an existing theme or takes a preset name. |
+| `theme_studio.save_preset` | Older form of `save` that takes a full payload. Kept for your own automations. |
 | `theme_studio.copy_preset` | Creates a new user theme from a preset or user theme. Never overwrites an existing one. |
 | `theme_studio.delete_user_theme` | Deletes a user theme and its built theme file. |
 | `theme_studio.build_theme` | Exports a user theme or preset with light and dark mode to `/config/themes/theme_studio/`. |
@@ -223,13 +229,13 @@ card_mod:
 | `theme_studio.import_user_theme` | Creates a new user theme from JSON or a share string. Without data it imports every `.json`/`.txt` file in `/config/theme_studio/imports/`. Never overwrites a theme; a name that is taken gets a number. |
 | `theme_studio.theme_from_image` | Creates a new user theme with a light and a dark variant from the colours of a background image, checks its contrast and opens it in the studio. Also the *Theme from image* button. |
 | `theme_studio.palette_from_image` | Reads the main colours of a background image and suggests base colour, accent and background contrast. With `apply: true` they go into the editor (Undo brings the old colours back). |
-| `theme_studio.copy_variant` | Copies the light variant to dark or the other way round. Lightness is mirrored and light/dark-specific colours go back to auto, so the copy stays readable. |
+| `theme_studio.copy_variant` | Copies the saved light variant of the selected theme to dark in the editor, or the other way round. Lightness is mirrored and light/dark-specific colours go back to auto, so the copy stays readable. Press *Save* to keep it. |
 | `theme_studio.set_options` | Replaces the option list of a Theme Studio select. |
 | `theme_studio.initialize_assets` / `theme_studio.reinstall_assets` | Installs the managed files again and returns what changed. |
 
 ## Recommended recorder settings
 
-Theme Studio uses about 280 editor entities that change often while you edit. Keep them out of the database:
+Theme Studio uses about 115 editor entities that change often while you edit. Keep them out of the database:
 
 ```yaml
 recorder:

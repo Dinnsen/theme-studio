@@ -689,13 +689,15 @@ def rgba_of(hex_color: str, alpha: float) -> str:
     return rgba_from_hex(hex_color, alpha)
 
 
-def fit_to_contrast(h, s, l, backgrounds, minimum=3.0):
+def fit_to_contrast(h, s, l, backgrounds, minimum=3.0, make=None):
     """Move an HSL colour's lightness away from the backgrounds until it reaches `minimum`.
 
     Used only for automatic colours; manual overrides are never adjusted.
     """
+    make = make or hsl
+
     def solid(lightness):
-        return parse_css_color(hsl(h, s, lightness))
+        return parse_css_color(make(h, s, lightness))
 
     def worst(lightness):
         return min(contrast_ratio(solid(lightness), bg) for bg in backgrounds)
@@ -852,6 +854,56 @@ def accent_palette(color: str) -> dict:
     return palette
 
 
+# -------------------------------------------------
+# Colour models
+# HSL (default) keeps every existing theme as it is. OKLCH uses the same
+# hue/saturation/lightness numbers but gives evenly perceived lightness across
+# hues, so yellow, blue and grey surfaces at the same setting look equally light.
+# -------------------------------------------------
+COLOR_MODELS = ('hsl', 'oklch')
+_HSL_CSS = hsl
+_HSLA_CSS = hsla
+
+
+def _oklch_hue_of(h: float) -> float:
+    r, g, b = colorsys.hls_to_rgb(wrap_h(h) / 360, 0.5, 1.0)
+    return _rgb_to_oklch(r, g, b)[2]
+
+
+def _in_gamut(lab_l: float, chroma: float, hue: float) -> bool:
+    lab_a = chroma * math.cos(hue)
+    lab_b = chroma * math.sin(hue)
+    l_ = (lab_l + 0.3963377774 * lab_a + 0.2158037573 * lab_b) ** 3
+    m_ = (lab_l - 0.1055613458 * lab_a - 0.0638541728 * lab_b) ** 3
+    s_ = (lab_l - 0.0894841775 * lab_a - 1.2914855480 * lab_b) ** 3
+    rgb = (
+        4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_,
+        -1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_,
+        -0.0041960863 * l_ - 0.7034186147 * m_ + 1.7076147010 * s_,
+    )
+    return all(-0.0005 <= c <= 1.0005 for c in rgb)
+
+
+def oklch_hex(h: float, s: float, l: float) -> str:
+    """Hex colour for HSL-style numbers interpreted in OKLCH."""
+    lab_l = clamp(l, 0, 100) / 100
+    hue = _oklch_hue_of(h)
+    chroma = clamp(s, 0, 100) / 100 * 0.32
+    for _ in range(40):
+        if _in_gamut(lab_l, chroma, hue):
+            break
+        chroma *= 0.88
+    return _oklch_to_hex(lab_l, chroma, hue)
+
+
+def oklch_hsl(h, s, l):
+    return oklch_hex(h, s, l)
+
+
+def oklch_hsla(h, s, l, a):
+    return rgba_from_hex(oklch_hex(h, s, l), a)
+
+
 def build_override_surface(hex_value: str, alpha: float):
     h0, s0, l0 = hex_to_hsl(hex_value)
     return hsla(h0, s0, l0, alpha)
@@ -861,6 +913,13 @@ def build_override_color(hex_value: str):
     return hsl(h0, s0, l0)
 
 def build(args):
+    color_model = (getattr(args, 'color_model', '') or 'hsl').strip().lower()
+    if color_model not in COLOR_MODELS:
+        color_model = 'hsl'
+    if color_model == 'oklch':
+        hsl, hsla = oklch_hsl, oklch_hsla
+    else:
+        hsl, hsla = _HSL_CSS, _HSLA_CSS
     base_h, base_s, base_l = hex_to_hsl(args.base)
     contrast = clamp(float(args.contrast), 0, 100)
     hue_shift = float(args.hue_shift)
@@ -1221,7 +1280,7 @@ def build(args):
     else:
         auto_accent_s = clamp(accent_s + (accent_strength * 0.18), 18, 96)
         auto_accent_l = clamp(primary_l + accent_light_boost + (accent_strength * 0.06), 22, 90)
-        auto_accent_l = fit_to_contrast(accent_h, auto_accent_s, auto_accent_l, [page_rgb, card_rgb])
+        auto_accent_l = fit_to_contrast(accent_h, auto_accent_s, auto_accent_l, [page_rgb, card_rgb], make=hsl)
         resolved_accent = hsl(accent_h, auto_accent_s, auto_accent_l)
 
     default_secondary_background = surface_container_low
@@ -1549,7 +1608,7 @@ def emit_value(key, value, indent=2):
     escaped = str(value).replace('"', '\\"')
     return f'{prefix}{key}: "{escaped}"\n'
 
-SETTING_KEYS = ['base_color', 'custom_background_color', 'background_image_url', 'custom_text_color', 'custom_icon_color', 'custom_navbar_icon_color', 'navbar_bg_override', 'bubble_slider_color_override', 'bubble_slider_contrast', 'bubble_slider_hue_shift', 'bubble_slider_saturation', 'bubble_slider_opacity', 'accent_color_override', 'card_bg_override', 'bubble_bg_override', 'popup_bg_override', 'secondary_background_color_override', 'secondary_text_color_override', 'disabled_text_color_override', 'app_header_background_color_override', 'app_header_text_color_override', 'divider_color_override', 'sidebar_icon_color_override', 'state_icon_color_override', 'state_icon_active_color_override', 'primary_font_family', 'custom_font_family', 'custom_font_path', 'contrast', 'hue_shift', 'saturation', 'tone', 'accent_strength', 'neutrality', 'surface_lift', 'card_opacity', 'blur_strength', 'radius', 'chip_radius', 'overlay_contrast', 'background_contrast', 'header_blend_height', 'overlay_offset_y', 'overlay_scale', 'overlay_spread', 'accent_contrast', 'card_bg_contrast', 'bubble_bg_contrast', 'popup_bg_contrast', 'accent_hue_shift', 'accent_saturation', 'card_bg_hue_shift', 'card_bg_saturation', 'bubble_bg_hue_shift', 'bubble_bg_saturation', 'popup_bg_hue_shift', 'popup_bg_saturation', 'bubble_bg_opacity', 'popup_bg_opacity', 'navbar_bg_opacity', 'use_custom_background_color', 'use_background_image', 'enable_header_blend', 'use_custom_text_color', 'use_custom_icon_color', 'use_custom_navbar_icon_color', 'preview_toggle', 'use_custom_font', 'background_overlay', 'preview_mode']
+SETTING_KEYS = ['color_model', 'base_color', 'custom_background_color', 'background_image_url', 'custom_text_color', 'custom_icon_color', 'custom_navbar_icon_color', 'navbar_bg_override', 'bubble_slider_color_override', 'bubble_slider_contrast', 'bubble_slider_hue_shift', 'bubble_slider_saturation', 'bubble_slider_opacity', 'accent_color_override', 'card_bg_override', 'bubble_bg_override', 'popup_bg_override', 'secondary_background_color_override', 'secondary_text_color_override', 'disabled_text_color_override', 'app_header_background_color_override', 'app_header_text_color_override', 'divider_color_override', 'sidebar_icon_color_override', 'state_icon_color_override', 'state_icon_active_color_override', 'primary_font_family', 'custom_font_family', 'custom_font_path', 'contrast', 'hue_shift', 'saturation', 'tone', 'accent_strength', 'neutrality', 'surface_lift', 'card_opacity', 'blur_strength', 'radius', 'chip_radius', 'overlay_contrast', 'background_contrast', 'header_blend_height', 'overlay_offset_y', 'overlay_scale', 'overlay_spread', 'accent_contrast', 'card_bg_contrast', 'bubble_bg_contrast', 'popup_bg_contrast', 'accent_hue_shift', 'accent_saturation', 'card_bg_hue_shift', 'card_bg_saturation', 'bubble_bg_hue_shift', 'bubble_bg_saturation', 'popup_bg_hue_shift', 'popup_bg_saturation', 'bubble_bg_opacity', 'popup_bg_opacity', 'navbar_bg_opacity', 'use_custom_background_color', 'use_background_image', 'enable_header_blend', 'use_custom_text_color', 'use_custom_icon_color', 'use_custom_navbar_icon_color', 'preview_toggle', 'use_custom_font', 'background_overlay', 'preview_mode']
 
 def slugify(name: str) -> str:
     name = (name or '').strip().lower()
@@ -1648,6 +1707,7 @@ def namespace_from_settings(settings: dict, output_path: str):
         'shadow_saturation': settings.get('shadow_saturation', values.get('shadow_saturation', '0')),
         'shadow_opacity': settings.get('shadow_opacity', values.get('shadow_opacity', '42')),
         'shadow_size': settings.get('shadow_size', values.get('shadow_size', '40')),
+        'color_model': settings.get('color_model', 'hsl') or 'hsl',
         'output': output_path,
     }
     return argparse.Namespace(**mapped)
@@ -1978,7 +2038,7 @@ LIVE_ARGUMENT_KEYS = [
     'border_type', 'shadow_type', 'bubble_use_fx', 'popup_use_fx',
     'border_contrast', 'border_hue_shift', 'border_saturation',
     'border_opacity', 'border_size', 'shadow_contrast', 'shadow_hue_shift',
-    'shadow_saturation', 'shadow_opacity', 'shadow_size', 'output'
+    'shadow_saturation', 'shadow_opacity', 'shadow_size', 'color_model', 'output'
 ]
 
 def make_parser():
@@ -1987,7 +2047,10 @@ def make_parser():
 
     p_live = sub.add_parser('live')
     for k in LIVE_ARGUMENT_KEYS:
-        p_live.add_argument(f'--{k}', required=True)
+        if k == 'color_model':
+            p_live.add_argument('--color_model', default='hsl', choices=COLOR_MODELS)
+        else:
+            p_live.add_argument(f'--{k}', required=True)
     p_live.set_defaults(func=cmd_live)
 
     p_live_json = sub.add_parser('live-json')

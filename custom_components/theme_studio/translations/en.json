@@ -117,6 +117,44 @@
         }
       }
     },
+    "save": {
+      "name": "Save",
+      "description": "Save the studio editor into the selected user theme. Only the loaded variant (light or dark) is written; built-in presets are never changed.",
+      "fields": {
+        "variant": {
+          "name": "Variant",
+          "description": "light or dark. Defaults to the loaded variant."
+        },
+        "name": {
+          "name": "Name",
+          "description": "User theme to save into. Defaults to the selected user theme."
+        }
+      }
+    },
+    "load": {
+      "name": "Load",
+      "description": "Load a variant of a preset or user theme into the studio editor.",
+      "fields": {
+        "variant": {
+          "name": "Variant",
+          "description": "light or dark. Defaults to the loaded variant."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Preset or user theme. Defaults to the selected one."
+        }
+      }
+    },
+    "save_as_new": {
+      "name": "Save as new",
+      "description": "Create a new user theme: the editor becomes the loaded variant, the other variant comes from the selected theme. Never overwrites a theme.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "Name of the new user theme. Defaults to the theme name field in the studio."
+        }
+      }
+    },
     "undo": {
       "name": "Undo",
       "description": "Return the studio editor to the previous step (up to 25 steps since Home Assistant started)."
