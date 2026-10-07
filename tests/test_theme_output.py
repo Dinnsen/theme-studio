@@ -243,3 +243,14 @@ def test_bundled_dynamic_theme_matches_engine() -> None:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     assert BUNDLED_THEME_PATH.read_text(encoding="utf-8") == module.dynamic_theme(module.load_cli())
+
+
+def test_every_built_in_preset_passes_contrast() -> None:
+    """Built-in presets must be readable: text 4.5:1, icons and accent 3:1 (WCAG)."""
+    cli = load_cli_module()
+    failures = []
+    for name, variant, values in build_preset_variants(cli):
+        for pair in cli.contrast_report(values):
+            if not pair["ok"]:
+                failures.append(f"{name}/{variant}: {pair['key']} {pair['ratio']}:1 (needs {pair['minimum']}:1)")
+    assert not failures, "\n".join(failures)

@@ -8,7 +8,7 @@
     "bubble_slider_opacity": 100.0
   },
   "light": {
-    "accent_color_override": "#FF4FA0",
+    "accent_color_override": "#D62A76",
     "accent_contrast": 18.0,
     "accent_hue_shift": 0.0,
     "accent_saturation": 20.0,
@@ -78,7 +78,7 @@
     "shadow_size": 0.0,
     "shadow_type": "glass_glow",
     "sidebar_icon_color_override": "#111111",
-    "state_icon_active_color_override": "#3A6FF7",
+    "state_icon_active_color_override": "#D81B72",
     "state_icon_color_override": "#111111",
     "surface_lift": 0.0,
     "tone": 10.0,
@@ -164,7 +164,7 @@
     "shadow_size": 0.0,
     "shadow_type": "glass_glow",
     "sidebar_icon_color_override": "#ffffff",
-    "state_icon_active_color_override": "#86B7FF",
+    "state_icon_active_color_override": "#FF5FB2",
     "state_icon_color_override": "#ffffff",
     "surface_lift": 0.0,
     "tone": -10.0,
