@@ -560,3 +560,63 @@ def test_every_live_argument_regenerates_the_preview() -> None:
     indirect = {"text.theme_studio_theme_background_image_url"}
     missing = set(const.LIVE_ARGUMENT_ENTITIES.values()) - watched - indirect
     assert not missing, sorted(missing)
+
+
+def test_panel_theme_cards_list_presets_then_user_themes(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    assert engine.copy_preset("Glass", "Mine")["ok"]
+
+    cards = engine.theme_cards()
+
+    builtin = [card["name"] for card in cards if card["builtin"]]
+    assert builtin == list(engine.cli.BUILTIN_PRESET_NAMES)
+    assert cards[-1]["name"] == "Mine" and cards[-1]["builtin"] is False
+    for card in cards:
+        for variant in ("light", "dark"):
+            summary = card[variant]["summary"]
+            for key in ("page", "card", "text", "accent", "navbar"):
+                assert re.fullmatch(r"#[0-9a-f]{6}", summary[key]), (card["name"], key)
+            # Cards stay small: no CSS variables in the list.
+            assert "variables" not in card[variant]
+
+
+def test_panel_theme_detail_has_variables_and_labelled_contrast(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    const = load_module("const")
+
+    detail = engine.theme_detail("glass")
+
+    assert detail["name"] == "Glass" and detail["builtin"] is True
+    for variant in ("light", "dark"):
+        data = detail[variant]
+        assert data["variables"]["ha-card-background"]
+        assert [pair["key"] for pair in data["contrast"]] == list(const.CONTRAST_LABELS)
+        assert all(pair["label"] == const.CONTRAST_LABELS[pair["key"]] for pair in data["contrast"])
+        assert data["failing"] == sum(1 for pair in data["contrast"] if not pair["ok"])
+    assert engine.theme_detail("does_not_exist") is None
+
+
+def test_panel_preview_only_uses_known_plain_settings(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    plain = engine.preview({"base_color": "#3a7bd5"})
+    ignored = engine.preview({"base_color": "#3a7bd5", "not_a_setting": "x", "radius": {"nested": 1}})
+    assert plain["variables"] == ignored["variables"]
+    assert engine.preview({"base_color": "#d53a3a"})["variables"] != plain["variables"]
+    # Nothing is written by a preview.
+    assert not (tmp_path / "themes" / "theme_studio" / "theme_studio_dynamic.yaml").exists()
+
+
+def test_panel_bundle_and_registration_match() -> None:
+    const = load_module("const")
+    bundle = COMPONENT / "frontend" / const.PANEL_MODULE
+    assert bundle.is_file(), "run npm run build in frontend/"
+    text = bundle.read_text(encoding="utf-8")
+    assert f'"{const.PANEL_COMPONENT}"' in text
+    for command in ("theme_studio/themes", "theme_studio/theme"):
+        assert command in text
+        assert command.split("/")[1] in (COMPONENT / "websocket.py").read_text(encoding="utf-8")
+    manifest = json.loads((COMPONENT / "manifest.json").read_text(encoding="utf-8"))
+    assert "panel_custom" in manifest["dependencies"]
+    strings = json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))
+    options = strings["options"]["step"]["init"]["data"]
+    assert {const.CONF_SHOW_PANEL, const.CONF_PANEL_ADMIN_ONLY} <= set(options)

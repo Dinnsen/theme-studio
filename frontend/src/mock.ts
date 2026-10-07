@@ -97,7 +97,7 @@ export const mockStyles = css`
     container-type: inline-size;
     display: flex;
     flex-direction: column;
-    font-family: var(--primary-font-family, var(--ha-font-family-body, inherit));
+    font-family: var(--primary-font-family, system-ui), system-ui, sans-serif;
     color: var(--primary-text-color);
     background: var(--lovelace-background, var(--primary-background-color));
     background-attachment: scroll;
@@ -109,6 +109,9 @@ export const mockStyles = css`
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+  .m-scroll > * {
+    flex: none;
   }
   .m-head {
     display: flex;
