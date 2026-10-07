@@ -635,6 +635,139 @@ def parse_hsl_like(value: str):
         return 0.0, 0.0, 0.0
     return float(m.group(1)), float(m.group(2)), float(m.group(3))
 
+
+# -------------------------------------------------
+# Contrast helpers (WCAG 2.x relative luminance)
+# -------------------------------------------------
+DARK_TEXT = '#111111'
+LIGHT_TEXT = '#ffffff'
+
+
+def parse_css_color(value):
+    """Return (r, g, b, a) in 0..1 for #hex, hsl(a)() or rgb(a)(); None otherwise."""
+    text = str(value or '').strip().lower()
+    if re.fullmatch(r'#[0-9a-f]{3}|#[0-9a-f]{6}', text):
+        c = text[1:]
+        if len(c) == 3:
+            c = ''.join(ch * 2 for ch in c)
+        return tuple(int(c[i:i + 2], 16) / 255 for i in (0, 2, 4)) + (1.0,)
+    m = re.fullmatch(r'hsla?\(\s*([-\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*([\d.]+)\s*)?\)', text)
+    if m:
+        r, g, b = colorsys.hls_to_rgb(wrap_h(float(m[1])) / 360, clamp(float(m[3]), 0, 100) / 100, clamp(float(m[2]), 0, 100) / 100)
+        return (r, g, b, float(m[4]) if m[4] else 1.0)
+    m = re.fullmatch(r'rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)', text)
+    if m:
+        return (float(m[1]) / 255, float(m[2]) / 255, float(m[3]) / 255, float(m[4]) if m[4] else 1.0)
+    return None
+
+
+def composite(color, backdrop):
+    """Flatten a (possibly transparent) colour onto an opaque backdrop."""
+    a = color[3]
+    return tuple(color[i] * a + backdrop[i] * (1 - a) for i in range(3)) + (1.0,)
+
+
+def relative_luminance(color) -> float:
+    return 0.2126 * _srgb_to_linear(color[0]) + 0.7152 * _srgb_to_linear(color[1]) + 0.0722 * _srgb_to_linear(color[2])
+
+
+def contrast_ratio(a, b) -> float:
+    la, lb = relative_luminance(a), relative_luminance(b)
+    return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+
+
+def pick_text(*backgrounds) -> str:
+    """Near-black or white, whichever reads best on every given (opaque) background."""
+    dark = parse_css_color(DARK_TEXT)
+    light = parse_css_color(LIGHT_TEXT)
+    dark_worst = min(contrast_ratio(dark, bg) for bg in backgrounds)
+    light_worst = min(contrast_ratio(light, bg) for bg in backgrounds)
+    return LIGHT_TEXT if light_worst >= dark_worst else DARK_TEXT
+
+
+def rgba_of(hex_color: str, alpha: float) -> str:
+    return rgba_from_hex(hex_color, alpha)
+
+
+def fit_to_contrast(h, s, l, backgrounds, minimum=3.0):
+    """Move an HSL colour's lightness away from the backgrounds until it reaches `minimum`.
+
+    Used only for automatic colours; manual overrides are never adjusted.
+    """
+    def solid(lightness):
+        return parse_css_color(hsl(h, s, lightness))
+
+    def worst(lightness):
+        return min(contrast_ratio(solid(lightness), bg) for bg in backgrounds)
+
+    if worst(l) >= minimum:
+        return l
+    mean_lum = sum(relative_luminance(bg) for bg in backgrounds) / len(backgrounds)
+    step = -1 if mean_lum > 0.18 else 1
+    best_l, best_ratio = l, worst(l)
+    candidate = l
+    for _ in range(100):
+        candidate = clamp(candidate + step, 2, 98)
+        ratio = worst(candidate)
+        if ratio > best_ratio:
+            best_l, best_ratio = candidate, ratio
+        if ratio >= minimum or candidate in (2, 98):
+            break
+    return best_l
+
+
+CONTRAST_PAIRS = [
+    # key, foreground variable, background variable, minimum ratio
+    ('text_page', 'primary-text-color', 'primary-background-color', 4.5),
+    ('text_card', 'primary-text-color', 'ha-card-background', 4.5),
+    ('secondary_text_card', 'secondary-text-color', 'ha-card-background', 4.5),
+    ('icon_card', 'state-icon-color', 'ha-card-background', 3.0),
+    ('active_icon_card', 'state-icon-active-color', 'ha-card-background', 3.0),
+    ('text_bubble', 'primary-text-color', 'bubble-main-background-color', 4.5),
+    ('icon_bubble', 'state-icon-color', 'bubble-main-background-color', 3.0),
+    ('text_popup', 'primary-text-color', 'bubble-pop-up-background-color', 4.5),
+    ('navbar_icon', 'theme-studio-navbar-primary-color', 'theme-studio-navbar-background-color', 3.0),
+    ('header_text', 'app-header-text-color', 'app-header-background-color', 4.5),
+    ('sidebar_icon', 'sidebar-icon-color', 'sidebar-background-color', 3.0),
+    ('text_on_accent', 'text-primary-color', 'primary-color', 4.5),
+    ('accent_page', 'accent-color', 'primary-background-color', 3.0),
+    ('text_sub_button', 'primary-text-color', 'bubble-sub-button-background-color', 4.5),
+]
+
+
+def _resolve_var(values: dict, value, depth=0):
+    m = re.fullmatch(r'var\(--([a-z0-9-]+)\)', str(value).strip())
+    if m and depth < 10:
+        return _resolve_var(values, values.get(m.group(1), ''), depth + 1)
+    return str(value).strip()
+
+
+def contrast_report(values: dict) -> list:
+    """Contrast of the main text/icon pairs in a built theme.
+
+    Transparent surfaces are flattened onto the page colour. Background images
+    are not taken into account.
+    """
+    page = parse_css_color(_resolve_var(values, values.get('background-color', '')))
+    if page is None:
+        return []
+    page = composite(page, (1.0, 1.0, 1.0, 1.0))
+    report = []
+    for key, fg_key, bg_key, minimum in CONTRAST_PAIRS:
+        fg = parse_css_color(_resolve_var(values, values.get(fg_key, '')))
+        bg = parse_css_color(_resolve_var(values, values.get(bg_key, '')))
+        if fg is None or bg is None:
+            continue
+        bg_solid = composite(bg, page)
+        ratio = contrast_ratio(composite(fg, bg_solid), bg_solid)
+        report.append({
+            'key': key,
+            'ratio': round(ratio, 2),
+            'minimum': minimum,
+            'ok': ratio >= minimum,
+        })
+    return report
+
 def compute_accent_offset(base_s: float, base_l: float, neutrality: float, accent_strength: float) -> float:
     sat_n = clamp(base_s, 0, 100) / 100.0
     light_n = clamp(base_l, 0, 100) / 100.0
@@ -1025,6 +1158,26 @@ def build(args):
             popup_bg_opacity
         )
 
+    # -------------------------------------------------
+    # Automatic text and icon colours follow the real surfaces.
+    # Chosen by WCAG luminance against the page, the cards and Bubble.
+    # Manual colours (custom text/icon/navbar, overrides) are kept as set.
+    # -------------------------------------------------
+    page_rgb = composite(parse_css_color(background) or (0.0, 0.0, 0.0, 1.0), (1.0, 1.0, 1.0, 1.0))
+    card_rgb = composite(parse_css_color(ha_card_bg) or page_rgb, page_rgb)
+    bubble_rgb = composite(parse_css_color(bubble_bg) or page_rgb, page_rgb)
+    auto_text = pick_text(card_rgb, page_rgb, bubble_rgb)
+    if not use_custom_text:
+        text = auto_text
+    secondary_text = rgba_of(auto_text, 0.74)
+    text_medium_light = rgba_of(auto_text, 0.62)
+    text_medium = rgba_of(auto_text, 0.52)
+    disabled_text = rgba_of(auto_text, 0.38)
+    outline = rgba_of(auto_text, 0.18)
+    if not use_custom_nav_icon:
+        navbar_rgb = composite(parse_css_color(navbar_bg) or page_rgb, page_rgb)
+        navbar_primary = rgba_of(pick_text(navbar_rgb), 0.92)
+
     border_css, border_effect_css, shadow_css, border_color_css, border_highlight_css = build_surface_fx(
         border_type=border_type,
         shadow_type=shadow_type,
@@ -1066,7 +1219,10 @@ def build(args):
         av = parse_hex(accent_override, '#88cc88')
         resolved_accent = build_override_color(av)
     else:
-        resolved_accent = default_accent
+        auto_accent_s = clamp(accent_s + (accent_strength * 0.18), 18, 96)
+        auto_accent_l = clamp(primary_l + accent_light_boost + (accent_strength * 0.06), 22, 90)
+        auto_accent_l = fit_to_contrast(accent_h, auto_accent_s, auto_accent_l, [page_rgb, card_rgb])
+        resolved_accent = hsl(accent_h, auto_accent_s, auto_accent_l)
 
     default_secondary_background = surface_container_low
     header_bg_l = clamp(theme_surface_base_l + surface_lift + 1.2, 2, 98)
@@ -1075,10 +1231,9 @@ def build(args):
         theme_surface_sat,
         header_bg_l
     )
-    default_app_header_text = text_on(header_bg_l)
-    default_divider = rgba_text_on(background_l, 0.14)
-    default_sidebar_icon = rgba_text_on(background_l, 0.70)
-    default_state_icon = rgba_text_on(background_l, 0.70)
+    default_divider = rgba_of(pick_text(card_rgb, page_rgb), 0.14)
+    default_sidebar_icon = rgba_of(pick_text(page_rgb), 0.70)
+    default_state_icon = rgba_of(auto_text, 0.70)
     default_state_icon_active = resolved_accent
 
     if secondary_background_override.lower() != 'auto':
@@ -1109,6 +1264,10 @@ def build(args):
     else:
         resolved_app_header_background = default_app_header_background
 
+    default_app_header_text = pick_text(
+        composite(parse_css_color(resolved_app_header_background) or page_rgb, page_rgb)
+    )
+
     if app_header_text_override.lower() != 'auto':
         sv = parse_hex(app_header_text_override, '#ffffff')
         sh, ss, sl = hex_to_hsl(sv)
@@ -1136,6 +1295,11 @@ def build(args):
         resolved_state_icon = hsl(sh, ss, sl)
     else:
         resolved_state_icon = default_state_icon
+
+    # "Use custom icon colour" now reaches the theme (it used to be ignored).
+    raw_custom_icon = (args.custom_icon_color or '').strip()
+    if use_custom_icon and re.fullmatch(r'#?[0-9a-fA-F]{6}|#?[0-9a-fA-F]{3}', raw_custom_icon):
+        resolved_state_icon = custom_icon_hex
 
     if state_icon_active_override.lower() != 'auto':
         sv = parse_hex(state_icon_active_override, '#88cc88')
@@ -1203,7 +1367,7 @@ def build(args):
         'ha-card-header-font-family': 'var(--primary-font-family)',
         'text-color': text,
         'primary-text-color': 'var(--text-color)',
-        'text-primary-color': 'var(--text-color)',
+        'text-primary-color': pick_text(parse_css_color(resolved_accent)),
         'sidebar-text-color': 'var(--text-color)',
         'secondary-text-color': resolved_secondary_text,
         'text-medium-light-color': text_medium_light,
@@ -1281,17 +1445,17 @@ def build(args):
         'alarm-color-night': alarm_night,
         'theme-studio-signature': 'theme-studio-dynamic',
         'md-sys-color-primary': 'var(--accent-color)',
-        'md-sys-color-on-primary': text_on(primary_l),
+        'md-sys-color-on-primary': pick_text(parse_css_color(resolved_accent)),
         'md-sys-color-primary-container': primary_container,
-        'md-sys-color-on-primary-container': text_on(primary_container_l),
+        'md-sys-color-on-primary-container': pick_text(parse_css_color(primary_container)),
         'md-sys-color-secondary': secondary,
-        'md-sys-color-on-secondary': '#ffffff',
+        'md-sys-color-on-secondary': pick_text(parse_css_color(secondary)),
         'md-sys-color-secondary-container': secondary_container,
-        'md-sys-color-on-secondary-container': '#ffffff',
+        'md-sys-color-on-secondary-container': pick_text(parse_css_color(secondary_container)),
         'md-sys-color-tertiary': tertiary,
-        'md-sys-color-on-tertiary': text_on(tertiary_l),
+        'md-sys-color-on-tertiary': pick_text(parse_css_color(tertiary)),
         'md-sys-color-tertiary-container': tertiary_container,
-        'md-sys-color-on-tertiary-container': '#ffffff',
+        'md-sys-color-on-tertiary-container': pick_text(parse_css_color(tertiary_container)),
         'md-sys-color-surface': background,
         'md-sys-color-surface-dim': background2,
         'md-sys-color-surface-bright': hsl(

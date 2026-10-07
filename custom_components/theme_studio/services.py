@@ -25,20 +25,62 @@ from .const import (
     SERVICE_REFRESH_CATALOGS,
     SERVICE_REINSTALL_ASSETS,
     SERVICE_SAVE_PRESET,
+    SERVICE_COPY_VARIANT,
     SIGNAL_CATALOGS_CHANGED,
+    SIGNAL_CONTRAST_UPDATED,
 )
 from .engine import ThemeEngine
+from .variants import VARIANTS, mirror_variant, other_variant
 
 NAME_SCHEMA = vol.Schema({vol.Required("name"): cv.string})
 
 
-def _engine(hass: HomeAssistant) -> ThemeEngine:
+def _entry(hass: HomeAssistant):
     entries = hass.config_entries.async_loaded_entries(DOMAIN)
     if not entries:
         raise ServiceValidationError(
             translation_domain=DOMAIN, translation_key="not_loaded"
         )
-    return entries[0].runtime_data.engine
+    return entries[0]
+
+
+def _engine(hass: HomeAssistant) -> ThemeEngine:
+    return _entry(hass).runtime_data.engine
+
+
+async def async_generate(hass: HomeAssistant) -> dict[str, Any]:
+    """Build the live theme from the editor entities and publish its contrast."""
+    entry = _entry(hass)
+    arguments = {
+        argument: _state(hass, entity_id)
+        for argument, entity_id in LIVE_ARGUMENT_ENTITIES.items()
+    }
+    result = await hass.async_add_executor_job(entry.runtime_data.engine.generate_live, arguments)
+    entry.runtime_data.contrast = result.get("contrast", [])
+    async_dispatcher_send(hass, SIGNAL_CONTRAST_UPDATED)
+    # Only push a theme reload to every connected screen when it changed.
+    if result.get("changed"):
+        await _reload_themes(hass)
+    return result
+
+
+async def _async_set_entity_value(hass: HomeAssistant, entity_id: str, value: str) -> None:
+    domain = entity_id.split(".", 1)[0]
+    if domain == "switch":
+        service = "turn_on" if str(value).lower() in ("on", "true", "1") else "turn_off"
+        await hass.services.async_call("switch", service, {"entity_id": entity_id}, blocking=True)
+    elif domain == "select":
+        await hass.services.async_call(
+            "select", "select_option", {"entity_id": entity_id, "option": value}, blocking=True
+        )
+    elif domain == "number":
+        await hass.services.async_call(
+            "number", "set_value", {"entity_id": entity_id, "value": float(value)}, blocking=True
+        )
+    else:
+        await hass.services.async_call(
+            "text", "set_value", {"entity_id": entity_id, "value": value}, blocking=True
+        )
 
 
 def _state(hass: HomeAssistant, entity_id: str) -> str:
@@ -85,16 +127,35 @@ def async_setup_services(hass: HomeAssistant) -> None:
         )
 
     async def generate(call: ServiceCall) -> ServiceResponse:
-        engine = _engine(hass)
-        arguments = {
-            argument: _state(hass, entity_id)
-            for argument, entity_id in LIVE_ARGUMENT_ENTITIES.items()
-        }
-        result = await hass.async_add_executor_job(engine.generate_live, arguments)
-        # Only push a theme reload to every connected screen when it changed.
-        if result.get("changed"):
-            await _reload_themes(hass)
-        return result
+        return await async_generate(hass)
+
+    async def copy_variant(call: ServiceCall) -> ServiceResponse:
+        source = call.data["source"]
+        target = other_variant(source)
+        definitions = _entry(hass).runtime_data.definitions
+        prefix = f"theme_studio_{source}_"
+        source_values: dict[str, str] = {}
+        entity_ids: dict[str, str] = {}
+        for definition in definitions:
+            if definition.platform == "button" or not definition.key.startswith(prefix):
+                continue
+            setting = definition.key[len(prefix):]
+            state = hass.states.get(definition.entity_id)
+            if state is None or state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+                continue
+            source_values[setting] = state.state
+            entity_ids[setting] = f"{definition.platform}.theme_studio_{target}_{setting}"
+        target_values = mirror_variant(source_values, target)
+        for setting, value in target_values.items():
+            if hass.states.get(entity_ids[setting]) is not None:
+                await _async_set_entity_value(hass, entity_ids[setting], value)
+        # Open the copy in the editor; it is written to the theme file on the next save.
+        load_button = f"button.theme_studio_theme_load_{target}_theme"
+        if hass.states.get(load_button) is not None:
+            await hass.services.async_call(
+                "button", "press", {"entity_id": load_button}, blocking=True
+            )
+        return {"ok": True, "source": source, "target": target, "copied": len(target_values)}
 
     async def save_preset(call: ServiceCall) -> ServiceResponse:
         engine = _engine(hass)
@@ -172,6 +233,12 @@ def async_setup_services(hass: HomeAssistant) -> None:
         (SERVICE_DELETE_USER_THEME, delete_user_theme, NAME_SCHEMA, SupportsResponse.OPTIONAL),
         (SERVICE_BUILD_THEME, build_theme, NAME_SCHEMA, SupportsResponse.OPTIONAL),
         (SERVICE_REFRESH_CATALOGS, refresh_catalogs, vol.Schema({}), SupportsResponse.OPTIONAL),
+        (
+            SERVICE_COPY_VARIANT,
+            copy_variant,
+            vol.Schema({vol.Required("source"): vol.In(VARIANTS)}),
+            SupportsResponse.OPTIONAL,
+        ),
     ]
     for service, handler, schema, supports_response in registrations:
         hass.services.async_register(

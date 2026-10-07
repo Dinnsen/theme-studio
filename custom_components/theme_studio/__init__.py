@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import logging
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv, entity_registry as er
 from homeassistant.helpers.start import async_at_started
 
@@ -16,7 +17,7 @@ from .const import DOMAIN, PLATFORMS
 from .definitions import HelperDefinition, load_definitions
 from .engine import ThemeEngine
 from .migration import find_orphaned_legacy_entities
-from .services import async_setup_services
+from .services import async_generate, async_setup_services
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,6 +31,7 @@ class ThemeStudioData:
     engine: ThemeEngine
     definitions: list[HelperDefinition]
     last_asset_install: dict[str, Any]
+    contrast: list[dict[str, Any]] = field(default_factory=list)
 
 
 type ThemeStudioConfigEntry = ConfigEntry[ThemeStudioData]
@@ -80,6 +82,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ThemeStudioConfigEntry) 
     # Runs after start-up, when Home Assistant has marked helpers that are no
     # longer defined in YAML as restored placeholders.
     entry.async_on_unload(async_at_started(hass, _async_remove_legacy_helpers))
+
+    async def _async_initial_generate(hass: HomeAssistant) -> None:
+        """Fill the contrast sensor once the editor entities are restored."""
+        try:
+            await async_generate(hass)
+        except (HomeAssistantError, OSError, ValueError) as err:
+            _LOGGER.warning("Theme Studio could not build the live theme at start-up: %s", err)
+
+    entry.async_on_unload(async_at_started(hass, _async_initial_generate))
     return True
 
 

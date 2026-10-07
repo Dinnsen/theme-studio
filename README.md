@@ -126,10 +126,11 @@ Theme Studio copies its managed files into `/config` when the integration starts
 
 ## What Theme Studio changes
 
-- **Managed files are overwritten on start.** The package, dashboard, presets, CLI script and bundled theme are refreshed every time the integration starts. A changed file is backed up first as `<file>.bak_YYYYMMDD_HHMMSS`. Turn off *Overwrite managed files* in the integration options to keep your own edits. User themes in `/config/theme_studio/user_themes/` are never touched.
+- **Managed files are overwritten on start.** The package, dashboard, presets and bundled themes are refreshed every time the integration starts. A changed file is backed up first as `<file>.bak_YYYYMMDD_HHMMSS`. Turn off *Overwrite managed files* in the integration options to keep your own edits. User themes in `/config/theme_studio/user_themes/` are never touched.
 - **Editor state survives restarts.** The studio keeps your current values and selected theme when Home Assistant restarts.
 - **Your default theme is left alone.** Theme Studio only sets *Theme Studio Dynamic* as the Home Assistant default theme when `switch.theme_studio_set_as_default_theme` is on (off by default).
 - **No shell commands.** Generating, saving, copying, deleting and building themes run inside the integration as services (see [Services](#services)). Nothing starts a `python3` subprocess, and the live theme is only reloaded on your screens when it actually changed.
+- **Readable colours by default.** Automatic text, icon, navbar and header colours are picked by real (WCAG) contrast against the page, the cards and Bubble cards, and an automatic accent is darkened or lightened until it reaches 3:1. Text on the accent colour (badges, chips) follows the accent. Colours you set yourself are never changed; the studio shows a contrast warning instead (`sensor.theme_studio_contrast`).
 - **No global layout CSS.** Themes no longer hide the header, change view padding, blur every card or limit the width of sidebar views. Use [Kiosk Mode](https://github.com/NemesisRE/kiosk-mode) or your own card-mod if you want that.
 
 ## File Structure
@@ -140,7 +141,6 @@ Theme Studio automatically installs the following folders:
 /config/theme_studio/
   presets/            built-in presets (managed)
   user_themes/        your themes (never overwritten)
-  scripts/            theme_studio_cli.py (managed)
 
 /config/themes/theme_studio_dynamic.yaml          bundled fallback (managed)
 /config/themes/theme_studio_standard.yaml         Theme Studio Standard, light + dark (managed)
@@ -208,6 +208,7 @@ card_mod:
 | `theme_studio.delete_user_theme` | Deletes a user theme and its built theme file. |
 | `theme_studio.build_theme` | Exports a user theme or preset with light and dark mode to `/config/themes/theme_studio/`. |
 | `theme_studio.refresh_catalogs` | Rereads presets, user themes and background images. |
+| `theme_studio.copy_variant` | Copies the light variant to dark or the other way round. Lightness is mirrored and light/dark-specific colours go back to auto, so the copy stays readable. |
 | `theme_studio.set_options` | Replaces the option list of a Theme Studio select. |
 | `theme_studio.initialize_assets` / `theme_studio.reinstall_assets` | Installs the managed files again and returns what changed. |
 

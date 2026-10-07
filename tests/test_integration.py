@@ -22,6 +22,7 @@ SENSORS = {
     "sensor.theme_studio_user_theme_catalog",
     "sensor.theme_studio_background_image_catalog",
     "sensor.theme_studio_active_preset",
+    "sensor.theme_studio_contrast",
     # Template sensors defined in the package itself.
     "sensor.theme_studio_theme_summary",
     "sensor.theme_studio_picker_hex",
@@ -202,3 +203,76 @@ def test_entity_names_do_not_repeat_the_device_name() -> None:
     for name in names:
         assert not re.match(r"theme[ _]studio", name, re.I), name
         assert name[:1].isupper(), name
+
+
+def test_generate_live_reports_contrast(tmp_path) -> None:
+    engine_module = load_module("engine")
+    const = load_module("const")
+    definitions = load_module("definitions").load_definitions()
+    defaults = {definition.entity_id: definition.default for definition in definitions}
+    arguments = {}
+    for argument, entity_id in const.LIVE_ARGUMENT_ENTITIES.items():
+        value = defaults[entity_id]
+        if isinstance(value, bool):
+            value = "on" if value else "off"
+        arguments[argument] = str(value)
+
+    result = engine_module.ThemeEngine.create(str(tmp_path)).generate_live(arguments)
+
+    keys = [pair["key"] for pair in result["contrast"]]
+    assert keys == list(const.CONTRAST_LABELS)
+    for pair in result["contrast"]:
+        assert pair["ok"] == (pair["ratio"] >= pair["minimum"])
+
+
+def test_copy_variant_mirrors_lightness_and_resets_variant_colours() -> None:
+    variants = load_module("variants")
+    dark = {
+        "base_color": "#1F2F46",
+        "custom_background_color": "#0E1510",
+        "tone": "-12.0",
+        "surface_lift": "3.0",
+        "radius": "24.0",
+        "accent_color_override": "#53B7FF",
+        "card_bg_override": "#1F2F57",
+        "state_icon_color_override": "#ffffff",
+        "use_custom_text_color": "on",
+        "custom_text_color": "#ffffff",
+        "border_type": "etched",
+    }
+
+    light = variants.mirror_variant(dark, "light")
+
+    assert light["base_color"] == variants.mirror_lightness("#1F2F46", "light")
+    assert light["base_color"] != "#1F2F46"
+    assert light["tone"] == "12.0"
+    assert light["surface_lift"] == "-3.0"
+    assert light["card_bg_override"] == "auto"
+    assert light["state_icon_color_override"] == "auto"
+    assert light["use_custom_text_color"] == "off"
+    # The theme's shape and identity are kept.
+    assert light["radius"] == "24.0"
+    assert light["accent_color_override"] == "#53B7FF"
+    assert light["border_type"] == "etched"
+    # The source is not touched.
+    assert dark["card_bg_override"] == "#1F2F57"
+    # A colour that already suits the target is kept.
+    assert variants.mirror_lightness("#EEF3EC", "light") == "#EEF3EC"
+
+
+def test_obsolete_cli_copy_is_removed_and_not_reinstalled(tmp_path) -> None:
+    asset_manager = load_module("asset_manager")
+    hass = types.SimpleNamespace(
+        config=types.SimpleNamespace(path=lambda *parts: str(tmp_path.joinpath(*parts)))
+    )
+    old = tmp_path / "theme_studio" / "scripts" / "theme_studio_cli.py"
+    old.parent.mkdir(parents=True)
+    old.write_text("# old copy", encoding="utf-8")
+    (old.parent / "theme_studio_cli.py.bak_20260101_000000").write_text("# old", encoding="utf-8")
+
+    result = asset_manager.initialize_assets(hass, overwrite=True, backup=True)
+
+    assert result["success"], result
+    assert not old.exists()
+    assert not old.parent.exists()
+    assert len(result["removed_files"]) == 2

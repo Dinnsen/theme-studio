@@ -178,3 +178,68 @@ def test_default_preset_is_not_forced_over_a_selected_user_theme() -> None:
     package = PACKAGE_PATH.read_text(encoding="utf-8")
     block = package.split("- id: theme_studio_apply_default_when_none_selected", 1)[1].split("\n- id:", 1)[0]
     assert "text.theme_studio_selected_user_theme" in block
+
+
+def contrast_of(cli, values, key):
+    return next(pair for pair in cli.contrast_report(values) if pair["key"] == key)
+
+
+def test_text_on_accent_uses_the_more_readable_colour() -> None:
+    cli = load_cli_module()
+    for name, variant, values in build_preset_variants(cli):
+        accent = cli.parse_css_color(cli._resolve_var(values, values["primary-color"]))
+        best = max(
+            cli.contrast_ratio(cli.parse_css_color(colour), accent)
+            for colour in (cli.DARK_TEXT, cli.LIGHT_TEXT)
+        )
+        ratio = contrast_of(cli, values, "text_on_accent")["ratio"]
+        assert abs(ratio - round(best, 2)) < 0.02, f"{name}/{variant}"
+
+
+def test_automatic_accent_reaches_three_to_one() -> None:
+    cli = load_cli_module()
+    for preset_file in sorted(PRESET_DIR.glob("*.json")):
+        if preset_file.name == "index.json":
+            continue
+        preset = json.loads(preset_file.read_text(encoding="utf-8"))
+        for variant in ("light", "dark"):
+            settings = dict(preset[variant])
+            settings["accent_color_override"] = "auto"
+            values = cli.build(cli.namespace_from_settings(settings, "/tmp/unused.yaml"))
+            assert contrast_of(cli, values, "accent_page")["ratio"] >= 3.0, f"{preset_file.name}/{variant}"
+
+
+def test_automatic_text_is_readable_on_page_and_cards() -> None:
+    cli = load_cli_module()
+    for preset_file in sorted(PRESET_DIR.glob("*.json")):
+        if preset_file.name == "index.json":
+            continue
+        preset = json.loads(preset_file.read_text(encoding="utf-8"))
+        for variant in ("light", "dark"):
+            settings = dict(preset[variant])
+            settings["use_custom_text_color"] = "off"
+            values = cli.build(cli.namespace_from_settings(settings, "/tmp/unused.yaml"))
+            worst = min(contrast_of(cli, values, key)["ratio"] for key in ("text_page", "text_card"))
+            # The better of white/near-black; mid-tone surfaces can still sit below 4.5.
+            assert worst >= 3.0, f"{preset_file.name}/{variant}: {worst}"
+
+
+def test_custom_icon_switch_reaches_the_theme() -> None:
+    cli = load_cli_module()
+    preset = json.loads((PRESET_DIR / "default.json").read_text(encoding="utf-8"))
+    settings = dict(preset["light"])
+    settings.update({"use_custom_icon_color": "on", "custom_icon_color": "#123456"})
+    values = cli.build(cli.namespace_from_settings(settings, "/tmp/unused.yaml"))
+    assert values["state-icon-color"] == "#123456"
+    settings["use_custom_icon_color"] = "off"
+    values = cli.build(cli.namespace_from_settings(settings, "/tmp/unused.yaml"))
+    assert values["state-icon-color"] != "#123456"
+
+
+def test_bundled_dynamic_theme_matches_engine() -> None:
+    spec = importlib.util.spec_from_file_location(
+        "regenerate_bundled_themes", ROOT / "scripts" / "regenerate_bundled_themes.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert BUNDLED_THEME_PATH.read_text(encoding="utf-8") == module.dynamic_theme(module.load_cli())
