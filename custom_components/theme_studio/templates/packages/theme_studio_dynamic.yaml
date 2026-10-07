@@ -650,6 +650,7 @@ automation:
     - switch.theme_studio_theme_use_custom_font
     - select.theme_studio_theme_background_overlay
     - select.theme_studio_theme_preview_mode
+    - select.theme_studio_theme_color_model
     - select.theme_studio_theme_presets
   - platform: event
     event_type: homeassistant_started

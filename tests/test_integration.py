@@ -541,3 +541,22 @@ def test_oklch_colour_model_gives_valid_and_different_colours() -> None:
     assert hsl != oklch
     unknown = cli.build(cli.namespace_from_settings({**settings, "color_model": "rgb"}, "/tmp/unused.yaml"))
     assert unknown == hsl
+
+
+def test_every_live_argument_regenerates_the_preview() -> None:
+    """Changing any value the live theme is built from must rebuild it."""
+    import yaml
+
+    const = load_module("const")
+    package = yaml.safe_load(PACKAGE_PATH.read_text(encoding="utf-8"))
+    watched: set[str] = set()
+    for automation in package["automation"]:
+        if "theme_studio.generate" not in json.dumps(automation.get("action")):
+            continue
+        for trigger in automation.get("trigger", []):
+            entity_ids = trigger.get("entity_id") or []
+            watched |= {entity_ids} if isinstance(entity_ids, str) else set(entity_ids)
+    # The image URL follows the background image picker, which is watched.
+    indirect = {"text.theme_studio_theme_background_image_url"}
+    missing = set(const.LIVE_ARGUMENT_ENTITIES.values()) - watched - indirect
+    assert not missing, sorted(missing)
