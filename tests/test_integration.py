@@ -403,3 +403,19 @@ def test_preset_previews_are_written_and_removed_on_uninstall(tmp_path) -> None:
 
     load_module("asset_manager").remove_assets(hass)
     assert not folder.exists()
+
+
+def test_user_theme_previews_follow_the_user_themes(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    folder = tmp_path / "www" / "theme_studio" / "previews"
+    assert engine.copy_preset("Purple", "Evening")["ok"]
+    engine.write_user_theme_index()
+    assert (folder / "user_evening_light.svg").exists()
+    assert (folder / "user_evening_dark.svg").exists()
+
+    assert engine.delete_user_theme("Evening")["ok"]
+    engine.write_user_theme_index()
+    assert not (folder / "user_evening_light.svg").exists()
+    # Built-in previews are not touched by the user theme clean-up.
+    engine.write_previews()
+    assert (folder / "purple_light.svg").exists()

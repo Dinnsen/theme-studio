@@ -70,10 +70,21 @@ def preview_svg(cli: ModuleType, values: dict[str, Any], title: str) -> str:
 """
 
 
-def write_previews(cli: ModuleType, preset_dir: Path, output_dir: Path) -> list[str]:
-    """Write a preview per built-in preset and variant; only rewrite changed files."""
+USER_PREFIX = "user_"
+
+
+def write_previews(
+    cli: ModuleType, preset_dir: Path, output_dir: Path, prefix: str = ""
+) -> list[str]:
+    """Write a preview per preset file and variant; only rewrite changed files.
+
+    Built-in presets use ``<slug>_<variant>.svg``; user themes use the
+    ``user_`` prefix so they never collide with a built-in preset.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     written: list[str] = []
+    if not preset_dir.is_dir():
+        return written
     for preset_file in sorted(preset_dir.glob("*.json")):
         if preset_file.name == "index.json":
             continue
@@ -87,9 +98,20 @@ def write_previews(cli: ModuleType, preset_dir: Path, output_dir: Path) -> list[
                 continue
             values = cli.build(cli.namespace_from_settings(settings, "/tmp/unused.yaml"))
             svg = preview_svg(cli, values, f"{preset.get('name', preset_file.stem)} ({variant})")
-            target = output_dir / f"{preset_file.stem}_{variant}.svg"
+            target = output_dir / f"{prefix}{preset_file.stem}_{variant}.svg"
             if target.exists() and target.read_text(encoding="utf-8") == svg:
                 continue
             target.write_text(svg, encoding="utf-8")
             written.append(str(target))
+    return written
+
+
+def write_user_previews(cli: ModuleType, user_dir: Path, output_dir: Path) -> list[str]:
+    """Previews for user themes; previews of deleted user themes are removed."""
+    written = write_previews(cli, user_dir, output_dir, prefix=USER_PREFIX)
+    existing = {path.stem for path in user_dir.glob("*.json")} if user_dir.is_dir() else set()
+    for preview in output_dir.glob(f"{USER_PREFIX}*.svg"):
+        slug = preview.stem[len(USER_PREFIX):].rsplit("_", 1)[0]
+        if slug not in existing:
+            preview.unlink(missing_ok=True)
     return written

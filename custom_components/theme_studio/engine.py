@@ -185,12 +185,14 @@ class ThemeEngine:
         )
 
     def write_user_theme_index(self) -> dict[str, Any]:
-        """Keep user_themes/index.json for anything that still reads it."""
-        return self._run(
+        """Keep user_themes/index.json and the user theme previews up to date."""
+        result = self._run(
             self.cli.cmd_list_user_themes,
             preset_dir=str(self.preset_dir),
             output_json=str(self.user_theme_dir / "index.json"),
         )
+        previews_module.write_user_previews(self.cli, self.user_theme_dir, self._path(PREVIEW_DIR))
+        return result
 
     # Catalogs --------------------------------------------------------------
 
@@ -308,4 +310,8 @@ class ThemeEngine:
         return result
 
     def write_previews(self) -> list[str]:
-        return previews_module.write_previews(self.cli, self.preset_dir, self._path(PREVIEW_DIR))
+        """Previews for the built-in presets and the user themes."""
+        output = self._path(PREVIEW_DIR)
+        written = previews_module.write_previews(self.cli, self.preset_dir, output)
+        written += previews_module.write_user_previews(self.cli, self.user_theme_dir, output)
+        return written
