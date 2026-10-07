@@ -281,7 +281,7 @@ export const editorStyles = css`
   }
   .role {
     display: grid;
-    grid-template-columns: 44px minmax(0, 1fr) auto auto;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
     align-items: center;
     gap: 10px;
     padding: 8px 10px;
@@ -289,6 +289,25 @@ export const editorStyles = css`
   }
   .role:first-child {
     border-top: 0;
+  }
+  .role-text {
+    min-width: 0;
+  }
+  .role-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .badge.small {
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 6px;
+  }
+  .sec-foot {
+    border-top: 1px solid var(--ts-line);
+    padding-top: 18px;
+    display: flex;
   }
   .rs {
     width: 44px;

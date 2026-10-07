@@ -921,9 +921,6 @@ export class ThemeStudioPanel extends LitElement {
           </div>
           ${edit && !edit.builtin && this._canEdit
             ? html`
-                <button class="btn icon hide-p" aria-label="Delete theme" title="Delete theme" @click=${() => (this._dialog = "delete")}>
-                  ${icon("trash", 19)}
-                </button>
                 <button class="btn primary" ?disabled=${this._busy} @click=${() => void this._build()} title="Write the theme file so Home Assistant uses your changes">
                   ${icon("upload", 18)}<span class="hide-t">Update in HA</span>
                 </button>
@@ -967,6 +964,11 @@ export class ThemeStudioPanel extends LitElement {
                         <p class="sp">${section.description}</p>
                       </div>
                       ${section.id === "check" ? this._renderCheck() : section.groups.map((group) => this._renderGroup(group))}
+                      ${!edit.builtin && this._canEdit
+                        ? html`<div class="sec-foot">
+                            <button class="btn danger" @click=${() => (this._dialog = "delete")}>${icon("trash", 18)}Delete theme</button>
+                          </div>`
+                        : nothing}
                     </div>`
                   : html`<div class="loading">Loading…</div>`}
               </section>
@@ -1163,13 +1165,15 @@ export class ThemeStudioPanel extends LitElement {
                 /><span class="rs-lock" aria-hidden="true">${icon("lock", 12)}</span>`
             : nothing}
         </div>
-        <div style="min-width: 0">
+        <div class="role-text">
           <div class="rn">${role.label}</div>
-          <div class="val">${manual ? "Manual" : "Auto"} · ${colour || "–"}</div>
+          <div class="role-meta">
+            <span class="val">${manual ? "Manual" : "Auto"} · ${colour || "–"}</span>
+            ${worst
+              ? html`<span class=${good ? "badge small" : "badge small warn"} title=${`Lowest contrast: ${worst.label} (needs ${worst.minimum}:1)`}>${worst.ratio.toFixed(1)}:1</span>`
+              : nothing}
+          </div>
         </div>
-        ${worst
-          ? html`<span class=${good ? "badge" : "badge warn"} title=${`Lowest contrast: ${worst.label} (needs ${worst.minimum}:1)`}>${worst.ratio.toFixed(1)}:1</span>`
-          : html`<span></span>`}
         <div class="mode" role="group" aria-label=${`${role.label} colour mode`}>
           <button class=${manual ? "" : "on"} ?disabled=${!this._canEdit} @click=${() => manual && this._change([variant], setAuto(role))}>Auto</button>
           <button
