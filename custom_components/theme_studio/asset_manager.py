@@ -54,6 +54,7 @@ class AssetInstallResult:
     updated_files: list[str] = field(default_factory=list)
     skipped_files: list[str] = field(default_factory=list)
     backups: list[str] = field(default_factory=list)
+    removed_files: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
 
     @property
@@ -70,6 +71,7 @@ class AssetInstallResult:
             "updated_files": self.updated_files,
             "skipped_files": self.skipped_files,
             "backups": self.backups,
+            "removed_files": self.removed_files,
             "errors": self.errors,
         }
 
@@ -103,7 +105,6 @@ def initialize_assets(
         _mkdir(path, result)
 
     _mkdir(config_dir / "theme_studio" / "presets", result)
-    _mkdir(config_dir / "theme_studio" / "scripts", result)
     _mkdir(config_dir / "theme_studio" / "user_themes", result)
     _mkdir(config_dir / "www" / "background", result)
 
@@ -118,6 +119,8 @@ def initialize_assets(
             overwrite=overwrite,
             backup=backup,
         )
+
+    _remove_obsolete_files(config_dir, result)
 
     _LOGGER.info(
         "Theme Studio assets installed. copied=%s updated=%s skipped=%s backups=%s errors=%s",
@@ -160,10 +163,15 @@ def _copy_jobs(config_dir: Path) -> list[tuple[Path, Path]]:
         (TEMPLATES_DIR / "lovelace", config_dir / "lovelace"),
         (TEMPLATES_DIR / "themes", config_dir / "themes"),
         (TEMPLATES_DIR / "theme_studio" / "presets", config_dir / "theme_studio" / "presets"),
-        (TEMPLATES_DIR / "theme_studio" / "scripts", config_dir / "theme_studio" / "scripts"),
         (TEMPLATES_DIR / "www" / "background", config_dir / "www" / "background"),
     ]
 
+
+# Files earlier versions installed that are no longer used. Since v0.6.0 the
+# integration runs the bundled CLI in-process, so the copy in /config is dead.
+OBSOLETE_FILES = (
+    ("theme_studio", "scripts", "theme_studio_cli.py"),
+)
 
 # Removed on uninstall in addition to the bundled files themselves.
 GENERATED_FILES = (
@@ -209,8 +217,11 @@ def remove_assets(hass: HomeAssistant) -> dict[str, Any]:
             for backup_file in target.parent.glob(f"{target.name}.bak_*"):
                 _remove(backup_file)
 
-    for parts in GENERATED_FILES:
-        _remove(config_dir.joinpath(*parts))
+    for parts in GENERATED_FILES + OBSOLETE_FILES:
+        target = config_dir.joinpath(*parts)
+        _remove(target)
+        for backup_file in target.parent.glob(f"{target.name}.bak_*"):
+            _remove(backup_file)
 
     for folder in (config_dir / "theme_studio" / "scripts", config_dir / "theme_studio" / "presets"):
         try:
@@ -221,6 +232,27 @@ def remove_assets(hass: HomeAssistant) -> dict[str, Any]:
 
     _LOGGER.info("Theme Studio assets removed: %s (errors: %s)", len(removed), len(errors))
     return {"success": not errors, "removed_files": removed, "errors": errors}
+
+
+def _remove_obsolete_files(config_dir: Path, result: AssetInstallResult) -> None:
+    """Delete files earlier versions installed that nothing uses any more."""
+    for parts in OBSOLETE_FILES:
+        path = config_dir.joinpath(*parts)
+        if _is_protected_target(path, config_dir):
+            continue
+        for candidate in [path, *path.parent.glob(f"{path.name}.bak_*")]:
+            if not candidate.is_file():
+                continue
+            try:
+                candidate.unlink()
+                result.removed_files.append(_display(candidate))
+            except OSError as err:
+                result.errors.append(f"Could not remove {candidate}: {err}")
+        try:
+            if path.parent.is_dir() and not any(path.parent.iterdir()):
+                path.parent.rmdir()
+        except OSError:
+            pass
 
 
 def _mkdir(path: Path, result: AssetInstallResult) -> None:

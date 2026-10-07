@@ -848,6 +848,30 @@ views:
             grid_options:
               columns: 12
               rows: 1
+          - type: markdown
+            card_mod:
+              style: |
+                ha-card {
+                  background: var(--ha-card-background) !important;
+                  color: var(--primary-text-color) !important;
+                }
+            content: |-
+              {% set pairs = state_attr('sensor.theme_studio_contrast', 'pairs') or [] %}
+              {% set failing = pairs | rejectattr('ok') | list %}
+              {% if not pairs %}
+              **Contrast** · waiting for the live theme
+              {% elif failing | count == 0 %}
+              **Contrast** · all {{ pairs | count }} text and icon pairs are readable
+              {% else %}
+              **Contrast** · {{ failing | count }} of {{ pairs | count }} pairs are hard to read
+              {% endif %}
+              {% if pairs %}
+
+              | | Pair | Ratio | Needs |
+              |:-:|:--|--:|--:|
+              {% for pair in pairs | sort(attribute='ok') %}| {{ '✓' if pair.ok else '⚠' }} | {{ pair.label }} | {{ '%.1f' | format(pair.ratio) }}:1 | {{ pair.minimum }}:1 |
+              {% endfor %}
+              {% endif %}
           - type: horizontal-stack
             cards:
               - type: custom:button-card
@@ -946,6 +970,50 @@ views:
                     - width: 18px
       - type: grid
         cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                name: Copy light to dark
+                icon: mdi:weather-night
+                tap_action:
+                  action: call-service
+                  service: theme_studio.copy_variant
+                  data:
+                    source: light
+                  confirmation:
+                    text: Overwrite the saved dark variant with a readable copy of the saved light variant? The studio opens dark afterwards; press Save to keep it.
+                styles:
+                  card:
+                    - border-radius: 999px
+                    - padding: 6px 12px
+                    - height: 36px
+                    - background: var(--ha-card-background)
+                    - border: 1px solid var(--divider-color)
+                  name:
+                    - font-size: 11px
+                  icon:
+                    - width: 28px
+              - type: custom:button-card
+                name: Copy dark to light
+                icon: mdi:white-balance-sunny
+                tap_action:
+                  action: call-service
+                  service: theme_studio.copy_variant
+                  data:
+                    source: dark
+                  confirmation:
+                    text: Overwrite the saved light variant with a readable copy of the saved dark variant? The studio opens light afterwards; press Save to keep it.
+                styles:
+                  card:
+                    - border-radius: 999px
+                    - padding: 6px 12px
+                    - height: 36px
+                    - background: var(--ha-card-background)
+                    - border: 1px solid var(--divider-color)
+                  name:
+                    - font-size: 11px
+                  icon:
+                    - width: 28px
           - type: custom:bubble-card
             card_type: separator
             name: Base Color

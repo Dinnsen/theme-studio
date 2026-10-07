@@ -19,7 +19,13 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.event import async_track_state_change_event
 
 from . import ThemeStudioConfigEntry
-from .const import SELECT_PRESETS, SELECT_USER_THEMES, SIGNAL_CATALOGS_CHANGED
+from .const import (
+    CONTRAST_LABELS,
+    SELECT_PRESETS,
+    SELECT_USER_THEMES,
+    SIGNAL_CATALOGS_CHANGED,
+    SIGNAL_CONTRAST_UPDATED,
+)
 from .engine import ThemeEngine
 from .entity import device_info
 
@@ -42,6 +48,7 @@ async def async_setup_entry(
             UserThemeCatalogSensor(entry, engine),
             BackgroundImageCatalogSensor(entry, engine),
             ActivePresetSensor(entry, engine),
+            ContrastSensor(entry),
         ],
         update_before_add=True,
     )
@@ -173,4 +180,66 @@ class ActivePresetSensor(SensorEntity):
         self._attr_native_value = data.get("name") or "none"
         self._attr_extra_state_attributes = {
             key: data[key] for key in ("name", "slug", "theme", "light", "dark") if key in data
+        }
+
+
+class ContrastSensor(SensorEntity):
+    """Contrast of the live theme: the number of text/icon pairs below WCAG.
+
+    State is the number of failing pairs (0 is good). Attributes hold every
+    pair with its ratio, so the studio can show the numbers next to the
+    colours.
+    """
+
+    _attr_has_entity_name = True
+    _attr_icon = "mdi:contrast-circle"
+    _attr_should_poll = False
+    # The pair list changes with every slider move; keep it out of the recorder.
+    _unrecorded_attributes = frozenset({"pairs", "failing"})
+
+    def __init__(self, entry: ThemeStudioConfigEntry) -> None:
+        self._entry = entry
+        self._attr_unique_id = "theme_studio_contrast"
+        self._attr_name = "Contrast warnings"
+        self._attr_device_info = device_info(entry)
+        self.entity_id = "sensor.theme_studio_contrast"
+
+    async def async_added_to_hass(self) -> None:
+        """Follow every live theme generation."""
+        self.async_on_remove(
+            async_dispatcher_connect(self.hass, SIGNAL_CONTRAST_UPDATED, self._async_updated)
+        )
+
+    @callback
+    def _async_updated(self) -> None:
+        self.async_write_ha_state()
+
+    @property
+    def available(self) -> bool:
+        return bool(self._entry.runtime_data.contrast)
+
+    @property
+    def native_value(self) -> int | None:
+        report = self._entry.runtime_data.contrast
+        if not report:
+            return None
+        return sum(1 for pair in report if not pair["ok"])
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        report = self._entry.runtime_data.contrast
+        return {
+            "pairs": [
+                {
+                    "key": pair["key"],
+                    "label": CONTRAST_LABELS.get(pair["key"], pair["key"]),
+                    "ratio": pair["ratio"],
+                    "minimum": pair["minimum"],
+                    "ok": pair["ok"],
+                }
+                for pair in report
+            ],
+            "failing": [
+                CONTRAST_LABELS.get(pair["key"], pair["key"]) for pair in report if not pair["ok"]
+            ],
         }

@@ -59,6 +59,17 @@ build_theme:
 
 refresh_catalogs:
 
+copy_variant:
+  fields:
+    source:
+      required: true
+      example: dark
+      selector:
+        select:
+          options:
+            - light
+            - dark
+
 set_options:
   target:
     entity:

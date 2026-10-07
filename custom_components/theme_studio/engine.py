@@ -117,13 +117,14 @@ class ThemeEngine:
         lines = [f"{LIVE_THEME_NAME}:\n"]
         lines.extend(self.cli.emit_value(key, value) for key, value in theme.items())
         content = "".join(lines)
+        contrast = self.cli.contrast_report(theme)
 
         target = self.live_theme_file
-        if target.exists() and target.read_text(encoding="utf-8") == content:
-            return {"ok": True, "changed": False, "output": str(target)}
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(content, encoding="utf-8")
-        return {"ok": True, "changed": True, "output": str(target)}
+        changed = not (target.exists() and target.read_text(encoding="utf-8") == content)
+        if changed:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(content, encoding="utf-8")
+        return {"ok": True, "changed": changed, "output": str(target), "contrast": contrast}
 
     def save_preset(self, payload: dict[str, Any]) -> dict[str, Any]:
         return self._run(

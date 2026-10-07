@@ -107,6 +107,16 @@
       "name": "Refresh catalogs",
       "description": "Re-read presets, user themes and background images."
     },
+    "copy_variant": {
+      "name": "Copy variant",
+      "description": "Copy the saved light or dark variant to the other one and open it in the studio. Lightness is mirrored and light/dark-specific colours are reset to auto, so the copy stays readable. Save the theme to keep it.",
+      "fields": {
+        "source": {
+          "name": "Source",
+          "description": "Variant to copy from: light or dark."
+        }
+      }
+    },
     "set_options": {
       "name": "Set options",
       "description": "Replace the options of a Theme Studio select.",

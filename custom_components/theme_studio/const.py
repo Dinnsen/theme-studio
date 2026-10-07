@@ -28,8 +28,28 @@ SERVICE_DELETE_USER_THEME = "delete_user_theme"
 SERVICE_BUILD_THEME = "build_theme"
 SERVICE_REFRESH_CATALOGS = "refresh_catalogs"
 SERVICE_SET_OPTIONS = "set_options"
+SERVICE_COPY_VARIANT = "copy_variant"
 
 SIGNAL_CATALOGS_CHANGED = f"{DOMAIN}_catalogs_changed"
+SIGNAL_CONTRAST_UPDATED = f"{DOMAIN}_contrast_updated"
+
+# Readable names for the pairs in theme_studio_cli.CONTRAST_PAIRS.
+CONTRAST_LABELS: dict[str, str] = {
+    "text_page": "Text on page",
+    "text_card": "Text on cards",
+    "secondary_text_card": "Secondary text on cards",
+    "icon_card": "Icons on cards",
+    "active_icon_card": "Active icons on cards",
+    "text_bubble": "Text on Bubble cards",
+    "icon_bubble": "Icons on Bubble cards",
+    "text_popup": "Text in pop-ups",
+    "navbar_icon": "Navbar icons",
+    "header_text": "Header text",
+    "sidebar_icon": "Sidebar icons",
+    "text_on_accent": "Text on accent (badges, chips)",
+    "accent_page": "Accent on page",
+    "text_sub_button": "Text on sub-buttons",
+}
 
 # CLI argument -> entity that feeds it when the live theme is generated.
 # Mirrors the former shell_command.generate_theme_studio_theme one to one.
