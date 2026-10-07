@@ -32,7 +32,7 @@ async def async_setup_entry(
 class ThemeStudioButton(ButtonEntity):
     """An action button in the editor."""
 
-    _attr_has_entity_name = False
+    _attr_has_entity_name = True
 
     def __init__(self, entry: ConfigEntry, definition: HelperDefinition) -> None:
         self._attr_unique_id = definition.key

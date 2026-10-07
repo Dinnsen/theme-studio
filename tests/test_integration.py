@@ -165,3 +165,40 @@ def test_state_triggered_automations_ignore_entity_reloads() -> None:
         assert conditions.startswith("  - condition: template\n    value_template: \"{{ trigger.platform != 'state'"), (
             automation.splitlines()[0]
         )
+
+
+def test_orphaned_legacy_helpers_are_found_but_live_ones_kept() -> None:
+    migration = load_module("migration")
+    definitions = load_module("definitions").load_definitions()
+    by_key = {definition.key: definition for definition in definitions}
+    orphan = by_key["theme_studio_theme_base_color"]
+    live = by_key["theme_studio_theme_contrast"]
+    foreign = by_key["theme_studio_delete_theme"]
+    missing = by_key["theme_studio_theme_name"]
+
+    entry = types.SimpleNamespace
+    registry = {
+        orphan.legacy_entity_id: entry(platform="input_text", unique_id=orphan.key),
+        live.legacy_entity_id: entry(platform="input_number", unique_id=live.key),
+        # Same entity id, but owned by another integration: never touched.
+        foreign.legacy_entity_id: entry(platform="template", unique_id="something"),
+        missing.legacy_entity_id: entry(platform="input_text", unique_id=missing.key),
+    }
+    states = {
+        orphan.legacy_entity_id: types.SimpleNamespace(state="unavailable", attributes={"restored": True}),
+        live.legacy_entity_id: types.SimpleNamespace(state="50.0", attributes={}),
+        foreign.legacy_entity_id: types.SimpleNamespace(state="unavailable", attributes={"restored": True}),
+    }
+
+    orphaned = migration.find_orphaned_legacy_entities(definitions, registry.get, states.get)
+
+    assert sorted(orphaned) == sorted([orphan.legacy_entity_id, missing.legacy_entity_id])
+
+
+def test_entity_names_do_not_repeat_the_device_name() -> None:
+    definitions = load_module("definitions").load_definitions()
+    names = [definition.name for definition in definitions]
+    assert len(names) == len(set(names))
+    for name in names:
+        assert not re.match(r"theme[ _]studio", name, re.I), name
+        assert name[:1].isupper(), name
