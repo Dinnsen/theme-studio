@@ -50,7 +50,7 @@ async def async_setup_entry(
 class ThemeStudioCatalogSensor(SensorEntity):
     """Base class: state is a count, options live in attributes."""
 
-    _attr_has_entity_name = False
+    _attr_has_entity_name = True
     _key: str
     _name: str
     _icon: str
@@ -92,7 +92,7 @@ class PresetCatalogSensor(ThemeStudioCatalogSensor):
     """Built-in presets."""
 
     _key = "theme_studio_preset_catalog"
-    _name = "Theme Studio - preset catalog"
+    _name = "Preset catalog"
     _icon = "mdi:palette-swatch-outline"
 
     def _read(self) -> dict[str, Any]:
@@ -103,7 +103,7 @@ class UserThemeCatalogSensor(ThemeStudioCatalogSensor):
     """User themes in /config/theme_studio/user_themes."""
 
     _key = "theme_studio_user_theme_catalog"
-    _name = "Theme Studio - user theme catalog"
+    _name = "User theme catalog"
     _icon = "mdi:palette-swatch-variant"
 
     def _read(self) -> dict[str, Any]:
@@ -114,7 +114,7 @@ class BackgroundImageCatalogSensor(ThemeStudioCatalogSensor):
     """Images in /config/www/background."""
 
     _key = "theme_studio_background_image_catalog"
-    _name = "Theme Studio - background image catalog"
+    _name = "Background image catalog"
     _icon = "mdi:image-multiple-outline"
 
     def _read(self) -> dict[str, Any]:
@@ -124,7 +124,7 @@ class BackgroundImageCatalogSensor(ThemeStudioCatalogSensor):
 class ActivePresetSensor(SensorEntity):
     """The preset or user theme currently selected in the studio."""
 
-    _attr_has_entity_name = False
+    _attr_has_entity_name = True
     _attr_icon = "mdi:palette"
     # The full preset JSON is large; keep it out of the recorder.
     _unrecorded_attributes = frozenset({"slug", "theme", "light", "dark"})
@@ -132,7 +132,7 @@ class ActivePresetSensor(SensorEntity):
     def __init__(self, entry: ConfigEntry, engine: ThemeEngine) -> None:
         self._engine = engine
         self._attr_unique_id = "theme_studio_active_preset"
-        self._attr_name = "Theme Studio - active preset"
+        self._attr_name = "Active preset"
         self._attr_device_info = device_info(entry)
         self.entity_id = "sensor.theme_studio_active_preset"
         self._attr_native_value = "none"

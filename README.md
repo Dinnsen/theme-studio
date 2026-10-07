@@ -107,7 +107,7 @@ Theme Studio copies its managed files into `/config` when the integration starts
 **Upgrading to 0.6.** The editor values now live in entities owned by the integration (`number.`, `text.`, `switch.`, `select.` and `button.theme_studio_*`) instead of YAML helpers (`input_number.` … `input_button.theme_studio_*`). The object ids are unchanged; only the domain changes.
 
 1. Update in HACS and restart. The new entities copy their values from the old helpers, which are still loaded at this point.
-2. Restart again. The new package loads and the old helpers, `shell_command`s and `command_line` sensors disappear.
+2. Restart again. The new package loads and the old helpers, `shell_command`s and `command_line` sensors disappear. From 0.6.1 Theme Studio also removes the leftover registry entries of the old helpers, so they do not linger as unavailable entities.
 3. If your own dashboards or automations use Theme Studio helpers, change the domain (for example `input_text.theme_studio_theme_base_color` -> `text.theme_studio_theme_base_color`). The sensors are renamed to `sensor.theme_studio_preset_catalog`, `sensor.theme_studio_user_theme_catalog`, `sensor.theme_studio_background_image_catalog` and `sensor.theme_studio_active_preset`.
 
 ## Workflow

@@ -26,7 +26,8 @@ class ThemeStudioHelperEntity(RestoreEntity):
     """Editor entity that keeps the entity id of the former YAML helper."""
 
     _attr_should_poll = False
-    _attr_has_entity_name = False
+    # The device is named Theme Studio; entity names are shown after it.
+    _attr_has_entity_name = True
 
     def __init__(self, entry: ConfigEntry, definition: HelperDefinition) -> None:
         self.definition = definition

@@ -7,13 +7,15 @@ import logging
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import config_validation as cv, entity_registry as er
+from homeassistant.helpers.start import async_at_started
 
 from .asset_manager import async_initialize_assets, remove_assets
 from .const import DOMAIN, PLATFORMS
 from .definitions import HelperDefinition, load_definitions
 from .engine import ThemeEngine
+from .migration import find_orphaned_legacy_entities
 from .services import async_setup_services
 
 _LOGGER = logging.getLogger(__name__)
@@ -62,6 +64,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ThemeStudioConfigEntry) 
     entry.runtime_data = ThemeStudioData(engine, definitions, install)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    @callback
+    def _async_remove_legacy_helpers(hass: HomeAssistant) -> None:
+        """Remove the pre-0.6.0 input_* helpers once they are no longer loaded."""
+        registry = er.async_get(hass)
+        orphaned = find_orphaned_legacy_entities(
+            definitions, registry.async_get, hass.states.get
+        )
+        for entity_id in orphaned:
+            registry.async_remove(entity_id)
+        if orphaned:
+            _LOGGER.info("Theme Studio removed %s old YAML helpers", len(orphaned))
+
+    # Runs after start-up, when Home Assistant has marked helpers that are no
+    # longer defined in YAML as restored placeholders.
+    entry.async_on_unload(async_at_started(hass, _async_remove_legacy_helpers))
     return True
 
 
