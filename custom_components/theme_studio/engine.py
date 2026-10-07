@@ -315,3 +315,93 @@ class ThemeEngine:
         written = previews_module.write_previews(self.cli, self.preset_dir, output)
         written += previews_module.write_user_previews(self.cli, self.user_theme_dir, output)
         return written
+
+    # Theme from image ------------------------------------------------------
+
+    def _fit_image_theme(self, settings: dict[str, Any], variant: str) -> tuple[dict[str, Any], list]:
+        """Nudge the image colours until every contrast pair passes (max 6 rounds)."""
+        surfaces = {
+            "text_card": "card_bg_override",
+            "secondary_text_card": "card_bg_override",
+            "text_bubble": "bubble_bg_override",
+            "icon_bubble": "bubble_bg_override",
+            "text_popup": "popup_bg_override",
+            "navbar_icon": "navbar_bg_override",
+            "text_sub_button": "bubble_bg_override",
+            "text_page": "custom_background_color",
+        }
+        step = 0.03 if variant == "light" else -0.03
+        report: list = []
+        for _ in range(6):
+            values = self.cli.build(self.cli.namespace_from_settings(settings, "/tmp/unused.yaml"))
+            report = self.cli.contrast_report(values)
+            failing = {pair["key"] for pair in report if not pair["ok"]}
+            if not failing:
+                break
+            if failing & {"accent_page", "active_icon_card", "text_on_accent"}:
+                page = self.cli.composite(
+                    self.cli.parse_css_color(self.cli._resolve_var(values, values["background-color"])),
+                    (1.0, 1.0, 1.0, 1.0),
+                )
+                card = self.cli.composite(
+                    self.cli.parse_css_color(self.cli._resolve_var(values, values["ha-card-background"])),
+                    page,
+                )
+                h, s, lightness = self.cli.hex_to_hsl(settings["accent_color_override"])
+                fitted = self.cli.fit_to_contrast(h, s, lightness, [page, card])
+                if "text_on_accent" in failing:
+                    # Light: dark enough for white text. Dark: light enough for dark text.
+                    label = self.cli.parse_css_color(
+                        self.cli.LIGHT_TEXT if variant == "light" else self.cli.DARK_TEXT
+                    )
+                    fitted = self.cli.fit_to_contrast(h, s, fitted, [label], 4.5)
+                accent = palette_module._from_hls(h / 360, fitted / 100, s / 100)
+                settings["accent_color_override"] = accent
+                settings["state_icon_active_color_override"] = accent
+            for key, setting in surfaces.items():
+                if key in failing and str(settings.get(setting, "")).startswith("#"):
+                    h, lightness, s = palette_module._hls_of(settings[setting])
+                    settings[setting] = palette_module._from_hls(h, min(max(lightness + step, 0.03), 0.99), s)
+        return settings, report
+
+    def theme_from_image(self, image: str, name: str | None = None) -> dict[str, Any]:
+        """Create a new user theme (light and dark) from a background image."""
+        palette = self.palette_from_image(image)
+        if not palette.get("ok"):
+            return palette
+        default = json.loads((self.preset_dir / "default.json").read_text(encoding="utf-8"))
+        image_url = f"/local/background/{palette['image']}"
+        variants: dict[str, dict[str, Any]] = {}
+        failing: dict[str, list[str]] = {}
+        for variant in ("light", "dark"):
+            settings = dict(default.get(variant) or {})
+            settings.update(palette_module.image_theme_settings(palette, variant, image_url))
+            settings, report = self._fit_image_theme(settings, variant)
+            variants[variant] = settings
+            failing[variant] = [pair["key"] for pair in report if not pair["ok"]]
+
+        stem = Path(palette["image"]).stem.replace("_", " ").replace("-", " ").strip()
+        wanted = (name or f"From {stem}").strip()[:60]
+        final_name = sharing.unique_name(wanted, self._user_theme_slugs(), self.cli.slugify)
+        slug = self.cli.slugify(final_name)
+        self.user_theme_dir.mkdir(parents=True, exist_ok=True)
+        target = self.user_theme_dir / f"{slug}.json"
+        if target.exists():
+            return {"ok": False, "reason": "target_exists", "name": final_name}
+        stored = {
+            "name": final_name,
+            "slug": slug,
+            "theme": default.get("theme", {}),
+            "light": variants["light"],
+            "dark": variants["dark"],
+        }
+        target.write_text(json.dumps(stored, indent=2, ensure_ascii=False), encoding="utf-8")
+        return {
+            "ok": True,
+            "name": final_name,
+            "slug": slug,
+            "image": palette["image"],
+            "colours": palette["colours"],
+            "failing": failing,
+        }
+

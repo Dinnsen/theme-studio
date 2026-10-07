@@ -419,3 +419,30 @@ def test_user_theme_previews_follow_the_user_themes(tmp_path) -> None:
     # Built-in previews are not touched by the user theme clean-up.
     engine.write_previews()
     assert (folder / "purple_light.svg").exists()
+
+
+def test_theme_from_image_creates_a_readable_new_user_theme(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    cli = engine.cli
+    before = {path.name for path in (tmp_path / "theme_studio" / "user_themes").glob("*.json")}
+
+    result = engine.theme_from_image("orange-fade.jpg")
+
+    assert result["ok"], result
+    assert result["name"] == "From orange fade"
+    assert result["failing"] == {"light": [], "dark": []}
+    created = tmp_path / "theme_studio" / "user_themes" / "from_orange_fade.json"
+    after = {path.name for path in (tmp_path / "theme_studio" / "user_themes").glob("*.json")}
+    assert after - before == {created.name}
+    theme = json.loads(created.read_text(encoding="utf-8"))
+    for variant in ("light", "dark"):
+        settings = theme[variant]
+        assert settings["background_image_url"] == "/local/background/orange-fade.jpg"
+        assert settings["use_custom_text_color"] == "off"
+        values = cli.build(cli.namespace_from_settings(settings, "/tmp/unused.yaml"))
+        assert all(pair["ok"] for pair in cli.contrast_report(values)), variant
+    # Light surfaces are light, dark surfaces are dark.
+    assert cli.hex_to_hsl(theme["light"]["custom_background_color"])[2] > 80
+    assert cli.hex_to_hsl(theme["dark"]["custom_background_color"])[2] < 20
+    # A second run never overwrites the first theme.
+    assert engine.theme_from_image("orange-fade.jpg")["name"] == "From orange fade (2)"

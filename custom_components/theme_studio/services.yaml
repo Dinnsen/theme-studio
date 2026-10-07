@@ -94,6 +94,19 @@ import_user_theme:
       selector:
         text:
 
+theme_from_image:
+  fields:
+    image:
+      required: false
+      example: orange-fade.jpg
+      selector:
+        text:
+    name:
+      required: false
+      example: Autumn
+      selector:
+        text:
+
 palette_from_image:
   fields:
     image:

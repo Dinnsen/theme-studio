@@ -102,3 +102,102 @@ def palette_from_image(path: Path) -> dict[str, Any]:
         "suggested_background_contrast": background_contrast,
         "image_is_light": average_luminance > 0.18,
     }
+
+
+# -------------------------------------------------
+# A whole theme from an image
+# -------------------------------------------------
+
+# Lightness and saturation caps per role: (light variant, dark variant).
+SURFACE_ROLES = {
+    "base_color": ("dominant", (0.82, 0.16), 0.30),
+    "custom_background_color": ("dominant", (0.94, 0.08), 0.28),
+    "card_bg_override": ("second", (0.975, 0.17), 0.25),
+    "bubble_bg_override": ("third", (0.90, 0.23), 0.32),
+    "popup_bg_override": ("dominant", (0.985, 0.13), 0.15),
+    "navbar_bg_override": ("dominant", (0.97, 0.11), 0.20),
+}
+
+# Colours that only make sense when chosen for one background: back to automatic.
+AUTO_COLOURS = (
+    "secondary_background_color_override",
+    "secondary_text_color_override",
+    "disabled_text_color_override",
+    "app_header_background_color_override",
+    "app_header_text_color_override",
+    "divider_color_override",
+    "sidebar_icon_color_override",
+    "state_icon_color_override",
+)
+
+
+def _from_hls(h: float, lightness: float, saturation: float) -> str:
+    r, g, b = colorsys.hls_to_rgb(h % 1.0, min(max(lightness, 0), 1), min(max(saturation, 0), 1))
+    return _hex((r * 255, g * 255, b * 255))
+
+
+def _hls_of(hex_colour: str):
+    value = hex_colour.lstrip("#")
+    return colorsys.rgb_to_hls(*(int(value[i:i + 2], 16) / 255 for i in (0, 2, 4)))
+
+
+def _pick_roles(colours: list[dict[str, Any]]) -> dict[str, tuple]:
+    """Dominant, second and third surface colours and two accents (HLS)."""
+    hls = [_hls_of(c["hex"]) for c in colours]
+    dominant = hls[0]
+
+    def hue_gap(a, b) -> float:
+        gap = abs(a[0] - b[0])
+        return min(gap, 1 - gap)
+
+    distinct = [c for c in hls[1:] if hue_gap(c, dominant) > 0.04 or abs(c[1] - dominant[1]) > 0.15]
+    second = distinct[0] if distinct else (hls[1] if len(hls) > 1 else dominant)
+    third = distinct[1] if len(distinct) > 1 else second
+
+    def vividness(c) -> float:
+        return c[2] * (1 - abs(c[1] - 0.5) * 1.4)
+
+    by_vividness = sorted(hls, key=vividness, reverse=True)
+    accent = next((c for c in by_vividness if hue_gap(c, dominant) > 0.06), by_vividness[0])
+    accent2 = next(
+        (c for c in by_vividness if c is not accent and hue_gap(c, accent) > 0.05),
+        ((accent[0] + 0.08) % 1.0, accent[1], accent[2]),
+    )
+    return {"dominant": dominant, "second": second, "third": third, "accent": accent, "accent2": accent2}
+
+
+def image_theme_settings(palette: dict[str, Any], variant: str, image_url: str) -> dict[str, Any]:
+    """Theme Studio settings for one variant, built from ``palette_from_image``."""
+    index = 0 if variant == "light" else 1
+    roles = _pick_roles(palette["colours"])
+    settings: dict[str, Any] = {}
+    for key, (role, lightness, max_saturation) in SURFACE_ROLES.items():
+        h, _, s = roles[role]
+        settings[key] = _from_hls(h, lightness[index], min(s, max_saturation))
+
+    accent_h, _, accent_s = roles["accent"]
+    accent = _from_hls(accent_h, (0.42, 0.64)[index], max(accent_s, 0.55))
+    slider_h, _, slider_s = roles["accent2"]
+    settings.update(
+        {
+            "use_custom_background_color": "on",
+            "accent_color_override": accent,
+            "state_icon_active_color_override": accent,
+            "bubble_slider_color_override": _from_hls(slider_h, (0.50, 0.58)[index], max(slider_s, 0.45)),
+            "card_opacity": (86.0, 88.0)[index],
+            "bubble_bg_opacity": 92.0,
+            "popup_bg_opacity": 96.0,
+            "navbar_bg_opacity": 92.0,
+            "tone": 0.0,
+            "surface_lift": 0.0,
+            "use_custom_text_color": "off",
+            "use_custom_icon_color": "off",
+            "use_custom_navbar_icon_color": "off",
+            "use_background_image": "on",
+            "background_image_url": image_url,
+            "background_contrast": float(palette["suggested_background_contrast"]),
+        }
+    )
+    for key in AUTO_COLOURS:
+        settings[key] = "auto"
+    return settings

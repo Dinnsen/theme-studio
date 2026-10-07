@@ -864,40 +864,6 @@ views:
                   action: none
                 double_tap_action:
                   action: none
-          - type: tile
-            entity: text.theme_studio_busy_message
-            name: Theme Studio Status
-            icon: mdi:progress-clock
-            hide_state: false
-            vertical: false
-            features_position: bottom
-            grid_options:
-              columns: 12
-              rows: 1
-          - type: markdown
-            card_mod:
-              style: |
-                ha-card {
-                  background: var(--ha-card-background) !important;
-                  color: var(--primary-text-color) !important;
-                }
-            content: |-
-              {% set pairs = state_attr('sensor.theme_studio_contrast', 'pairs') or [] %}
-              {% set failing = pairs | rejectattr('ok') | list %}
-              {% if not pairs %}
-              **Contrast** · waiting for the live theme
-              {% elif failing | count == 0 %}
-              **Contrast** · all {{ pairs | count }} text and icon pairs are readable
-              {% else %}
-              **Contrast** · {{ failing | count }} of {{ pairs | count }} pairs are hard to read
-              {% endif %}
-              {% if pairs %}
-
-              | | Pair | Ratio | Needs |
-              |:-:|:--|--:|--:|
-              {% for pair in pairs | sort(attribute='ok') %}| {{ '✓' if pair.ok else '⚠' }} | {{ pair.label }} | {{ '%.1f' | format(pair.ratio) }}:1 | {{ pair.minimum }}:1 |
-              {% endfor %}
-              {% endif %}
           - type: horizontal-stack
             cards:
               - type: custom:button-card
@@ -938,25 +904,6 @@ views:
                   icon:
                     - width: 28px
               - type: custom:button-card
-                name: Delete
-                icon: mdi:delete
-                tap_action:
-                  action: call-service
-                  service: button.press
-                  target:
-                    entity_id: button.theme_studio_delete_theme
-                styles:
-                  card:
-                    - border-radius: 999px
-                    - padding: 6px 12px
-                    - height: 36px
-                    - background: color-mix(in srgb, red 12%, var(--ha-card-background))
-                    - border: 1px solid var(--divider-color)
-                  name:
-                    - font-size: 11px
-                  icon:
-                    - width: 18px
-              - type: custom:button-card
                 name: Build theme
                 icon: mdi:hammer
                 tap_action:
@@ -976,26 +923,58 @@ views:
                   icon:
                     - width: 18px
               - type: custom:button-card
-                name: Refresh
-                icon: mdi:refresh
+                name: Delete
+                icon: mdi:delete
                 tap_action:
                   action: call-service
                   service: button.press
                   target:
-                    entity_id: button.theme_studio_refresh_theme_presets
+                    entity_id: button.theme_studio_delete_theme
                 styles:
                   card:
                     - border-radius: 999px
                     - padding: 6px 12px
                     - height: 36px
-                    - background: var(--ha-card-background)
+                    - background: color-mix(in srgb, red 12%, var(--ha-card-background))
                     - border: 1px solid var(--divider-color)
                   name:
                     - font-size: 11px
                   icon:
                     - width: 18px
-      - type: grid
-        cards:
+          - type: custom:bubble-card
+            card_type: separator
+            name: Tools
+            icon: mdi:toolbox-outline
+            sub_button:
+              main: []
+              bottom: []
+          - type: tile
+            entity: text.theme_studio_busy_message
+            name: Theme Studio Status
+            icon: mdi:progress-clock
+            hide_state: false
+            vertical: false
+            features_position: bottom
+            grid_options:
+              columns: 12
+              rows: 1
+          - type: markdown
+            card_mod:
+              style: |
+                ha-card {
+                  background: var(--ha-card-background) !important;
+                  color: var(--primary-text-color) !important;
+                }
+            content: |-
+              {% set pairs = state_attr('sensor.theme_studio_contrast', 'pairs') or [] %}
+              {% set failing = pairs | rejectattr('ok') | list %}
+              {% if not pairs %}
+              **Contrast** · waiting for the live theme
+              {% elif failing | count == 0 %}
+              ✓ **Contrast** · all {{ pairs | count }} text and icon pairs are readable
+              {% else %}
+              ⚠ **Contrast** · {{ failing | map(attribute='label') | join(', ') }}. See the badges on [Core Color](/theme-studio/core-color).
+              {% endif %}
           - type: horizontal-stack
             cards:
               - type: custom:button-card
@@ -1078,6 +1057,48 @@ views:
                     - font-size: 11px
                   icon:
                     - width: 28px
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                name: Theme from image
+                icon: mdi:image-auto-adjust
+                tap_action:
+                  action: call-service
+                  service: theme_studio.theme_from_image
+                  confirmation:
+                    text: Create a new user theme in light and dark from the selected background image? Nothing existing is changed.
+                styles:
+                  card:
+                    - border-radius: 999px
+                    - padding: 6px 12px
+                    - height: 36px
+                    - background: var(--ha-card-background)
+                    - border: 1px solid var(--divider-color)
+                  name:
+                    - font-size: 11px
+                  icon:
+                    - width: 28px
+              - type: custom:button-card
+                name: Refresh
+                icon: mdi:refresh
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  target:
+                    entity_id: button.theme_studio_refresh_theme_presets
+                styles:
+                  card:
+                    - border-radius: 999px
+                    - padding: 6px 12px
+                    - height: 36px
+                    - background: var(--ha-card-background)
+                    - border: 1px solid var(--divider-color)
+                  name:
+                    - font-size: 11px
+                  icon:
+                    - width: 18px
+      - type: grid
+        cards:
           - type: custom:bubble-card
             card_type: separator
             name: Base Color
@@ -4626,6 +4647,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'text_page');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: text.set_value
@@ -4651,6 +4680,7 @@ views:
                           value: auto
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const v = states['text.theme_studio_theme_base_color'].state;
@@ -4697,6 +4727,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'text_page');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Custom BG
                       label: |
@@ -4707,6 +4755,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'text_page');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: script.theme_studio_picker_apply_custom_bg_color
@@ -4724,6 +4780,7 @@ views:
                             switch.theme_studio_theme_use_custom_background_color
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const enabled = states['switch.theme_studio_theme_use_custom_background_color']?.state === 'on';
@@ -4770,6 +4827,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'text_page');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Accent
                       label: >
@@ -4778,6 +4853,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'accent_page');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: text.set_value
@@ -4803,6 +4886,7 @@ views:
                           value: auto
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const v = states['text.theme_studio_theme_accent_color_override'].state;
@@ -4845,6 +4929,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'accent_page');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Card BG
                       label: >
@@ -4853,6 +4955,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'text_card');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: text.set_value
@@ -4878,6 +4988,7 @@ views:
                           value: auto
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const v = states['text.theme_studio_theme_card_bg_override'].state;
@@ -4920,6 +5031,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'text_card');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Bubble BG
                       label: >
@@ -4928,6 +5057,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'text_bubble');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: text.set_value
@@ -4953,6 +5090,7 @@ views:
                           value: auto
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const v = states['text.theme_studio_theme_bubble_bg_override'].state;
@@ -4995,6 +5133,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'text_bubble');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Popup BG
                       label: >
@@ -5003,6 +5159,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'text_popup');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: text.set_value
@@ -5028,6 +5192,7 @@ views:
                           value: auto
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const v = states['text.theme_studio_theme_popup_bg_override'].state;
@@ -5070,6 +5235,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'text_popup');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Navbar Icons
                       label: |
@@ -5080,6 +5263,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'navbar_icon');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: script.theme_studio_picker_apply_navbar_icon_override
@@ -5097,6 +5288,7 @@ views:
                             switch.theme_studio_theme_use_custom_navbar_icon_color
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const enabled = states['switch.theme_studio_theme_use_custom_navbar_icon_color']?.state === 'on';
@@ -5178,6 +5370,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'navbar_icon');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Bubble Slider
                       label: >
@@ -5264,6 +5474,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'navbar_icon');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: text.set_value
@@ -5289,6 +5507,7 @@ views:
                           value: auto
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const v = states['text.theme_studio_theme_navbar_bg_override'].state;
@@ -5333,6 +5552,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'navbar_icon');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                 - type: grid
                   columns: 3
                   square: false
@@ -5423,6 +5660,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'secondary_text_card');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: text.set_value
@@ -5451,6 +5696,7 @@ views:
                           value: auto
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const v = states['text.theme_studio_theme_secondary_text_color_override'].state;
@@ -5529,6 +5775,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'secondary_text_card');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Disabled Text
                       label: >
@@ -5615,6 +5879,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'header_text');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: text.set_value
@@ -5643,6 +5915,7 @@ views:
                           value: auto
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const v = states['text.theme_studio_theme_app_header_background_color_override'].state;
@@ -5685,6 +5958,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'header_text');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Header Text
                       label: >
@@ -5693,6 +5984,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'header_text');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: text.set_value
@@ -5721,6 +6020,7 @@ views:
                           value: auto
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const textOverride = states['text.theme_studio_theme_app_header_text_color_override']?.state;
@@ -5850,6 +6150,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'header_text');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Divider
                       label: >
@@ -5935,6 +6253,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'text_card');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: script.theme_studio_picker_apply_text_override
@@ -5952,6 +6278,7 @@ views:
                             switch.theme_studio_theme_use_custom_text_color
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const enabled = states['switch.theme_studio_theme_use_custom_text_color']?.state === 'on';
@@ -6033,6 +6360,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'text_card');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Icon Color
                       label: |
@@ -6043,6 +6388,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'icon_card');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: text.set_value
@@ -6085,6 +6438,7 @@ views:
                           value: auto
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const enabled = states['switch.theme_studio_theme_use_custom_icon_color']?.state === 'on';
@@ -6130,6 +6484,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'icon_card');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
                     - type: custom:button-card
                       name: Active Icon
                       label: >
@@ -6138,6 +6510,14 @@ views:
                         ]]]
                       show_label: true
                       show_icon: false
+                      custom_fields:
+                        contrast: |
+                          [[[
+                            const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                            const pair = pairs.find((p) => p.key === 'active_icon_card');
+                            if (!pair) return '';
+                            return `${pair.ok ? '✓' : '⚠'} ${pair.ratio.toFixed(1)}:1`;
+                          ]]]
                       tap_action:
                         action: call-service
                         service: text.set_value
@@ -6166,6 +6546,7 @@ views:
                           value: auto
                       styles:
                         card:
+                          - position: relative
                           - '--btn-bg': |
                               [[[
                                 const v = states['text.theme_studio_theme_state_icon_active_color_override'].state;
@@ -6208,6 +6589,24 @@ views:
                           - color: var(--btn-label)
                           - font-size: 11px
                           - font-weight: 400
+                        custom_fields:
+                          contrast:
+                            - position: absolute
+                            - top: 6px
+                            - right: 6px
+                            - font-size: 10px
+                            - font-weight: 700
+                            - line-height: 1
+                            - padding: 3px 6px
+                            - border-radius: 999px
+                            - color: '#ffffff'
+                            - background: |
+                                [[[
+                                  const pairs = states['sensor.theme_studio_contrast']?.attributes?.pairs || [];
+                                  const pair = pairs.find((p) => p.key === 'active_icon_card');
+                                  if (!pair) return 'transparent';
+                                  return pair.ok ? 'rgba(0,0,0,0.45)' : '#b3261e';
+                                ]]]
           - type: conditional
             conditions:
               - entity: switch.theme_studio_help_mode

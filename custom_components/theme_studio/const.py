@@ -38,6 +38,7 @@ SERVICE_EXPORT_USER_THEME = "export_user_theme"
 SERVICE_IMPORT_USER_THEME = "import_user_theme"
 SERVICE_UNDO = "undo"
 SERVICE_PALETTE_FROM_IMAGE = "palette_from_image"
+SERVICE_THEME_FROM_IMAGE = "theme_from_image"
 
 SIGNAL_CATALOGS_CHANGED = f"{DOMAIN}_catalogs_changed"
 SIGNAL_CONTRAST_UPDATED = f"{DOMAIN}_contrast_updated"
