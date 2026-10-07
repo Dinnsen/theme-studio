@@ -446,3 +446,98 @@ def test_theme_from_image_creates_a_readable_new_user_theme(tmp_path) -> None:
     assert cli.hex_to_hsl(theme["dark"]["custom_background_color"])[2] < 20
     # A second run never overwrites the first theme.
     assert engine.theme_from_image("orange-fade.jpg")["name"] == "From orange fade (2)"
+
+
+def test_save_variant_keeps_the_other_variant_and_never_writes_presets(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    assert engine.copy_preset("Glass", "Mine")["ok"]
+    path = tmp_path / "theme_studio" / "user_themes" / "mine.json"
+    before = json.loads(path.read_text(encoding="utf-8"))
+    preset_path = tmp_path / "theme_studio" / "presets" / "glass.json"
+    preset_before = preset_path.read_text(encoding="utf-8")
+
+    result = engine.save_variant("Mine", "light", {"base_color": "#123456", "radius": 9.0})
+
+    assert result == {"ok": True, "name": "Mine", "variant": "light"}
+    after = json.loads(path.read_text(encoding="utf-8"))
+    assert after["light"]["base_color"] == "#123456"
+    assert after["light"]["radius"] == 9.0
+    assert after["dark"] == before["dark"]
+    assert "_path" not in after and "_user_theme" not in after
+
+    refused = engine.save_variant("Glass", "light", {"base_color": "#123456"})
+    assert refused["ok"] is False and refused["reason"] == "built_in"
+    assert preset_path.read_text(encoding="utf-8") == preset_before
+    assert engine.save_variant("Nope", "dark", {})["reason"] == "not_found"
+
+
+def test_read_theme_tells_presets_from_user_themes(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    assert engine.copy_preset("Glass", "Mine")["ok"]
+    assert engine.read_theme("Glass")["_user_theme"] is False
+    assert engine.read_theme("Mine")["_user_theme"] is True
+    assert engine.read_theme("Does not exist") is None
+
+
+def test_save_as_new_takes_the_other_variant_from_the_source(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    glass = engine.read_theme("Glass")
+
+    result = engine.save_as_new("Fresh", "Glass", "dark", {"base_color": "#222222"})
+
+    assert result["ok"], result
+    stored = json.loads((tmp_path / "theme_studio" / "user_themes" / "fresh.json").read_text(encoding="utf-8"))
+    assert stored["name"] == "Fresh"
+    assert stored["dark"]["base_color"] == "#222222"
+    assert stored["light"] == glass["light"]
+    # Existing user themes and built-in preset names are never taken.
+    assert engine.save_as_new("Fresh", "Glass", "dark", {})["reason"] == "exists"
+    assert engine.save_as_new("Glass", "Glass", "dark", {})["reason"] == "exists"
+    assert engine.save_as_new("  ", "Glass", "dark", {})["reason"] == "missing_name"
+
+
+def test_retired_variant_entities_are_found() -> None:
+    migration = load_module("migration")
+    entry = types.SimpleNamespace
+    entries = [
+        entry(entity_id="text.theme_studio_light_base_color", platform="theme_studio",
+              unique_id="theme_studio_light_base_color"),
+        entry(entity_id="number.theme_studio_dark_radius", platform="theme_studio",
+              unique_id="theme_studio_dark_radius"),
+        entry(entity_id="text.theme_studio_theme_base_color", platform="theme_studio",
+              unique_id="theme_studio_theme_base_color"),
+        entry(entity_id="text.theme_studio_light_other", platform="other",
+              unique_id="theme_studio_light_other"),
+    ]
+    assert migration.find_retired_entities(entries, "theme_studio") == [
+        "text.theme_studio_light_base_color",
+        "number.theme_studio_dark_radius",
+    ]
+
+
+def test_every_variant_helper_is_a_theme_setting() -> None:
+    definitions = load_module("definitions").load_definitions()
+    engine_module = load_module("engine")
+    cli = engine_module.ThemeEngine.create("/tmp/unused").cli
+    keys = set(engine_module._variant_setting_keys(cli))
+    assert not [d.key for d in definitions if d.key.startswith(("theme_studio_light_", "theme_studio_dark_"))]
+    for definition in definitions:
+        if definition.variant:
+            assert definition.setting in keys, definition.key
+    assert "color_model" in cli.SETTING_KEYS
+
+
+def test_oklch_colour_model_gives_valid_and_different_colours() -> None:
+    engine_module = load_module("engine")
+    cli = engine_module.ThemeEngine.create("/tmp/unused").cli
+    for h in range(0, 360, 30):
+        for s, l in ((80, 50), (40, 20), (100, 90), (0, 50)):
+            value = cli.oklch_hex(h, s, l)
+            assert re.fullmatch(r"#[0-9a-f]{6}", value.lower()), value
+    preset = json.loads((TEMPLATES / "theme_studio" / "presets" / "default.json").read_text(encoding="utf-8"))
+    settings = {**preset["dark"], "base_color": "#3a7bd5"}
+    hsl = cli.build(cli.namespace_from_settings({**settings, "color_model": "hsl"}, "/tmp/unused.yaml"))
+    oklch = cli.build(cli.namespace_from_settings({**settings, "color_model": "oklch"}, "/tmp/unused.yaml"))
+    assert hsl != oklch
+    unknown = cli.build(cli.namespace_from_settings({**settings, "color_model": "rgb"}, "/tmp/unused.yaml"))
+    assert unknown == hsl

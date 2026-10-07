@@ -1960,6 +1960,12 @@ views:
 
                 It can be adjusted using **Color Adjustments** or **Manual Color
                 Overrides**.
+
+
+                **Colour model** decides how shades are calculated. **hsl**
+                is the classic model. **oklch** keeps the perceived
+                brightness even across hues, so yellow and blue shades look
+                equally light. It is saved per variant.
           - type: custom:button-card
             name: Base color
             label: >
@@ -2009,6 +2015,15 @@ views:
                       const lum = 0.2126*r + 0.7152*g + 0.0722*b;
                       return lum > 150 ? 'rgba(17,17,17,0.74)' : 'rgba(255,255,255,0.74)';
                     ]]]
+          - type: custom:bubble-card
+            card_type: select
+            sub_button:
+              main: []
+              bottom: []
+            entity: select.theme_studio_theme_color_model
+            name: Colour model
+            icon: mdi:palette-swatch-variant
+            show_state: true
           - type: grid
             columns: 5
             square: false

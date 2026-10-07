@@ -34,11 +34,19 @@ class HelperDefinition:
     mode: str | None = None
     unit: str | None = None
     options: tuple[str, ...] = field(default_factory=tuple)
+    # True for editor values that are stored per variant (light/dark) in a theme.
+    variant: bool = False
 
     @property
     def entity_id(self) -> str:
         """Return the entity id this helper is exposed as."""
         return f"{self.platform}.{self.key}"
+
+    @property
+    def setting(self) -> str | None:
+        """Theme file key for a per-variant editor value (``base_color`` …)."""
+        prefix = "theme_studio_theme_"
+        return self.key[len(prefix):] if self.variant and self.key.startswith(prefix) else None
 
     @property
     def legacy_entity_id(self) -> str:

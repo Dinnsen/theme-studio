@@ -10,7 +10,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 50.0
+   "default": 50.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -21,7 +22,8 @@
    "max": 180,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -32,7 +34,8 @@
    "max": 50,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -43,7 +46,8 @@
    "max": 25,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -54,7 +58,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 50.0
+   "default": 50.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -65,7 +70,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 50.0
+   "default": 50.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -76,7 +82,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 88.0
+   "default": 88.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -87,7 +94,8 @@
    "max": 30,
    "step": 1,
    "mode": "slider",
-   "default": 17.0
+   "default": 17.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -98,7 +106,8 @@
    "max": 32,
    "step": 1,
    "mode": "slider",
-   "default": 28.0
+   "default": 28.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -109,7 +118,8 @@
    "max": 32,
    "step": 1,
    "mode": "slider",
-   "default": 20.0
+   "default": 20.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -120,7 +130,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 22.0
+   "default": 22.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -131,7 +142,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -142,7 +154,8 @@
    "max": 320,
    "step": 1,
    "mode": "slider",
-   "default": 170.0
+   "default": 170.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -153,7 +166,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 29.0
+   "default": 29.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -164,7 +178,8 @@
    "max": 200,
    "step": 1,
    "mode": "slider",
-   "default": 100.0
+   "default": 100.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -175,7 +190,8 @@
    "max": 200,
    "step": 1,
    "mode": "slider",
-   "default": 100.0
+   "default": 100.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -186,7 +202,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -197,7 +214,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -208,7 +226,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -219,7 +238,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -231,471 +251,8 @@
    "step": 1,
    "mode": "slider",
    "unit": "%",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_surface_lift",
-   "legacy_domain": "input_number",
-   "name": "Light - surface lift",
-   "min": -30,
-   "max": 30,
-   "step": 1,
-   "mode": "slider",
-   "unit": "%",
-   "default": -30.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_surface_lift",
-   "legacy_domain": "input_number",
-   "name": "Dark - surface lift",
-   "min": -30,
-   "max": 30,
-   "step": 1,
-   "mode": "slider",
-   "unit": "%",
-   "default": -30.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_accent_contrast",
-   "legacy_domain": "input_number",
-   "name": "Light - accent contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_accent_strength",
-   "legacy_domain": "input_number",
-   "name": "Light - accent strength",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_background_contrast",
-   "legacy_domain": "input_number",
-   "name": "Light - background contrast",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_header_blend_height",
-   "legacy_domain": "input_number",
-   "name": "Light - header blend height",
-   "min": 80,
-   "max": 320,
-   "step": 1,
-   "mode": "slider",
-   "default": 80.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_overlay_offset_y",
-   "legacy_domain": "input_number",
-   "name": "Light - overlay start from top",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_overlay_scale",
-   "legacy_domain": "input_number",
-   "name": "Light - overlay size",
-   "min": 50,
-   "max": 200,
-   "step": 1,
-   "mode": "slider",
-   "default": 50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_overlay_spread",
-   "legacy_domain": "input_number",
-   "name": "Light - overlay spread",
-   "min": 50,
-   "max": 200,
-   "step": 1,
-   "mode": "slider",
-   "default": 50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_blur_strength",
-   "legacy_domain": "input_number",
-   "name": "Light - blur strength",
-   "min": 0,
-   "max": 30,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_bubble_bg_contrast",
-   "legacy_domain": "input_number",
-   "name": "Light - bubble background contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_card_bg_contrast",
-   "legacy_domain": "input_number",
-   "name": "Light - card background contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_card_opacity",
-   "legacy_domain": "input_number",
-   "name": "Light - card opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_chip_radius",
-   "legacy_domain": "input_number",
-   "name": "Light - chip radius",
-   "min": 0,
-   "max": 32,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_contrast",
-   "legacy_domain": "input_number",
-   "name": "Light - contrast",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Light - hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_neutrality",
-   "legacy_domain": "input_number",
-   "name": "Light - neutrality",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_overlay_contrast",
-   "legacy_domain": "input_number",
-   "name": "Light - overlay contrast",
-   "min": 1,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 1.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_popup_bg_contrast",
-   "legacy_domain": "input_number",
-   "name": "Light - popup background contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_radius",
-   "legacy_domain": "input_number",
-   "name": "Light - radius",
-   "min": 0,
-   "max": 32,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_saturation",
-   "legacy_domain": "input_number",
-   "name": "Light - saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_tone",
-   "legacy_domain": "input_number",
-   "name": "Light - tone",
-   "min": -25,
-   "max": 25,
-   "step": 1,
-   "mode": "slider",
-   "default": -25.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_accent_contrast",
-   "legacy_domain": "input_number",
-   "name": "Dark - accent contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_accent_strength",
-   "legacy_domain": "input_number",
-   "name": "Dark - accent strength",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_background_contrast",
-   "legacy_domain": "input_number",
-   "name": "Dark - background contrast",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_header_blend_height",
-   "legacy_domain": "input_number",
-   "name": "Dark - header blend height",
-   "min": 80,
-   "max": 320,
-   "step": 1,
-   "mode": "slider",
-   "default": 80.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_overlay_offset_y",
-   "legacy_domain": "input_number",
-   "name": "Dark - overlay start from top",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_overlay_scale",
-   "legacy_domain": "input_number",
-   "name": "Dark - overlay size",
-   "min": 50,
-   "max": 200,
-   "step": 1,
-   "mode": "slider",
-   "default": 50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_overlay_spread",
-   "legacy_domain": "input_number",
-   "name": "Dark - overlay spread",
-   "min": 50,
-   "max": 200,
-   "step": 1,
-   "mode": "slider",
-   "default": 50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_blur_strength",
-   "legacy_domain": "input_number",
-   "name": "Dark - blur strength",
-   "min": 0,
-   "max": 30,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_bubble_bg_contrast",
-   "legacy_domain": "input_number",
-   "name": "Dark - bubble background contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_card_bg_contrast",
-   "legacy_domain": "input_number",
-   "name": "Dark - card background contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_card_opacity",
-   "legacy_domain": "input_number",
-   "name": "Dark - card opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_chip_radius",
-   "legacy_domain": "input_number",
-   "name": "Dark - chip radius",
-   "min": 0,
-   "max": 32,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_contrast",
-   "legacy_domain": "input_number",
-   "name": "Dark - contrast",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Dark - hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_neutrality",
-   "legacy_domain": "input_number",
-   "name": "Dark - neutrality",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_overlay_contrast",
-   "legacy_domain": "input_number",
-   "name": "Dark - overlay contrast",
-   "min": 1,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 1.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_popup_bg_contrast",
-   "legacy_domain": "input_number",
-   "name": "Dark - popup background contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_radius",
-   "legacy_domain": "input_number",
-   "name": "Dark - radius",
-   "min": 0,
-   "max": 32,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_saturation",
-   "legacy_domain": "input_number",
-   "name": "Dark - saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_tone",
-   "legacy_domain": "input_number",
-   "name": "Dark - tone",
-   "min": -25,
-   "max": 25,
-   "step": 1,
-   "mode": "slider",
-   "default": -25.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -742,7 +299,8 @@
    "max": 180,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -753,7 +311,8 @@
    "max": 50,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -764,7 +323,8 @@
    "max": 180,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -775,7 +335,8 @@
    "max": 50,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -786,7 +347,8 @@
    "max": 180,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -797,7 +359,8 @@
    "max": 50,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -808,7 +371,8 @@
    "max": 180,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -819,7 +383,8 @@
    "max": 50,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -830,7 +395,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 92.0
+   "default": 92.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -841,7 +407,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 92.0
+   "default": 92.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -852,7 +419,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 85.0
+   "default": 85.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -863,7 +431,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -874,7 +443,8 @@
    "max": 180,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -885,7 +455,8 @@
    "max": 50,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -896,7 +467,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 28.0
+   "default": 28.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -907,7 +479,8 @@
    "max": 12,
    "step": 1,
    "mode": "slider",
-   "default": 4.0
+   "default": 4.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -918,7 +491,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -929,7 +503,8 @@
    "max": 180,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -940,7 +515,8 @@
    "max": 50,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -951,7 +527,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 42.0
+   "default": 42.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -962,469 +539,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 40.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_border_contrast",
-   "legacy_domain": "input_number",
-   "name": "Light - border contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_border_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Light - border hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_border_saturation",
-   "legacy_domain": "input_number",
-   "name": "Light - border saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_border_opacity",
-   "legacy_domain": "input_number",
-   "name": "Light - border opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_border_size",
-   "legacy_domain": "input_number",
-   "name": "Light - border size",
-   "min": 0,
-   "max": 12,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_shadow_contrast",
-   "legacy_domain": "input_number",
-   "name": "Light - shadow contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_shadow_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Light - shadow hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_shadow_saturation",
-   "legacy_domain": "input_number",
-   "name": "Light - shadow saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_shadow_opacity",
-   "legacy_domain": "input_number",
-   "name": "Light - shadow opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_shadow_size",
-   "legacy_domain": "input_number",
-   "name": "Light - shadow size",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_border_contrast",
-   "legacy_domain": "input_number",
-   "name": "Dark - border contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_border_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Dark - border hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_border_saturation",
-   "legacy_domain": "input_number",
-   "name": "Dark - border saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_border_opacity",
-   "legacy_domain": "input_number",
-   "name": "Dark - border opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_border_size",
-   "legacy_domain": "input_number",
-   "name": "Dark - border size",
-   "min": 0,
-   "max": 12,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_shadow_contrast",
-   "legacy_domain": "input_number",
-   "name": "Dark - shadow contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_shadow_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Dark - shadow hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_shadow_saturation",
-   "legacy_domain": "input_number",
-   "name": "Dark - shadow saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_shadow_opacity",
-   "legacy_domain": "input_number",
-   "name": "Dark - shadow opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_shadow_size",
-   "legacy_domain": "input_number",
-   "name": "Dark - shadow size",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_navbar_bg_opacity",
-   "legacy_domain": "input_number",
-   "name": "Light - navbar bg opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_navbar_bg_opacity",
-   "legacy_domain": "input_number",
-   "name": "Dark - navbar bg opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_accent_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Light - accent hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_accent_saturation",
-   "legacy_domain": "input_number",
-   "name": "Light - accent saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_card_bg_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Light - card bg hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_card_bg_saturation",
-   "legacy_domain": "input_number",
-   "name": "Light - card bg saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_bubble_bg_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Light - bubble bg hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_bubble_bg_saturation",
-   "legacy_domain": "input_number",
-   "name": "Light - bubble bg saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_popup_bg_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Light - popup bg hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_popup_bg_saturation",
-   "legacy_domain": "input_number",
-   "name": "Light - popup bg saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_bubble_bg_opacity",
-   "legacy_domain": "input_number",
-   "name": "Light - bubble bg opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_popup_bg_opacity",
-   "legacy_domain": "input_number",
-   "name": "Light - popup bg opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_accent_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Dark - accent hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_accent_saturation",
-   "legacy_domain": "input_number",
-   "name": "Dark - accent saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_card_bg_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Dark - card bg hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_card_bg_saturation",
-   "legacy_domain": "input_number",
-   "name": "Dark - card bg saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_bubble_bg_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Dark - bubble bg hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_bubble_bg_saturation",
-   "legacy_domain": "input_number",
-   "name": "Dark - bubble bg saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_popup_bg_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Dark - popup bg hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_popup_bg_saturation",
-   "legacy_domain": "input_number",
-   "name": "Dark - popup bg saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_bubble_bg_opacity",
-   "legacy_domain": "input_number",
-   "name": "Dark - bubble bg opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_popup_bg_opacity",
-   "legacy_domain": "input_number",
-   "name": "Dark - popup bg opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
+   "default": 40.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -1435,7 +551,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -1446,7 +563,8 @@
    "max": 180,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -1457,7 +575,8 @@
    "max": 50,
    "step": 1,
    "mode": "slider",
-   "default": 0.0
+   "default": 0.0,
+   "variant": true
   },
   {
    "platform": "number",
@@ -1468,95 +587,8 @@
    "max": 100,
    "step": 1,
    "mode": "slider",
-   "default": 100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_bubble_slider_contrast",
-   "legacy_domain": "input_number",
-   "name": "Light - bubble slider contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_bubble_slider_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Light - bubble slider hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_bubble_slider_saturation",
-   "legacy_domain": "input_number",
-   "name": "Light - bubble slider saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_light_bubble_slider_opacity",
-   "legacy_domain": "input_number",
-   "name": "Light - bubble slider opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_bubble_slider_contrast",
-   "legacy_domain": "input_number",
-   "name": "Dark - bubble slider contrast",
-   "min": -100,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": -100.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_bubble_slider_hue_shift",
-   "legacy_domain": "input_number",
-   "name": "Dark - bubble slider hue shift",
-   "min": -180,
-   "max": 180,
-   "step": 1,
-   "mode": "slider",
-   "default": -180.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_bubble_slider_saturation",
-   "legacy_domain": "input_number",
-   "name": "Dark - bubble slider saturation",
-   "min": -50,
-   "max": 50,
-   "step": 1,
-   "mode": "slider",
-   "default": -50.0
-  },
-  {
-   "platform": "number",
-   "key": "theme_studio_dark_bubble_slider_opacity",
-   "legacy_domain": "input_number",
-   "name": "Dark - bubble slider opacity",
-   "min": 0,
-   "max": 100,
-   "step": 1,
-   "mode": "slider",
-   "default": 0.0
+   "default": 100.0,
+   "variant": true
   },
   {
    "platform": "text",
@@ -1564,7 +596,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - base color",
    "max": 9,
-   "default": "#344334"
+   "default": "#344334",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1572,7 +605,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - custom background color",
    "max": 9,
-   "default": "#344334"
+   "default": "#344334",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1580,7 +614,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - background image url",
    "max": 255,
-   "default": "/local/background/CloudWhite.png"
+   "default": "/local/background/CloudWhite.png",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1588,7 +623,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - custom text color",
    "max": 9,
-   "default": "#ffffff"
+   "default": "#ffffff",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1596,7 +632,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - custom icon color",
    "max": 9,
-   "default": "#ffffff"
+   "default": "#ffffff",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1604,7 +641,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - custom navbar icon color",
    "max": 9,
-   "default": "#ffffff"
+   "default": "#ffffff",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1612,7 +650,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - navbar background override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1620,7 +659,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - bubble slider color override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1628,7 +668,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - accent color override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1636,7 +677,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - card background override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1644,7 +686,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - bubble background override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1652,7 +695,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - popup background override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1660,7 +704,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - secondary background color override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1668,7 +713,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - secondary text color override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1676,7 +722,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - disabled text color override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1684,7 +731,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - app header background color override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1692,7 +740,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - app header text color override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1700,7 +749,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - divider color override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1708,7 +758,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - sidebar icon color override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1716,7 +767,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - state icon color override",
    "max": 16,
-   "default": "auto"
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -1724,343 +776,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - state icon active color override",
    "max": 16,
-   "default": "auto"
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_accent_color_override",
-   "legacy_domain": "input_text",
-   "name": "Light - accent color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_background_image_url",
-   "legacy_domain": "input_text",
-   "name": "Light - background image url",
-   "max": 255,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_base_color",
-   "legacy_domain": "input_text",
-   "name": "Light - base color",
-   "max": 9,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_bubble_bg_override",
-   "legacy_domain": "input_text",
-   "name": "Light - bubble background override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_card_bg_override",
-   "legacy_domain": "input_text",
-   "name": "Light - card background override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_custom_background_color",
-   "legacy_domain": "input_text",
-   "name": "Light - custom background color",
-   "max": 9,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_custom_icon_color",
-   "legacy_domain": "input_text",
-   "name": "Light - custom icon color",
-   "max": 9,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_custom_navbar_icon_color",
-   "legacy_domain": "input_text",
-   "name": "Light - custom navbar icon color",
-   "max": 9,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_navbar_bg_override",
-   "legacy_domain": "input_text",
-   "name": "Light - navbar background override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_bubble_slider_color_override",
-   "legacy_domain": "input_text",
-   "name": "Light - bubble slider color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_custom_text_color",
-   "legacy_domain": "input_text",
-   "name": "Light - custom text color",
-   "max": 9,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_popup_bg_override",
-   "legacy_domain": "input_text",
-   "name": "Light - popup background override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_secondary_background_color_override",
-   "legacy_domain": "input_text",
-   "name": "Light - secondary background color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_secondary_text_color_override",
-   "legacy_domain": "input_text",
-   "name": "Light - secondary text color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_disabled_text_color_override",
-   "legacy_domain": "input_text",
-   "name": "Light - disabled text color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_app_header_background_color_override",
-   "legacy_domain": "input_text",
-   "name": "Light - app header background color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_app_header_text_color_override",
-   "legacy_domain": "input_text",
-   "name": "Light - app header text color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_divider_color_override",
-   "legacy_domain": "input_text",
-   "name": "Light - divider color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_sidebar_icon_color_override",
-   "legacy_domain": "input_text",
-   "name": "Light - sidebar icon color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_state_icon_color_override",
-   "legacy_domain": "input_text",
-   "name": "Light - state icon color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_state_icon_active_color_override",
-   "legacy_domain": "input_text",
-   "name": "Light - state icon active color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_accent_color_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - accent color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_background_image_url",
-   "legacy_domain": "input_text",
-   "name": "Dark - background image url",
-   "max": 255,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_base_color",
-   "legacy_domain": "input_text",
-   "name": "Dark - base color",
-   "max": 9,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_bubble_bg_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - bubble background override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_card_bg_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - card background override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_custom_background_color",
-   "legacy_domain": "input_text",
-   "name": "Dark - custom background color",
-   "max": 9,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_custom_icon_color",
-   "legacy_domain": "input_text",
-   "name": "Dark - custom icon color",
-   "max": 9,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_custom_navbar_icon_color",
-   "legacy_domain": "input_text",
-   "name": "Dark - custom navbar icon color",
-   "max": 9,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_navbar_bg_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - navbar background override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_bubble_slider_color_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - bubble slider color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_custom_text_color",
-   "legacy_domain": "input_text",
-   "name": "Dark - custom text color",
-   "max": 9,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_popup_bg_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - popup background override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_secondary_background_color_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - secondary background color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_secondary_text_color_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - secondary text color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_disabled_text_color_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - disabled text color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_app_header_background_color_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - app header background color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_app_header_text_color_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - app header text color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_divider_color_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - divider color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_sidebar_icon_color_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - sidebar icon color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_state_icon_color_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - state icon color override",
-   "max": 16,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_state_icon_active_color_override",
-   "legacy_domain": "input_text",
-   "name": "Dark - state icon active color override",
-   "max": 16,
-   "default": ""
+   "default": "auto",
+   "variant": true
   },
   {
    "platform": "text",
@@ -2068,7 +785,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - primary font family",
    "max": 100,
-   "default": "sans-serif"
+   "default": "sans-serif",
+   "variant": true
   },
   {
    "platform": "text",
@@ -2076,7 +794,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - custom font family",
    "max": 100,
-   "default": "CustomFont"
+   "default": "CustomFont",
+   "variant": true
   },
   {
    "platform": "text",
@@ -2084,55 +803,8 @@
    "legacy_domain": "input_text",
    "name": "Theme - custom font path",
    "max": 255,
-   "default": "/local/fonts/custom-font.woff2"
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_primary_font_family",
-   "legacy_domain": "input_text",
-   "name": "Light - primary font family",
-   "max": 100,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_custom_font_family",
-   "legacy_domain": "input_text",
-   "name": "Light - custom font family",
-   "max": 100,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_light_custom_font_path",
-   "legacy_domain": "input_text",
-   "name": "Light - custom font path",
-   "max": 255,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_primary_font_family",
-   "legacy_domain": "input_text",
-   "name": "Dark - primary font family",
-   "max": 100,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_custom_font_family",
-   "legacy_domain": "input_text",
-   "name": "Dark - custom font family",
-   "max": 100,
-   "default": ""
-  },
-  {
-   "platform": "text",
-   "key": "theme_studio_dark_custom_font_path",
-   "legacy_domain": "input_text",
-   "name": "Dark - custom font path",
-   "max": 255,
-   "default": ""
+   "default": "/local/fonts/custom-font.woff2",
+   "variant": true
   },
   {
    "platform": "text",
@@ -2181,168 +853,64 @@
    "key": "theme_studio_theme_use_custom_background_color",
    "legacy_domain": "input_boolean",
    "name": "Theme - use custom background color",
-   "default": false
+   "default": false,
+   "variant": true
   },
   {
    "platform": "switch",
    "key": "theme_studio_theme_use_background_image",
    "legacy_domain": "input_boolean",
    "name": "Theme - use background image",
-   "default": true
+   "default": true,
+   "variant": true
   },
   {
    "platform": "switch",
    "key": "theme_studio_theme_enable_header_blend",
    "legacy_domain": "input_boolean",
    "name": "Theme - enable header blend",
-   "default": true
+   "default": true,
+   "variant": true
   },
   {
    "platform": "switch",
    "key": "theme_studio_theme_use_custom_text_color",
    "legacy_domain": "input_boolean",
    "name": "Theme - use custom text color",
-   "default": false
+   "default": false,
+   "variant": true
   },
   {
    "platform": "switch",
    "key": "theme_studio_theme_use_custom_icon_color",
    "legacy_domain": "input_boolean",
    "name": "Theme - use custom icon color",
-   "default": false
+   "default": false,
+   "variant": true
   },
   {
    "platform": "switch",
    "key": "theme_studio_theme_use_custom_navbar_icon_color",
    "legacy_domain": "input_boolean",
    "name": "Theme - use custom navbar icon color",
-   "default": false
+   "default": false,
+   "variant": true
   },
   {
    "platform": "switch",
    "key": "theme_studio_theme_preview_toggle",
    "legacy_domain": "input_boolean",
    "name": "Theme - preview toggle",
-   "default": true
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_light_preview_toggle",
-   "legacy_domain": "input_boolean",
-   "name": "Light - preview toggle",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_light_use_background_image",
-   "legacy_domain": "input_boolean",
-   "name": "Light - use background image",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_light_enable_header_blend",
-   "legacy_domain": "input_boolean",
-   "name": "Light - enable header blend",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_light_use_custom_background_color",
-   "legacy_domain": "input_boolean",
-   "name": "Light - use custom background color",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_light_use_custom_icon_color",
-   "legacy_domain": "input_boolean",
-   "name": "Light - use custom icon color",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_light_use_custom_navbar_icon_color",
-   "legacy_domain": "input_boolean",
-   "name": "Light - use custom navbar icon color",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_light_use_custom_text_color",
-   "legacy_domain": "input_boolean",
-   "name": "Light - use custom text color",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_dark_preview_toggle",
-   "legacy_domain": "input_boolean",
-   "name": "Dark - preview toggle",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_dark_use_background_image",
-   "legacy_domain": "input_boolean",
-   "name": "Dark - use background image",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_dark_enable_header_blend",
-   "legacy_domain": "input_boolean",
-   "name": "Dark - enable header blend",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_dark_use_custom_background_color",
-   "legacy_domain": "input_boolean",
-   "name": "Dark - use custom background color",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_dark_use_custom_icon_color",
-   "legacy_domain": "input_boolean",
-   "name": "Dark - use custom icon color",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_dark_use_custom_navbar_icon_color",
-   "legacy_domain": "input_boolean",
-   "name": "Dark - use custom navbar icon color",
-   "default": false
+   "default": true,
+   "variant": true
   },
   {
    "platform": "switch",
    "key": "theme_studio_theme_use_custom_font",
    "legacy_domain": "input_boolean",
    "name": "Theme - use custom font",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_light_use_custom_font",
-   "legacy_domain": "input_boolean",
-   "name": "Light - use custom font",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_dark_use_custom_font",
-   "legacy_domain": "input_boolean",
-   "name": "Dark - use custom font",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_dark_use_custom_text_color",
-   "legacy_domain": "input_boolean",
-   "name": "Dark - use custom text color",
-   "default": false
+   "default": false,
+   "variant": true
   },
   {
    "platform": "switch",
@@ -2365,42 +933,16 @@
    "key": "theme_studio_theme_bubble_use_fx",
    "legacy_domain": "input_boolean",
    "name": "Theme - bubble use surface fx",
-   "default": true
+   "default": true,
+   "variant": true
   },
   {
    "platform": "switch",
    "key": "theme_studio_theme_popup_use_fx",
    "legacy_domain": "input_boolean",
    "name": "Theme - popup use surface fx",
-   "default": true
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_light_bubble_use_fx",
-   "legacy_domain": "input_boolean",
-   "name": "Light - bubble use surface fx",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_light_popup_use_fx",
-   "legacy_domain": "input_boolean",
-   "name": "Light - popup use surface fx",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_dark_bubble_use_fx",
-   "legacy_domain": "input_boolean",
-   "name": "Dark - bubble use surface fx",
-   "default": false
-  },
-  {
-   "platform": "switch",
-   "key": "theme_studio_dark_popup_use_fx",
-   "legacy_domain": "input_boolean",
-   "name": "Dark - popup use surface fx",
-   "default": false
+   "default": true,
+   "variant": true
   },
   {
    "platform": "switch",
@@ -2440,7 +982,8 @@
     "cinematic",
     "halo"
    ],
-   "default": "diagonal_fade"
+   "default": "diagonal_fade",
+   "variant": true
   },
   {
    "platform": "select",
@@ -2452,79 +995,8 @@
     "Focused",
     "Vibrant"
    ],
-   "default": "Relaxed"
-  },
-  {
-   "platform": "select",
-   "key": "theme_studio_light_background_overlay",
-   "legacy_domain": "input_select",
-   "name": "Light - background overlay",
-   "options": [
-    "none",
-    "soft_veil",
-    "mesh_glow",
-    "vignette",
-    "aurora",
-    "aurora_vertical",
-    "spotlight",
-    "diagonal_fade",
-    "topographic",
-    "mist",
-    "frost",
-    "dual_orb",
-    "soft_stripes",
-    "cinematic",
-    "halo"
-   ],
-   "default": "none"
-  },
-  {
-   "platform": "select",
-   "key": "theme_studio_light_preview_mode",
-   "legacy_domain": "input_select",
-   "name": "Light - preview mode",
-   "options": [
-    "Relaxed",
-    "Focused",
-    "Vibrant"
-   ],
-   "default": "Relaxed"
-  },
-  {
-   "platform": "select",
-   "key": "theme_studio_dark_background_overlay",
-   "legacy_domain": "input_select",
-   "name": "Dark - background overlay",
-   "options": [
-    "none",
-    "soft_veil",
-    "mesh_glow",
-    "vignette",
-    "aurora",
-    "aurora_vertical",
-    "spotlight",
-    "diagonal_fade",
-    "topographic",
-    "mist",
-    "frost",
-    "dual_orb",
-    "soft_stripes",
-    "cinematic",
-    "halo"
-   ],
-   "default": "none"
-  },
-  {
-   "platform": "select",
-   "key": "theme_studio_dark_preview_mode",
-   "legacy_domain": "input_select",
-   "name": "Dark - preview mode",
-   "options": [
-    "Relaxed",
-    "Focused",
-    "Vibrant"
-   ],
-   "default": "Relaxed"
+   "default": "Relaxed",
+   "variant": true
   },
   {
    "platform": "select",
@@ -2584,7 +1056,8 @@
     "bevel_edge",
     "glow_line"
    ],
-   "default": "soft_hairline"
+   "default": "soft_hairline",
+   "variant": true
   },
   {
    "platform": "select",
@@ -2602,79 +1075,21 @@
     "soft_float",
     "cinematic_depth"
    ],
-   "default": "glass_glow"
+   "default": "glass_glow",
+   "variant": true
   },
   {
    "platform": "select",
-   "key": "theme_studio_light_border_type",
+   "key": "theme_studio_theme_color_model",
    "legacy_domain": "input_select",
-   "name": "Light - border type",
+   "name": "Theme - colour model",
+   "icon": "mdi:palette-swatch-variant",
+   "default": "hsl",
    "options": [
-    "none",
-    "soft_hairline",
-    "glass_edge",
-    "etched",
-    "inner_glow",
-    "accent_line",
-    "double_line",
-    "bevel_edge",
-    "glow_line"
+    "hsl",
+    "oklch"
    ],
-   "default": "none"
-  },
-  {
-   "platform": "select",
-   "key": "theme_studio_light_shadow_type",
-   "legacy_domain": "input_select",
-   "name": "Light - shadow effect",
-   "options": [
-    "none",
-    "soft_depth",
-    "glass_glow",
-    "ambient_lift",
-    "neon_glow",
-    "studio_depth",
-    "drop_shadow",
-    "soft_float",
-    "cinematic_depth"
-   ],
-   "default": "none"
-  },
-  {
-   "platform": "select",
-   "key": "theme_studio_dark_border_type",
-   "legacy_domain": "input_select",
-   "name": "Dark - border type",
-   "options": [
-    "none",
-    "soft_hairline",
-    "glass_edge",
-    "etched",
-    "inner_glow",
-    "accent_line",
-    "double_line",
-    "bevel_edge",
-    "glow_line"
-   ],
-   "default": "none"
-  },
-  {
-   "platform": "select",
-   "key": "theme_studio_dark_shadow_type",
-   "legacy_domain": "input_select",
-   "name": "Dark - shadow effect",
-   "options": [
-    "none",
-    "soft_depth",
-    "glass_glow",
-    "ambient_lift",
-    "neon_glow",
-    "studio_depth",
-    "drop_shadow",
-    "soft_float",
-    "cinematic_depth"
-   ],
-   "default": "none"
+   "variant": true
   },
   {
    "platform": "button",

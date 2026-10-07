@@ -13,6 +13,7 @@ ATTR_RESTORED = "restored"
 class _RegistryEntry(Protocol):
     platform: str
     unique_id: str
+    entity_id: str
 
 
 def find_orphaned_legacy_entities(
@@ -40,3 +41,17 @@ def find_orphaned_legacy_entities(
         if state is None or state.attributes.get(ATTR_RESTORED):
             orphaned.append(entity_id)
     return orphaned
+
+
+# Per-variant mirror entities (theme_studio_light_* / theme_studio_dark_*) were
+# only used by the YAML save flow and are gone since v0.9.0.
+RETIRED_PREFIXES = ("theme_studio_light_", "theme_studio_dark_")
+
+
+def find_retired_entities(entries: Iterable[_RegistryEntry], domain: str) -> list[str]:
+    """Registry entries of this integration whose entity no longer exists."""
+    return [
+        entry.entity_id
+        for entry in entries
+        if entry.platform == domain and str(entry.unique_id).startswith(RETIRED_PREFIXES)
+    ]

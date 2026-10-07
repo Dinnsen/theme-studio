@@ -156,22 +156,20 @@ def test_package_uses_integration_services_for_file_operations() -> None:
     assert "shell_command" not in package
     assert "theme_studio_cli.py" not in package
     assert "- service: theme_studio.generate" in package
-    assert "- service: theme_studio.copy_preset" in package
-    assert "- service: theme_studio.save_preset" in package
-    assert '"active_variant": states("text.theme_studio_loaded_variant")' in package
+    assert "- service: theme_studio.save\n" in package
+    assert "- service: theme_studio.load\n" in package
+    assert "- service: theme_studio.save_as_new" in package
     assert "Save as new handles loading the newly created user theme" in package
-    assert "Save as new blocked" in package
 
 
-def test_package_trims_variant_comparisons_before_branching() -> None:
+def test_package_has_no_per_variant_mirror_helpers() -> None:
+    """Since v0.9.0 the theme file is the only store for light and dark values."""
     package = PACKAGE_PATH.read_text(encoding="utf-8")
 
-    assert "current_variant == ''Light''" not in package
-    assert "original_variant == ''Light''" not in package
-    assert "active_variant == ''Light''" not in package
-    assert "current_variant | trim == ''Light''" in package
-    assert "original_variant | trim == ''Light''" in package
-    assert "active_variant | trim == ''Light''" in package
+    assert "theme_studio_light_" not in package
+    assert "theme_studio_dark_" not in package
+    assert "theme_studio.save_preset" not in package
+    assert "theme_studio.copy_preset" not in package
 
 
 def test_autoload_flows_do_not_save_inactive_variant_helpers() -> None:

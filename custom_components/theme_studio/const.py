@@ -39,6 +39,9 @@ SERVICE_IMPORT_USER_THEME = "import_user_theme"
 SERVICE_UNDO = "undo"
 SERVICE_PALETTE_FROM_IMAGE = "palette_from_image"
 SERVICE_THEME_FROM_IMAGE = "theme_from_image"
+SERVICE_SAVE = "save"
+SERVICE_LOAD = "load"
+SERVICE_SAVE_AS_NEW = "save_as_new"
 
 SIGNAL_CATALOGS_CHANGED = f"{DOMAIN}_catalogs_changed"
 SIGNAL_CONTRAST_UPDATED = f"{DOMAIN}_contrast_updated"
@@ -146,4 +149,5 @@ LIVE_ARGUMENT_ENTITIES: dict[str, str] = {
     "shadow_saturation": "number.theme_studio_theme_shadow_saturation",
     "shadow_opacity": "number.theme_studio_theme_shadow_opacity",
     "shadow_size": "number.theme_studio_theme_shadow_size",
+    "color_model": "select.theme_studio_theme_color_model",
 }

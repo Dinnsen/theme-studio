@@ -17,7 +17,7 @@ from .const import DOMAIN, PLATFORMS
 from .definitions import HelperDefinition, load_definitions
 from .engine import ThemeEngine
 from .history import EditorHistory
-from .migration import find_orphaned_legacy_entities
+from .migration import find_orphaned_legacy_entities, find_retired_entities
 from .services import async_generate, async_setup_services
 
 _LOGGER = logging.getLogger(__name__)
@@ -76,10 +76,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ThemeStudioConfigEntry) 
         orphaned = find_orphaned_legacy_entities(
             definitions, registry.async_get, hass.states.get
         )
-        for entity_id in orphaned:
+        retired = find_retired_entities(
+            er.async_entries_for_config_entry(registry, entry.entry_id), DOMAIN
+        )
+        for entity_id in [*orphaned, *retired]:
             registry.async_remove(entity_id)
-        if orphaned:
-            _LOGGER.info("Theme Studio removed %s old YAML helpers", len(orphaned))
+        if orphaned or retired:
+            _LOGGER.info(
+                "Theme Studio removed %s old YAML helpers and %s retired entities",
+                len(orphaned),
+                len(retired),
+            )
 
     # Runs after start-up, when Home Assistant has marked helpers that are no
     # longer defined in YAML as restored placeholders.
