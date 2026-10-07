@@ -1,87 +1,66 @@
 input_text:
   theme_studio_theme_base_color:
     name: theme_studio theme - base color
-    initial: '#344334'
     max: 9
   theme_studio_theme_custom_background_color:
     name: theme_studio theme - custom background color
-    initial: '#344334'
     max: 9
   theme_studio_theme_background_image_url:
     name: theme_studio theme - background image url
-    initial: /local/background/CloudWhite.png
     max: 255
   theme_studio_theme_custom_text_color:
     name: theme_studio theme - custom text color
-    initial: '#ffffff'
     max: 9
   theme_studio_theme_custom_icon_color:
     name: theme_studio theme - custom icon color
-    initial: '#ffffff'
     max: 9
   theme_studio_theme_custom_navbar_icon_color:
     name: theme_studio theme - custom navbar icon color
-    initial: '#ffffff'
     max: 9
   theme_studio_theme_navbar_bg_override:
     name: theme_studio theme - navbar background override
-    initial: auto
     max: 16
   theme_studio_theme_bubble_slider_color_override:
     name: theme_studio theme - bubble slider color override
-    initial: auto
     max: 16
   theme_studio_theme_accent_color_override:
     name: theme_studio theme - accent color override
-    initial: auto
     max: 16
   theme_studio_theme_card_bg_override:
     name: theme_studio theme - card background override
-    initial: auto
     max: 16
   theme_studio_theme_bubble_bg_override:
     name: theme_studio theme - bubble background override
-    initial: auto
     max: 16
   theme_studio_theme_popup_bg_override:
     name: theme_studio theme - popup background override
-    initial: auto
     max: 16
   theme_studio_theme_secondary_background_color_override:
     name: theme_studio theme - secondary background color override
-    initial: auto
     max: 16
   theme_studio_theme_secondary_text_color_override:
     name: theme_studio theme - secondary text color override
-    initial: auto
     max: 16
   theme_studio_theme_disabled_text_color_override:
     name: theme_studio theme - disabled text color override
-    initial: auto
     max: 16
   theme_studio_theme_app_header_background_color_override:
     name: theme_studio theme - app header background color override
-    initial: auto
     max: 16
   theme_studio_theme_app_header_text_color_override:
     name: theme_studio theme - app header text color override
-    initial: auto
     max: 16
   theme_studio_theme_divider_color_override:
     name: theme_studio theme - divider color override
-    initial: auto
     max: 16
   theme_studio_theme_sidebar_icon_color_override:
     name: theme_studio theme - sidebar icon color override
-    initial: auto
     max: 16
   theme_studio_theme_state_icon_color_override:
     name: theme_studio theme - state icon color override
-    initial: auto
     max: 16
   theme_studio_theme_state_icon_active_color_override:
     name: theme_studio theme - state icon active color override
-    initial: auto
     max: 16
   theme_studio_light_accent_color_override:
     name: theme_studio light - accent color override
@@ -211,15 +190,12 @@ input_text:
     max: 16
   theme_studio_theme_primary_font_family:
     name: theme_studio theme - primary font family
-    initial: sans-serif
     max: 100
   theme_studio_theme_custom_font_family:
     name: theme_studio theme - custom font family
-    initial: CustomFont
     max: 100
   theme_studio_theme_custom_font_path:
     name: theme_studio theme - custom font path
-    initial: /local/fonts/custom-font.woff2
     max: 255
   theme_studio_light_primary_font_family:
     name: theme_studio light - primary font family
@@ -241,15 +217,12 @@ input_text:
     max: 255
   theme_studio_theme_name:
     name: Theme Studio - theme name
-    initial: My Theme
     max: 100
   theme_studio_loaded_variant:
     name: Theme Studio - loaded variant
-    initial: Dark
     max: 16
   theme_studio_selected_user_theme:
     name: Theme Studio - selected user theme
-    initial: None
   theme_studio_busy_message:
     name: Theme Studio - busy message
     initial: Idle
@@ -265,140 +238,120 @@ input_number:
     max: 100
     step: 1
     mode: slider
-    initial: 50
   theme_studio_theme_hue_shift:
     name: theme_studio theme - hue shift
     min: -180
     max: 180
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_saturation:
     name: theme_studio theme - saturation
     min: -50
     max: 50
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_tone:
     name: theme_studio theme - tone
     min: -25
     max: 25
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_accent_strength:
     name: theme_studio theme - accent strength
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 50
   theme_studio_theme_neutrality:
     name: theme_studio theme - neutrality
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 50
   theme_studio_theme_card_opacity:
     name: theme_studio theme - card opacity
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 88
   theme_studio_theme_blur_strength:
     name: theme_studio theme - blur strength
     min: 0
     max: 30
     step: 1
     mode: slider
-    initial: 17
   theme_studio_theme_radius:
     name: theme_studio theme - radius
     min: 0
     max: 32
     step: 1
     mode: slider
-    initial: 28
   theme_studio_theme_chip_radius:
     name: theme_studio theme - chip radius
     min: 0
     max: 32
     step: 1
     mode: slider
-    initial: 20
   theme_studio_theme_overlay_contrast:
     name: theme_studio theme - overlay contrast
     min: 1
     max: 100
     step: 1
     mode: slider
-    initial: 22
   theme_studio_theme_background_contrast:
     name: theme_studio theme - background contrast
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_header_blend_height:
     name: theme_studio theme - header blend height
     min: 80
     max: 320
     step: 1
     mode: slider
-    initial: 170
   theme_studio_theme_overlay_offset_y:
     name: theme_studio theme - overlay start from top
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 29
   theme_studio_theme_overlay_scale:
     name: theme_studio theme - overlay size
     min: 50
     max: 200
     step: 1
     mode: slider
-    initial: 100
   theme_studio_theme_overlay_spread:
     name: theme_studio theme - overlay spread
     min: 50
     max: 200
     step: 1
     mode: slider
-    initial: 100
   theme_studio_theme_accent_contrast:
     name: theme_studio theme - accent contrast
     min: -100
     max: 100
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_card_bg_contrast:
     name: theme_studio theme - card background contrast
     min: -100
     max: 100
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_bubble_bg_contrast:
     name: theme_studio theme - bubble background contrast
     min: -100
     max: 100
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_popup_bg_contrast:
     name: theme_studio theme - popup background contrast
     min: -100
     max: 100
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_surface_lift:
     name: theme_studio theme - surface lift
     min: -30
@@ -406,7 +359,6 @@ input_number:
     step: 1
     mode: slider
     unit_of_measurement: '%'
-    initial: 0
   theme_studio_light_surface_lift:
     name: theme_studio light - surface lift
     min: -30
@@ -688,147 +640,126 @@ input_number:
     max: 180
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_accent_saturation:
     name: theme_studio theme - accent saturation
     min: -50
     max: 50
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_card_bg_hue_shift:
     name: theme_studio theme - card bg hue shift
     min: -180
     max: 180
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_card_bg_saturation:
     name: theme_studio theme - card bg saturation
     min: -50
     max: 50
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_bubble_bg_hue_shift:
     name: theme_studio theme - bubble bg hue shift
     min: -180
     max: 180
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_bubble_bg_saturation:
     name: theme_studio theme - bubble bg saturation
     min: -50
     max: 50
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_popup_bg_hue_shift:
     name: theme_studio theme - popup bg hue shift
     min: -180
     max: 180
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_popup_bg_saturation:
     name: theme_studio theme - popup bg saturation
     min: -50
     max: 50
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_bubble_bg_opacity:
     name: theme_studio theme - bubble bg opacity
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 92
   theme_studio_theme_popup_bg_opacity:
     name: theme_studio theme - popup bg opacity
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 92
   theme_studio_theme_navbar_bg_opacity:
     name: theme_studio theme - navbar bg opacity
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 85
   theme_studio_theme_border_contrast:
     name: theme_studio theme - border contrast
     min: -100
     max: 100
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_border_hue_shift:
     name: theme_studio theme - border hue shift
     min: -180
     max: 180
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_border_saturation:
     name: theme_studio theme - border saturation
     min: -50
     max: 50
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_border_opacity:
     name: theme_studio theme - border opacity
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 28
   theme_studio_theme_border_size:
     name: theme_studio theme - border size
     min: 0
     max: 12
     step: 1
     mode: slider
-    initial: 4
   theme_studio_theme_shadow_contrast:
     name: theme_studio theme - shadow contrast
     min: -100
     max: 100
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_shadow_hue_shift:
     name: theme_studio theme - shadow hue shift
     min: -180
     max: 180
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_shadow_saturation:
     name: theme_studio theme - shadow saturation
     min: -50
     max: 50
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_shadow_opacity:
     name: theme_studio theme - shadow opacity
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 42
   theme_studio_theme_shadow_size:
     name: theme_studio theme - shadow size
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 40
   theme_studio_light_border_contrast:
     name: theme_studio light - border contrast
     min: -100
@@ -1087,28 +1018,24 @@ input_number:
     max: 100
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_bubble_slider_hue_shift:
     name: theme studio theme - bubble slider hue shift
     min: -180
     max: 180
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_bubble_slider_saturation:
     name: theme studio theme - bubble slider saturation
     min: -50
     max: 50
     step: 1
     mode: slider
-    initial: 0
   theme_studio_theme_bubble_slider_opacity:
     name: theme studio theme - bubble slider opacity
     min: 0
     max: 100
     step: 1
     mode: slider
-    initial: 100
   theme_studio_light_bubble_slider_contrast:
     name: theme studio light - bubble slider contrast
     min: -100
@@ -1160,25 +1087,18 @@ input_number:
 input_boolean:
   theme_studio_theme_use_custom_background_color:
     name: theme_studio theme - use custom background color
-    initial: false
   theme_studio_theme_use_background_image:
     name: theme_studio theme - use background image
-    initial: true
   theme_studio_theme_enable_header_blend:
     name: theme_studio theme - enable header blend
-    initial: true
   theme_studio_theme_use_custom_text_color:
     name: theme_studio theme - use custom text color
-    initial: false
   theme_studio_theme_use_custom_icon_color:
     name: theme_studio theme - use custom icon color
-    initial: false
   theme_studio_theme_use_custom_navbar_icon_color:
     name: theme_studio theme - use custom navbar icon color
-    initial: false
   theme_studio_theme_preview_toggle:
     name: theme_studio theme - preview toggle
-    initial: true
   theme_studio_light_preview_toggle:
     name: theme_studio light - preview toggle
   theme_studio_light_use_background_image:
@@ -1207,7 +1127,6 @@ input_boolean:
     name: theme_studio dark - use custom navbar icon color
   theme_studio_theme_use_custom_font:
     name: theme_studio theme - use custom font
-    initial: false
   theme_studio_light_use_custom_font:
     name: theme_studio light - use custom font
   theme_studio_dark_use_custom_font:
@@ -1217,17 +1136,13 @@ input_boolean:
   theme_studio_help_mode:
     name: Theme Studio Help
     icon: mdi:help-circle-outline
-    initial: true
   theme_studio_preview_landscape:
     name: Theme Studio Preview Landscape
     icon: mdi:tablet-dashboard
-    initial: false
   theme_studio_theme_bubble_use_fx:
     name: theme_studio theme - bubble use surface fx
-    initial: true
   theme_studio_theme_popup_use_fx:
     name: theme_studio theme - popup use surface fx
-    initial: true
   theme_studio_light_bubble_use_fx:
     name: theme_studio light - bubble use surface fx
   theme_studio_light_popup_use_fx:
@@ -1261,14 +1176,12 @@ input_select:
     - soft_stripes
     - cinematic
     - halo
-    initial: diagonal_fade
   theme_studio_theme_preview_mode:
     name: theme_studio theme - preview mode
     options:
     - Relaxed
     - Focused
     - Vibrant
-    initial: Relaxed
   theme_studio_light_background_overlay:
     name: theme_studio light - background overlay
     options:
@@ -1332,18 +1245,15 @@ input_select:
     - Pink Mono
     - Black White
     - Aurora
-    initial: Default
   theme_studio_user_themes:
     name: Theme Studio - user themes
     options:
     - None
-    initial: None
   theme_studio_theme_background_image_select:
     name: theme_studio theme - background image
     options:
     - CloudWhite.png
     - CloudBlack.png
-    initial: CloudWhite.png
   theme_studio_theme_border_type:
     name: theme_studio theme - border type
     options:
@@ -1356,7 +1266,6 @@ input_select:
     - double_line
     - bevel_edge
     - glow_line
-    initial: soft_hairline
   theme_studio_theme_shadow_type:
     name: theme_studio theme - shadow effect
     options:
@@ -1369,7 +1278,6 @@ input_select:
     - drop_shadow
     - soft_float
     - cinematic_depth
-    initial: glass_glow
   theme_studio_light_border_type:
     name: theme_studio light - border type
     options:
@@ -4664,7 +4572,7 @@ automation:
     - input_select.theme_studio_user_themes
   condition:
   - condition: template
-    value_template: "{{\n  states('input_select.theme_studio_theme_presets') == 'None'\n  and states('input_select.theme_studio_user_themes') == 'None'\n}}"
+    value_template: "{{\n  states('input_select.theme_studio_theme_presets') == 'None'\n  and states('input_select.theme_studio_user_themes') == 'None'\n  and states('input_text.theme_studio_selected_user_theme') | trim in ['', 'None', 'unknown', 'unavailable']\n}}"
   action:
   - service: input_select.select_option
     target:
