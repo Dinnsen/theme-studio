@@ -1,0 +1,53 @@
+name: Panel
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: Build panel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install
+        working-directory: frontend
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Typecheck
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: panel-build
+          path: |
+            custom_components/theme_studio/frontend/theme-studio-panel.js
+            frontend/package-lock.json
+
+      - name: Committed build is up to date
+        run: |
+          changes="$(git status --porcelain -- custom_components/theme_studio/frontend frontend/package-lock.json)"
+          if [ -n "$changes" ]; then
+            echo "$changes"
+            echo "::error::Run 'npm run build' in frontend/ and commit the result."
+            exit 1
+          fi

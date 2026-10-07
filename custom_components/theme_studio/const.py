@@ -9,6 +9,17 @@ PLATFORMS: list[str] = ["button", "number", "select", "sensor", "switch", "text"
 
 LIVE_THEME_NAME = "Theme Studio Dynamic"
 
+# Sidebar panel. The YAML dashboard already uses /theme-studio, so the panel
+# lives next to it until the dashboard is retired.
+PANEL_URL_PATH = "theme-studio-panel"
+PANEL_COMPONENT = "theme-studio-panel"
+PANEL_TITLE = "Theme Studio"
+PANEL_ICON = "mdi:palette-swatch-variant"
+PANEL_STATIC_URL = "/theme_studio_static"
+PANEL_MODULE = "theme-studio-panel.js"
+CONF_SHOW_PANEL = "show_panel"
+CONF_PANEL_ADMIN_ONLY = "panel_admin_only"
+
 # Paths relative to the Home Assistant config directory.
 PRESET_DIR = ("theme_studio", "presets")
 USER_THEME_DIR = ("theme_studio", "user_themes")

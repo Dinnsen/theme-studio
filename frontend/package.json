@@ -1,0 +1,16 @@
+{
+  "name": "theme-studio-panel",
+  "version": "0.10.0",
+  "private": true,
+  "description": "Sidebar panel for the Theme Studio Home Assistant integration",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/theme-studio-panel.ts --bundle --format=esm --minify --target=es2021 --legal-comments=none --outfile=../custom_components/theme_studio/frontend/theme-studio-panel.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "lit": "^3.3.0",
+    "typescript": "^5.8.3"
+  }
+}

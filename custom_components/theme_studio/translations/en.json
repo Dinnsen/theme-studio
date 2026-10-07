@@ -22,10 +22,12 @@
     "step": {
       "init": {
         "title": "Theme Studio options",
-        "description": "Control how Theme Studio reinstalls managed assets.",
+        "description": "Control how Theme Studio reinstalls managed assets and whether its panel is shown in the sidebar.",
         "data": {
           "overwrite": "Overwrite existing managed files",
-          "backup": "Create backups before overwriting"
+          "backup": "Create backups before overwriting",
+          "show_panel": "Show the Theme Studio panel in the sidebar",
+          "panel_admin_only": "Only administrators can open the panel"
         }
       }
     }
