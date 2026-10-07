@@ -104,7 +104,9 @@ export const mockStyles = css`
   }
   .m-scroll {
     flex: 1;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
     padding: 20px 14px 96px;
     display: flex;
     flex-direction: column;
