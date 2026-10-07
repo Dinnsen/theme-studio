@@ -15,6 +15,23 @@ template:
   - name: theme_studio picker hex
     state: '{% set r = states(''number.theme_studio_picker_red'') | int(0) %} {% set g = states(''number.theme_studio_picker_green'') | int(0) %} {% set b = states(''number.theme_studio_picker_blue'') | int(0) %} {{ ''#%02X%02X%02X'' | format(r, g, b) }}'
 script:
+  theme_studio_export_selected_user_theme:
+    alias: Theme Studio - export selected user theme
+    mode: single
+    sequence:
+    - if:
+      - condition: template
+        value_template: "{{ states('select.theme_studio_user_themes') not in ['None', '', 'unknown', 'unavailable'] }}"
+      then:
+      - service: theme_studio.export_user_theme
+        data:
+          name: "{{ states('select.theme_studio_user_themes') }}"
+      else:
+      - service: persistent_notification.create
+        data:
+          notification_id: theme_studio_share
+          title: Theme Studio export
+          message: Select a user theme first. Built-in presets are already part of Theme Studio.
   theme_studio_picker_apply_base_color:
     alias: theme_studio picker - apply base color
     sequence:

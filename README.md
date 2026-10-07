@@ -36,6 +36,7 @@
 - [File Structure](#file-structure)
 - [Fonts](#fonts)
 - [Theme variables for your own dashboards](#theme-variables-for-your-own-dashboards)
+- [Sharing themes](#sharing-themes)
 - [Services](#services)
 - [Recommended recorder settings](#recommended-recorder-settings)
 - [Uninstall](#uninstall)
@@ -149,6 +150,9 @@ Theme Studio automatically installs the following folders:
 /config/packages/theme_studio_dynamic.yaml        scripts, automations, template sensors (managed)
 /config/lovelace/theme_studio_dashboard.yaml      dashboard (managed)
 /config/www/background/                           background images
+/config/www/theme_studio/previews/                preset previews (generated)
+/config/www/theme_studio/exports/                 exported user themes
+/config/theme_studio/imports/                     drop theme files here to import them
 ```
 
 ## Fonts
@@ -198,6 +202,12 @@ card_mod:
     }
 ```
 
+## Sharing themes
+
+- **Export:** pick a user theme and press *Export user theme*. A notification links to the JSON file and shows a share string (`TS1:…`) you can paste in a message.
+- **Import:** put exported `.json` files (or `.txt` files with a share string) in `/config/theme_studio/imports/` and press *Import files*, or call `theme_studio.import_user_theme` with the share string. Imported files are renamed to `.imported`.
+- Exports are plain colour settings. Files in `/config/www/` can be opened without logging in by anyone who knows the address, so delete an export when you no longer need it.
+
 ## Services
 
 | Service | What it does |
@@ -208,6 +218,10 @@ card_mod:
 | `theme_studio.delete_user_theme` | Deletes a user theme and its built theme file. |
 | `theme_studio.build_theme` | Exports a user theme or preset with light and dark mode to `/config/themes/theme_studio/`. |
 | `theme_studio.refresh_catalogs` | Rereads presets, user themes and background images. |
+| `theme_studio.undo` | Returns the studio editor to the previous step (up to 25 steps since Home Assistant started). Also the *Undo* button in the studio. |
+| `theme_studio.export_user_theme` | Writes a user theme to `/config/www/theme_studio/exports/` and returns it as JSON and as a share string. A notification links to the file. |
+| `theme_studio.import_user_theme` | Creates a new user theme from JSON or a share string. Without data it imports every `.json`/`.txt` file in `/config/theme_studio/imports/`. Never overwrites a theme; a name that is taken gets a number. |
+| `theme_studio.palette_from_image` | Reads the main colours of a background image and suggests base colour, accent and background contrast. With `apply: true` they go into the editor (Undo brings the old colours back). |
 | `theme_studio.copy_variant` | Copies the light variant to dark or the other way round. Lightness is mirrored and light/dark-specific colours go back to auto, so the copy stays readable. |
 | `theme_studio.set_options` | Replaces the option list of a Theme Studio select. |
 | `theme_studio.initialize_assets` / `theme_studio.reinstall_assets` | Installs the managed files again and returns what changed. |

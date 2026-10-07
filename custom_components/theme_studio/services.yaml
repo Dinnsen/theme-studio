@@ -70,6 +70,43 @@ copy_variant:
             - light
             - dark
 
+undo:
+
+export_user_theme:
+  fields:
+    name:
+      required: true
+      example: My Theme
+      selector:
+        text:
+
+import_user_theme:
+  fields:
+    data:
+      required: false
+      example: "TS1:eNp..."
+      selector:
+        text:
+          multiline: true
+    name:
+      required: false
+      example: Shared theme
+      selector:
+        text:
+
+palette_from_image:
+  fields:
+    image:
+      required: false
+      example: orange-fade.jpg
+      selector:
+        text:
+    apply:
+      required: false
+      default: false
+      selector:
+        boolean:
+
 set_options:
   target:
     entity:

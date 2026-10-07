@@ -12,6 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import ThemeStudioConfigEntry
+from .const import DOMAIN, SERVICE_UNDO
 from .definitions import HelperDefinition
 from .entity import device_info
 
@@ -23,9 +24,14 @@ async def async_setup_entry(
 ) -> None:
     """Set up Theme Studio button entities."""
     async_add_entities(
-        ThemeStudioButton(entry, definition)
-        for definition in entry.runtime_data.definitions
-        if definition.platform == "button"
+        [
+            *(
+                ThemeStudioButton(entry, definition)
+                for definition in entry.runtime_data.definitions
+                if definition.platform == "button"
+            ),
+            UndoButton(entry),
+        ]
     )
 
 
@@ -43,3 +49,20 @@ class ThemeStudioButton(ButtonEntity):
 
     async def async_press(self) -> None:
         """Nothing to do here; automations react to the state change."""
+
+
+class UndoButton(ButtonEntity):
+    """Return the studio editor to the previous step."""
+
+    _attr_has_entity_name = True
+    _attr_icon = "mdi:undo"
+
+    def __init__(self, entry: ConfigEntry) -> None:
+        self._attr_unique_id = "theme_studio_undo"
+        self._attr_name = "Undo"
+        self._attr_device_info = device_info(entry)
+        self.entity_id = "button.theme_studio_undo"
+
+    async def async_press(self) -> None:
+        """Run the undo service (it reports when there is nothing to undo)."""
+        await self.hass.services.async_call(DOMAIN, SERVICE_UNDO, {}, blocking=True)

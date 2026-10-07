@@ -16,6 +16,7 @@ from .asset_manager import async_initialize_assets, remove_assets
 from .const import DOMAIN, PLATFORMS
 from .definitions import HelperDefinition, load_definitions
 from .engine import ThemeEngine
+from .history import EditorHistory
 from .migration import find_orphaned_legacy_entities
 from .services import async_generate, async_setup_services
 
@@ -32,6 +33,7 @@ class ThemeStudioData:
     definitions: list[HelperDefinition]
     last_asset_install: dict[str, Any]
     contrast: list[dict[str, Any]] = field(default_factory=list)
+    history: EditorHistory = field(default_factory=EditorHistory)
 
 
 type ThemeStudioConfigEntry = ConfigEntry[ThemeStudioData]
@@ -89,6 +91,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ThemeStudioConfigEntry) 
             await async_generate(hass)
         except (HomeAssistantError, OSError, ValueError) as err:
             _LOGGER.warning("Theme Studio could not build the live theme at start-up: %s", err)
+        try:
+            written = await hass.async_add_executor_job(entry.runtime_data.engine.write_previews)
+        except (OSError, ValueError) as err:
+            _LOGGER.warning("Theme Studio could not write preset previews: %s", err)
+        else:
+            _LOGGER.debug("Theme Studio preset previews written: %s", len(written))
 
     entry.async_on_unload(async_at_started(hass, _async_initial_generate))
     return True

@@ -117,6 +117,48 @@
         }
       }
     },
+    "undo": {
+      "name": "Undo",
+      "description": "Return the studio editor to the previous step (up to 25 steps since Home Assistant started)."
+    },
+    "export_user_theme": {
+      "name": "Export user theme",
+      "description": "Write a user theme to /config/www/theme_studio/exports and return it as JSON and as a share string. A notification links to the file.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "User theme to export."
+        }
+      }
+    },
+    "import_user_theme": {
+      "name": "Import user theme",
+      "description": "Create a new user theme from JSON or a share string. Without data, every .json/.txt file in /config/theme_studio/imports is imported. Existing user themes are never overwritten; a name that is taken gets a number.",
+      "fields": {
+        "data": {
+          "name": "Data",
+          "description": "Exported JSON or a share string starting with TS1:."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Name for the new user theme. Defaults to the name in the data."
+        }
+      }
+    },
+    "palette_from_image": {
+      "name": "Colours from image",
+      "description": "Read the main colours of a background image and suggest a base colour, an accent and the background contrast.",
+      "fields": {
+        "image": {
+          "name": "Image",
+          "description": "File name in /config/www/background. Defaults to the selected background image."
+        },
+        "apply": {
+          "name": "Apply",
+          "description": "Put the suggestions into the studio editor. Undo brings the previous colours back."
+        }
+      }
+    },
     "set_options": {
       "name": "Set options",
       "description": "Replace the options of a Theme Studio select.",
@@ -140,6 +182,18 @@
     },
     "preset_not_found": {
       "message": "Preset or user theme {name} was not found ({error})."
+    },
+    "nothing_to_undo": {
+      "message": "There is nothing to undo."
+    },
+    "user_theme_not_found": {
+      "message": "User theme {name} was not found."
+    },
+    "invalid_import": {
+      "message": "This is not a Theme Studio theme ({reason})."
+    },
+    "image_not_readable": {
+      "message": "Could not read image {image}: {error}"
     }
   }
 }

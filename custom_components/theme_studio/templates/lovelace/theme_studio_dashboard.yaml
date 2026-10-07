@@ -818,6 +818,24 @@ views:
             name: User Themes
             show_state: true
             entity: select.theme_studio_user_themes
+          - type: markdown
+            card_mod:
+              style: |
+                ha-card {
+                  background: var(--ha-card-background) !important;
+                  color: var(--primary-text-color) !important;
+                }
+                img { width: 96px; height: auto; border-radius: 12px; margin-right: 8px; }
+            content: |-
+              {% set preset = states('select.theme_studio_theme_presets') %}
+              {% if preset not in ['None', '', 'unknown', 'unavailable'] %}
+              {% set slug = preset | lower | replace(' ', '_') %}
+              **{{ preset }}** · light and dark
+
+              ![{{ preset }} light](/local/theme_studio/previews/{{ slug }}_light.svg) ![{{ preset }} dark](/local/theme_studio/previews/{{ slug }}_dark.svg)
+              {% else %}
+              Pick a built-in preset to see it in light and dark.
+              {% endif %}
           - type: entities
             card_mod:
               style: |
@@ -1003,6 +1021,44 @@ views:
                     source: dark
                   confirmation:
                     text: Overwrite the saved light variant with a readable copy of the saved dark variant? The studio opens light afterwards; press Save to keep it.
+                styles:
+                  card:
+                    - border-radius: 999px
+                    - padding: 6px 12px
+                    - height: 36px
+                    - background: var(--ha-card-background)
+                    - border: 1px solid var(--divider-color)
+                  name:
+                    - font-size: 11px
+                  icon:
+                    - width: 28px
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                name: Export user theme
+                icon: mdi:export-variant
+                tap_action:
+                  action: call-service
+                  service: script.theme_studio_export_selected_user_theme
+                styles:
+                  card:
+                    - border-radius: 999px
+                    - padding: 6px 12px
+                    - height: 36px
+                    - background: var(--ha-card-background)
+                    - border: 1px solid var(--divider-color)
+                  name:
+                    - font-size: 11px
+                  icon:
+                    - width: 28px
+              - type: custom:button-card
+                name: Import files
+                icon: mdi:import
+                tap_action:
+                  action: call-service
+                  service: theme_studio.import_user_theme
+                  confirmation:
+                    text: Import every theme file in /config/theme_studio/imports as new user themes? Existing themes are not changed.
                 styles:
                   card:
                     - border-radius: 999px
@@ -1692,6 +1748,29 @@ views:
           target:
             entity_id: script.theme_studio_theme_reset_defaults
           data: {}
+        card_mod:
+          style: |
+            :host {
+              --ha-card-border-width: 0;
+              --ha-card-box-shadow: none;
+            }
+            ha-card {
+              border: none !important;
+              box-shadow: none !important;
+              background: transparent !important;
+            }
+      - type: entity
+        name: Undo
+        show_name: true
+        show_state: false
+        show_icon: true
+        entity: button.theme_studio_undo
+        icon: mdi:undo
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.theme_studio_undo
         card_mod:
           style: |
             :host {
@@ -6363,6 +6442,29 @@ views:
               background: transparent !important;
             }
       - type: entity
+        name: Undo
+        show_name: true
+        show_state: false
+        show_icon: true
+        entity: button.theme_studio_undo
+        icon: mdi:undo
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.theme_studio_undo
+        card_mod:
+          style: |
+            :host {
+              --ha-card-border-width: 0;
+              --ha-card-box-shadow: none;
+            }
+            ha-card {
+              border: none !important;
+              box-shadow: none !important;
+              background: transparent !important;
+            }
+      - type: entity
         show_name: true
         show_state: true
         show_icon: true
@@ -9546,6 +9648,29 @@ views:
               background: transparent !important;
             }
       - type: entity
+        name: Undo
+        show_name: true
+        show_state: false
+        show_icon: true
+        entity: button.theme_studio_undo
+        icon: mdi:undo
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.theme_studio_undo
+        card_mod:
+          style: |
+            :host {
+              --ha-card-border-width: 0;
+              --ha-card-box-shadow: none;
+            }
+            ha-card {
+              border: none !important;
+              box-shadow: none !important;
+              background: transparent !important;
+            }
+      - type: entity
         show_name: true
         show_state: true
         show_icon: true
@@ -10608,6 +10733,21 @@ views:
             show_state: true
           - type: custom:bubble-card
             card_type: button
+            button_type: name
+            name: Colours from image
+            icon: mdi:eyedropper-variant
+            sub_button:
+              main: []
+              bottom: []
+            tap_action:
+              action: perform-action
+              perform_action: theme_studio.palette_from_image
+              data:
+                apply: true
+              confirmation:
+                text: Set the base colour, accent and background contrast from the selected image? Undo brings the previous colours back.
+          - type: custom:bubble-card
+            card_type: button
             button_type: slider
             sub_button:
               main: []
@@ -10860,6 +11000,29 @@ views:
           target:
             entity_id: script.theme_studio_theme_reset_defaults
           data: {}
+        card_mod:
+          style: |
+            :host {
+              --ha-card-border-width: 0;
+              --ha-card-box-shadow: none;
+            }
+            ha-card {
+              border: none !important;
+              box-shadow: none !important;
+              background: transparent !important;
+            }
+      - type: entity
+        name: Undo
+        show_name: true
+        show_state: false
+        show_icon: true
+        entity: button.theme_studio_undo
+        icon: mdi:undo
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.theme_studio_undo
         card_mod:
           style: |
             :host {
@@ -12008,6 +12171,29 @@ views:
               background: transparent !important;
             }
       - type: entity
+        name: Undo
+        show_name: true
+        show_state: false
+        show_icon: true
+        entity: button.theme_studio_undo
+        icon: mdi:undo
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.theme_studio_undo
+        card_mod:
+          style: |
+            :host {
+              --ha-card-border-width: 0;
+              --ha-card-box-shadow: none;
+            }
+            ha-card {
+              border: none !important;
+              box-shadow: none !important;
+              background: transparent !important;
+            }
+      - type: entity
         show_name: true
         show_state: true
         show_icon: true
@@ -12700,6 +12886,29 @@ views:
               background: transparent !important;
             }
       - type: entity
+        name: Undo
+        show_name: true
+        show_state: false
+        show_icon: true
+        entity: button.theme_studio_undo
+        icon: mdi:undo
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.theme_studio_undo
+        card_mod:
+          style: |
+            :host {
+              --ha-card-border-width: 0;
+              --ha-card-box-shadow: none;
+            }
+            ha-card {
+              border: none !important;
+              box-shadow: none !important;
+              background: transparent !important;
+            }
+      - type: entity
         show_name: true
         show_state: true
         show_icon: true
@@ -13166,6 +13375,29 @@ views:
           target:
             entity_id: script.theme_studio_theme_reset_defaults
           data: {}
+        card_mod:
+          style: |
+            :host {
+              --ha-card-border-width: 0;
+              --ha-card-box-shadow: none;
+            }
+            ha-card {
+              border: none !important;
+              box-shadow: none !important;
+              background: transparent !important;
+            }
+      - type: entity
+        name: Undo
+        show_name: true
+        show_state: false
+        show_icon: true
+        entity: button.theme_studio_undo
+        icon: mdi:undo
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.theme_studio_undo
         card_mod:
           style: |
             :host {
