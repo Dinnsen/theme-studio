@@ -24,6 +24,7 @@ WS_PREVIEW = f"{DOMAIN}/preview"
 WS_SCHEMA = f"{DOMAIN}/schema"
 WS_BACKGROUNDS = f"{DOMAIN}/backgrounds"
 WS_MIRROR = f"{DOMAIN}/mirror"
+WS_PREVIEW_OPTIONS = f"{DOMAIN}/preview_options"
 WS_SAVE = f"{DOMAIN}/theme/save"
 WS_NEW = f"{DOMAIN}/theme/new"
 WS_DELETE = f"{DOMAIN}/theme/delete"
@@ -149,6 +150,34 @@ async def ws_mirror(
     connection.send_result(msg["id"], {"settings": settings})
 
 
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): WS_PREVIEW_OPTIONS,
+        vol.Required("settings"): SETTINGS,
+        vol.Required("key"): vol.All(str, vol.Length(max=80)),
+        vol.Required("values"): vol.All([vol.All(str, vol.Length(max=80))], vol.Length(max=20)),
+        vol.Optional("fixed", default={}): SETTINGS,
+    }
+)
+@websocket_api.async_response
+async def ws_preview_options(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Previews of one setting's options, for the border, shadow and overlay tiles."""
+    engine = _engine(hass)
+    if engine is None:
+        _not_loaded(connection, msg)
+        return
+    try:
+        options = await hass.async_add_executor_job(
+            engine.preview_options, msg["settings"], msg["key"], msg["values"], msg["fixed"]
+        )
+    except (ValueError, TypeError, KeyError, ZeroDivisionError) as err:
+        connection.send_error(msg["id"], "invalid_settings", str(err))
+        return
+    connection.send_result(msg["id"], {"options": options})
+
+
 async def _async_catalogs_changed(hass: HomeAssistant, engine: ThemeEngine) -> None:
     """Keep the dashboard's lists and the theme previews in step."""
     await hass.async_add_executor_job(engine.write_user_theme_index)
@@ -268,6 +297,7 @@ COMMANDS = (
     ws_schema,
     ws_backgrounds,
     ws_mirror,
+    ws_preview_options,
     ws_save,
     ws_new,
     ws_delete,

@@ -2,6 +2,7 @@ export interface Hass {
   callWS<T>(message: { type: string; [key: string]: unknown }): Promise<T>;
   themes?: { darkMode?: boolean };
   user?: { is_admin?: boolean };
+  fetchWithAuth?(path: string, init?: RequestInit): Promise<Response>;
 }
 
 export type SettingValue = string | number | boolean;

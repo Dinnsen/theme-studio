@@ -704,3 +704,39 @@ def test_panel_schema_and_mirror(tmp_path) -> None:
     mirrored = engine.mirror(light, "dark")
     assert isinstance(mirrored["radius"], float)
     assert mirrored["card_bg_override"] in ("auto", light["card_bg_override"])
+
+
+def test_panel_option_previews_show_each_value(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    settings = engine.theme_detail("glass")["dark"]["settings"]
+    options = engine.preview_options(settings, "border_type", ["none", "glow_line"], {"shadow_type": "none"})
+    assert [option["value"] for option in options] == ["none", "glow_line"]
+    assert options[0]["variables"]["theme-studio-border-type"] == "none"
+    assert options[1]["variables"]["theme-studio-border-type"] == "glow_line"
+    assert options[0]["variables"]["theme-studio-shadow-type"] == "none"
+    assert engine.preview_options(settings, "not_a_setting", ["x"], {}) == []
+
+
+def test_panel_background_upload_is_checked_and_never_overwrites(tmp_path) -> None:
+    import io
+
+    from PIL import Image
+
+    engine, _ = engine_for(tmp_path)
+    buffer = io.BytesIO()
+    Image.new("RGB", (8, 8), "#336699").save(buffer, "PNG")
+    png = buffer.getvalue()
+
+    first = engine.save_background("../My Photo!.jpeg", png)
+    second = engine.save_background("My Photo!.jpeg", png)
+
+    # The name comes from the file, the extension from its real format.
+    assert first == {"ok": True, "file": "My-Photo.png", "url": "/local/background/My-Photo.png"}
+    assert second["file"] == "My-Photo-2.png"
+    assert (tmp_path / "www" / "background" / "My-Photo.png").read_bytes() == png
+    svg = b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'
+    assert engine.save_background("x.svg", svg)["reason"] == "not_an_image"
+    assert engine.save_background("x.png", b"not an image")["reason"] == "not_an_image"
+    engine_module = load_module("engine")
+    big = b"0" * (engine_module.MAX_BACKGROUND_BYTES + 1)
+    assert engine.save_background("big.png", big)["reason"] == "too_large"

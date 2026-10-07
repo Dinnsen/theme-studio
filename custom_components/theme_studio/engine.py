@@ -47,6 +47,9 @@ CLI_PATH = (
 )
 
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}
+MAX_BACKGROUND_BYTES = 15 * 1024 * 1024
+# Uploads are checked by content; SVG is not accepted because it can carry script.
+BACKGROUND_FORMATS = {"PNG": ".png", "JPEG": ".jpg", "WEBP": ".webp", "GIF": ".gif"}
 
 # redirect_stdout swaps the process-wide sys.stdout; serialise CLI calls.
 _STDOUT_LOCK = threading.Lock()
@@ -577,6 +580,48 @@ class ThemeEngine:
         """Build one variant from settings without writing anything."""
         clean = _plain_settings(settings, set(self.setting_keys))
         return self._describe(self._build(clean), with_variables=True)
+
+    def preview_options(
+        self, settings: dict[str, Any], key: str, values: list[str], fixed: dict[str, Any]
+    ) -> list[dict[str, Any]]:
+        """One preview per value of ``key`` (for border, shadow and overlay tiles)."""
+        allowed = set(self.setting_keys)
+        if key not in allowed:
+            return []
+        base = {**_plain_settings(settings, allowed), **_plain_settings(fixed, allowed)}
+        results = []
+        for value in values[:20]:
+            variables = self._build({**base, key: value})
+            results.append({"value": value, "variables": variables})
+        return results
+
+    def save_background(self, filename: str, data: bytes) -> dict[str, Any]:
+        """Store an uploaded image in /config/www/background under a safe, free name."""
+        if len(data) > MAX_BACKGROUND_BYTES:
+            return {"ok": False, "reason": "too_large"}
+        try:
+            from PIL import Image  # noqa: PLC0415 - Pillow ships with Home Assistant
+        except ImportError:  # pragma: no cover
+            return {"ok": False, "reason": "no_pillow"}
+        try:
+            with Image.open(io.BytesIO(data)) as image:
+                image_format = (image.format or "").upper()
+                image.verify()
+        except Exception:  # noqa: BLE001 - any decoder error means "not an image"
+            return {"ok": False, "reason": "not_an_image"}
+        suffix = BACKGROUND_FORMATS.get(image_format)
+        if suffix is None:
+            return {"ok": False, "reason": "unsupported_format", "format": image_format}
+        stem = re.sub(r"[^A-Za-z0-9_-]+", "-", Path(filename or "image").stem).strip("-_")[:60] or "image"
+        target_dir = self.background_dir
+        target_dir.mkdir(parents=True, exist_ok=True)
+        name = f"{stem}{suffix}"
+        number = 2
+        while (target_dir / name).exists():
+            name = f"{stem}-{number}{suffix}"
+            number += 1
+        (target_dir / name).write_bytes(data)
+        return {"ok": True, "file": name, "url": f"/local/background/{name}"}
 
     # Panel (editing) -------------------------------------------------------
 
