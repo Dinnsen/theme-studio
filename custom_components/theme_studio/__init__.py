@@ -18,7 +18,9 @@ from .definitions import HelperDefinition, load_definitions
 from .engine import ThemeEngine
 from .history import EditorHistory
 from .migration import find_orphaned_legacy_entities, find_retired_entities
+from .panel import async_register_panel, async_unregister_panel
 from .services import async_generate, async_setup_services
+from .websocket import async_register_commands
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,8 +42,9 @@ type ThemeStudioConfigEntry = ConfigEntry[ThemeStudioData]
 
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
-    """Register Theme Studio services."""
+    """Register Theme Studio services and the panel's WebSocket commands."""
     async_setup_services(hass)
+    async_register_commands(hass)
     return True
 
 
@@ -68,6 +71,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ThemeStudioConfigEntry) 
     entry.runtime_data = ThemeStudioData(engine, definitions, install)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    if await async_register_panel(hass, options):
+        entry.async_on_unload(lambda: async_unregister_panel(hass))
 
     @callback
     def _async_remove_legacy_helpers(hass: HomeAssistant) -> None:

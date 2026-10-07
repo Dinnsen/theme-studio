@@ -14,6 +14,7 @@ import importlib.util
 import io
 import json
 from pathlib import Path
+import re
 import threading
 from types import ModuleType
 from typing import Any
@@ -22,6 +23,7 @@ from . import palette as palette_module, previews as previews_module, sharing
 from .definitions import load_definitions
 from .const import (
     BACKGROUND_DIR,
+    CONTRAST_LABELS,
     EXPORT_DIR,
     EXPORT_URL,
     IMPORT_DIR,
@@ -455,4 +457,116 @@ class ThemeEngine:
             return {"ok": False, "reason": "exists", "name": name}
         target.write_text(json.dumps(stored, indent=2, ensure_ascii=False), encoding="utf-8")
         return {"ok": True, "name": name, "slug": slug, "variant": variant}
+
+    # Panel (read-only) -----------------------------------------------------
+
+    def _defaults(self) -> dict[str, Any]:
+        """Editor defaults per theme setting, used for keys a theme file lacks."""
+        cached = self.__dict__.get("_default_settings")
+        if cached is not None:
+            return cached
+        defaults: dict[str, Any] = {}
+        for definition in load_definitions():
+            if not definition.setting or definition.default is None:
+                continue
+            value = definition.default
+            if isinstance(value, bool):
+                value = "on" if value else "off"
+            defaults[definition.setting] = value
+        self.__dict__["_default_settings"] = defaults
+        return defaults
+
+    def _build(self, settings: dict[str, Any]) -> dict[str, str]:
+        merged = {**self._defaults(), **settings}
+        values = self.cli.build(self.cli.namespace_from_settings(merged, "/tmp/unused.yaml"))
+        return {str(key): str(value) for key, value in values.items()}
+
+    def _describe(self, values: dict[str, str], with_variables: bool) -> dict[str, Any]:
+        summary = previews_module.summary_colours(self.cli, values)
+        radius = re.match(r"(\d+)", values.get("ha-card-border-radius", "16"))
+        summary["radius"] = int(radius.group(1)) if radius else 16
+        image = values.get("theme-studio-background-image", "none")
+        summary["image"] = (
+            values.get("theme-studio-background-image-url", "") if image not in ("", "none") else ""
+        )
+        contrast = [
+            {
+                "key": pair["key"],
+                "label": CONTRAST_LABELS.get(pair["key"], pair["key"]),
+                "ratio": pair["ratio"],
+                "minimum": pair["minimum"],
+                "ok": pair["ok"],
+            }
+            for pair in self.cli.contrast_report(values)
+        ]
+        described: dict[str, Any] = {
+            "summary": summary,
+            "failing": sum(1 for pair in contrast if not pair["ok"]),
+        }
+        if with_variables:
+            described["variables"] = values
+            described["contrast"] = contrast
+        return described
+
+    def _theme_files(self) -> list[tuple[Path, bool]]:
+        """Built-in presets in their usual order, then user themes by name."""
+        order = {self.cli.slugify(name): index for index, name in enumerate(self.cli.BUILTIN_PRESET_NAMES)}
+        files: list[tuple[Path, bool]] = []
+        if self.preset_dir.is_dir():
+            presets = [path for path in self.preset_dir.glob("*.json") if path.name != "index.json"]
+            presets.sort(key=lambda path: (order.get(path.stem, len(order)), path.stem))
+            files.extend((path, True) for path in presets)
+        if self.user_theme_dir.is_dir():
+            users = [path for path in self.user_theme_dir.glob("*.json") if path.name != "index.json"]
+            files.extend((path, False) for path in sorted(users, key=lambda path: path.stem))
+        return files
+
+    def _summarise(self, path: Path, builtin: bool, with_variables: bool) -> dict[str, Any] | None:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        if not isinstance(data, dict):
+            return None
+        theme: dict[str, Any] = {
+            "name": str(data.get("name") or path.stem),
+            "slug": path.stem,
+            "builtin": builtin,
+        }
+        for variant in sharing.VARIANTS:
+            settings = data.get(variant) or data.get("theme") or {}
+            if not isinstance(settings, dict):
+                theme[variant] = None
+                continue
+            try:
+                theme[variant] = self._describe(self._build(settings), with_variables)
+            except (ValueError, TypeError, KeyError, ZeroDivisionError):
+                theme[variant] = None
+        return theme
+
+    def theme_cards(self) -> list[dict[str, Any]]:
+        """Every preset and user theme with the colours for its preview card."""
+        cards = []
+        for path, builtin in self._theme_files():
+            card = self._summarise(path, builtin, with_variables=False)
+            if card is not None:
+                cards.append(card)
+        return cards
+
+    def theme_detail(self, slug: str) -> dict[str, Any] | None:
+        """One theme with every CSS variable and the contrast of both variants."""
+        for path, builtin in self._theme_files():
+            if path.stem == slug:
+                return self._summarise(path, builtin, with_variables=True)
+        return None
+
+    def preview(self, settings: dict[str, Any]) -> dict[str, Any]:
+        """Build one variant from settings without writing anything."""
+        allowed = set(self.setting_keys)
+        clean = {
+            key: value
+            for key, value in settings.items()
+            if key in allowed and isinstance(value, (str, int, float, bool))
+        }
+        return self._describe(self._build(clean), with_variables=True)
 

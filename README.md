@@ -26,11 +26,13 @@
 - Background images & overlays
 - Smart color system, including Home Assistant's own primary color scale (buttons, switches and sliders follow your accent)
 - Full YAML theme export that works on its own – no card-mod needed for the exported theme
+- **Theme Studio panel** in the sidebar (new in 0.10, view only for now)
 
 ## Table of Content
 
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [The Theme Studio panel](#the-theme-studio-panel)
 - [Workflow](#workflow)
 - [What Theme Studio changes](#what-theme-studio-changes)
 - [File Structure](#file-structure)
@@ -112,6 +114,28 @@ Theme Studio copies its managed files into `/config` when the integration starts
 3. If your own dashboards or automations use Theme Studio helpers, change the domain (for example `input_text.theme_studio_theme_base_color` -> `text.theme_studio_theme_base_color`). The sensors are renamed to `sensor.theme_studio_preset_catalog`, `sensor.theme_studio_user_theme_catalog`, `sensor.theme_studio_background_image_catalog` and `sensor.theme_studio_active_preset`.
 
 **Upgrading to 0.9.** Save and load now run inside the integration (`theme_studio.save`, `theme_studio.load`, `theme_studio.save_as_new`) and read and write the theme files directly. The second set of light/dark copies of every setting (`*.theme_studio_light_*` and `*.theme_studio_dark_*`, about 170 entities) is no longer needed; Theme Studio removes them from the entity registry on start. Your user themes are not changed. Restart twice as usual. If your own automations use those entities, read the values from the user theme file or call `theme_studio.load` instead.
+
+## The Theme Studio panel
+
+From 0.10 Theme Studio adds its own page to the sidebar: **Theme Studio** with a palette icon. It needs no YAML, no dashboard and none of the custom cards.
+
+- **Your themes:** every built-in preset and user theme as a card with a light and a dark preview.
+- **Open a theme** to see it on a phone, a tablet or a computer, in Light, Dark or both side by side. The preview uses the theme's real colours, so it looks like your dashboards will.
+- **Colours and contrast:** the main colours of each variant and all 14 text and icon pairs with their contrast.
+- Works on phones, tablets and computers, also in the Home Assistant app, and follows Home Assistant's dark mode.
+
+For now the panel is **view only**. Editing moves into the panel in a coming version; until then, edit in the Theme Studio dashboard. Both can be used side by side.
+
+Settings → Devices & services → Theme Studio → *Configure*:
+
+| Option | Default | What it does |
+| --- | --- | --- |
+| Show the Theme Studio panel in the sidebar | on | Turn off to remove the panel. |
+| Only administrators can open the panel | on | Turn off to let every user open it. |
+
+Each user can also hide or move the panel with Home Assistant's own *Edit sidebar*.
+
+The panel's source lives in [`frontend/`](frontend/); see its README for how it is built.
 
 ## Workflow
 

@@ -228,3 +228,6 @@ desktop.ini
 *.bak
 *.backup
 *.orig
+
+# Panel build tooling
+frontend/node_modules/

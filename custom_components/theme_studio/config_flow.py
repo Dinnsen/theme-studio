@@ -9,7 +9,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 
-from .const import DOMAIN, TITLE
+from .const import CONF_PANEL_ADMIN_ONLY, CONF_SHOW_PANEL, DOMAIN, TITLE
 
 
 class ThemeStudioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -86,6 +86,14 @@ class ThemeStudioOptionsFlow(config_entries.OptionsFlow):
                     vol.Optional(
                         "backup",
                         default=data.get("backup", True),
+                    ): bool,
+                    vol.Optional(
+                        CONF_SHOW_PANEL,
+                        default=data.get(CONF_SHOW_PANEL, True),
+                    ): bool,
+                    vol.Optional(
+                        CONF_PANEL_ADMIN_ONLY,
+                        default=data.get(CONF_PANEL_ADMIN_ONLY, True),
                     ): bool,
                 }
             ),

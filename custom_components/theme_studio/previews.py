@@ -25,20 +25,35 @@ def _hex(colour) -> str:
     return "#%02x%02x%02x" % tuple(round(c * 255) for c in colour[:3])
 
 
-def preview_svg(cli: ModuleType, values: dict[str, Any], title: str) -> str:
-    """Render one variant as a tiny phone screen."""
+def summary_colours(cli: ModuleType, values: dict[str, Any]) -> dict[str, str]:
+    """The main colours of a built variant as opaque hex, as they look on screen."""
     white = (1.0, 1.0, 1.0, 1.0)
     page = _solid(cli, values, "background-color", white)
     card = _solid(cli, values, "ha-card-background", page)
     bubble = _solid(cli, values, "bubble-main-background-color", page)
     navbar = _solid(cli, values, "theme-studio-navbar-background-color", page)
-    text = _hex(_solid(cli, values, "primary-text-color", card))
-    secondary = _hex(_solid(cli, values, "secondary-text-color", card))
-    icon = _hex(_solid(cli, values, "state-icon-color", card))
-    active = _hex(_solid(cli, values, "state-icon-active-color", card))
-    accent = _hex(_solid(cli, values, "accent-color", page))
-    slider = _hex(_solid(cli, values, "bubble-accent-color", bubble))
-    nav_icon = _hex(_solid(cli, values, "theme-studio-navbar-primary-color", navbar))
+    return {
+        "page": _hex(page),
+        "card": _hex(card),
+        "bubble": _hex(bubble),
+        "navbar": _hex(navbar),
+        "text": _hex(_solid(cli, values, "primary-text-color", card)),
+        "secondary": _hex(_solid(cli, values, "secondary-text-color", card)),
+        "icon": _hex(_solid(cli, values, "state-icon-color", card)),
+        "active": _hex(_solid(cli, values, "state-icon-active-color", card)),
+        "accent": _hex(_solid(cli, values, "accent-color", page)),
+        "slider": _hex(_solid(cli, values, "bubble-accent-color", bubble)),
+        "nav_icon": _hex(_solid(cli, values, "theme-studio-navbar-primary-color", navbar)),
+    }
+
+
+def preview_svg(cli: ModuleType, values: dict[str, Any], title: str) -> str:
+    """Render one variant as a tiny phone screen."""
+    colours = summary_colours(cli, values)
+    page, card, bubble, navbar = colours["page"], colours["card"], colours["bubble"], colours["navbar"]
+    text, secondary = colours["text"], colours["secondary"]
+    icon, active, accent = colours["icon"], colours["active"], colours["accent"]
+    slider, nav_icon = colours["slider"], colours["nav_icon"]
     match = re.match(r"(\d+)", str(values.get("ha-card-border-radius", "16")))
     radius = min(int(match.group(1)) if match else 16, 28) * 0.45
     safe_title = (
@@ -46,10 +61,10 @@ def preview_svg(cli: ModuleType, values: dict[str, Any], title: str) -> str:
     )
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {HEIGHT}" width="{WIDTH}" height="{HEIGHT}" role="img" aria-label="{safe_title}">
   <title>{safe_title}</title>
-  <rect width="{WIDTH}" height="{HEIGHT}" rx="14" fill="{_hex(page)}"/>
+  <rect width="{WIDTH}" height="{HEIGHT}" rx="14" fill="{page}"/>
   <rect x="10" y="16" width="62" height="8" rx="4" fill="{text}"/>
   <rect x="10" y="29" width="40" height="5" rx="2.5" fill="{secondary}"/>
-  <rect x="8" y="44" width="104" height="58" rx="{radius:.1f}" fill="{_hex(card)}"/>
+  <rect x="8" y="44" width="104" height="58" rx="{radius:.1f}" fill="{card}"/>
   <circle cx="22" cy="60" r="6" fill="{icon}"/>
   <rect x="34" y="55" width="40" height="5" rx="2.5" fill="{text}"/>
   <rect x="34" y="63" width="26" height="4" rx="2" fill="{secondary}"/>
@@ -57,11 +72,11 @@ def preview_svg(cli: ModuleType, values: dict[str, Any], title: str) -> str:
   <circle cx="22" cy="86" r="6" fill="{active}"/>
   <rect x="34" y="81" width="34" height="5" rx="2.5" fill="{text}"/>
   <rect x="34" y="89" width="22" height="4" rx="2" fill="{secondary}"/>
-  <rect x="8" y="110" width="104" height="26" rx="13" fill="{_hex(bubble)}"/>
+  <rect x="8" y="110" width="104" height="26" rx="13" fill="{bubble}"/>
   <rect x="8" y="110" width="62" height="26" rx="13" fill="{slider}" fill-opacity="0.55"/>
   <circle cx="22" cy="123" r="5.5" fill="{icon}"/>
   <rect x="32" y="119" width="30" height="5" rx="2.5" fill="{text}"/>
-  <rect x="8" y="170" width="104" height="22" rx="11" fill="{_hex(navbar)}"/>
+  <rect x="8" y="170" width="104" height="22" rx="11" fill="{navbar}"/>
   <circle cx="30" cy="181" r="4.5" fill="{accent}"/>
   <circle cx="50" cy="181" r="4.5" fill="{nav_icon}"/>
   <circle cx="70" cy="181" r="4.5" fill="{nav_icon}"/>
