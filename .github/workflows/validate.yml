@@ -57,5 +57,4 @@ jobs:
         with:
           category: integration
           # brands: the icon ships in custom_components/theme_studio/brand.
-          # topics: add GitHub topics to the repository, then remove this.
-          ignore: brands topics
+          ignore: brands
