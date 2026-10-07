@@ -663,6 +663,7 @@ icon: mdi:palette-swatch
 cards: []
 views:
   - title: Theme Studio
+    theme: Theme Studio Dynamic
     path: theme-studio
     icon: mdi:palette
     type: sections
@@ -824,15 +825,9 @@ views:
                   background: var(--ha-card-background) !important;
                   color: var(--primary-text-color) !important;
                 }
-                ha-textfield,
-                ha-textfield $ textarea,
-                ha-textfield $ input,
-                ha-textfield $ .mdc-text-field,
-                ha-textfield $ .mdc-text-field__input {
+                ha-input {
+                  --ha-color-form-background: var(--ha-card-background);
                   color: var(--primary-text-color) !important;
-                  --md-filled-field-container-color: var(--ha-card-background) !important;
-                  --md-filled-field-input-text-color: var(--primary-text-color) !important;
-                  --md-filled-field-label-text-color: var(--secondary-text-color) !important;
                 }
             entities:
               - entity: input_text.theme_studio_theme_name
@@ -1663,6 +1658,7 @@ views:
     cards: []
     footer: {}
   - type: sections
+    theme: Theme Studio Dynamic
     max_columns: 2
     title: Core Color
     path: core-color
@@ -6321,6 +6317,7 @@ views:
     footer: {}
     cards: []
   - type: sections
+    theme: Theme Studio Dynamic
     max_columns: 2
     title: Color adjustments
     path: color-adjustments
@@ -8337,7 +8334,7 @@ views:
                       const v = states['input_text.theme_studio_theme_bubble_slider_color_override']?.state;
                       return v && v !== 'auto'
                         ? v
-                        : 'var(--bubble-slider-main-background-color, var(--accent-color))';
+                        : 'var(--theme-studio-bubble-slider-color, var(--accent-color))';
                     ]]]
                 - '--btn-text': var(--primary-text-color)
                 - '--btn-label': var(--secondary-text-color)
@@ -8351,7 +8348,7 @@ views:
                 - background: |
                     [[[
                       const v = states['input_text.theme_studio_theme_bubble_slider_color_override']?.state;
-                      const bg = getComputedStyle(this).getPropertyValue('--btn-bg').trim() || 'var(--bubble-slider-main-background-color, var(--accent-color))';
+                      const bg = getComputedStyle(this).getPropertyValue('--btn-bg').trim() || 'var(--theme-studio-bubble-slider-color, var(--accent-color))';
                       return v !== 'auto'
                         ? `repeating-linear-gradient(135deg, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 1px, transparent 1px, transparent 8px), ${bg}`
                         : bg;
@@ -8416,7 +8413,7 @@ views:
                       {% set locked = not is_state('input_text.theme_studio_theme_bubble_slider_color_override', 'auto') %}
                       filter: {{ 'grayscale(1) saturate(0.25)' if locked else 'none' }};
                       pointer-events: {{ 'none' if locked else 'auto' }};
-                      --bubble-accent-color: {{ 'rgba(140,140,140,0.45)' if locked else 'var(--bubble-slider-main-background-color)' }} !important;
+                      --bubble-accent-color: {{ 'rgba(140,140,140,0.45)' if locked else 'var(--theme-studio-bubble-slider-color)' }} !important;
                       --bubble-icon-color: {{ 'rgba(140,140,140,0.65)' if locked else 'var(--accent-color)' }} !important;
                     }
                     ha-card {
@@ -8488,7 +8485,7 @@ views:
                       {% set locked = not is_state('input_text.theme_studio_theme_bubble_slider_color_override', 'auto') %}
                       filter: {{ 'grayscale(1) saturate(0.25)' if locked else 'none' }};
                       pointer-events: {{ 'none' if locked else 'auto' }};
-                      --bubble-accent-color: {{ 'rgba(140,140,140,0.45)' if locked else 'var(--bubble-slider-main-background-color)' }} !important;
+                      --bubble-accent-color: {{ 'rgba(140,140,140,0.45)' if locked else 'var(--theme-studio-bubble-slider-color)' }} !important;
                       --bubble-icon-color: {{ 'rgba(140,140,140,0.65)' if locked else 'var(--accent-color)' }} !important;
                     }
                     ha-card {
@@ -8560,7 +8557,7 @@ views:
                       {% set locked = not is_state('input_text.theme_studio_theme_bubble_slider_color_override', 'auto') %}
                       filter: {{ 'grayscale(1) saturate(0.25)' if locked else 'none' }};
                       pointer-events: {{ 'none' if locked else 'auto' }};
-                      --bubble-accent-color: {{ 'rgba(140,140,140,0.45)' if locked else 'var(--bubble-slider-main-background-color)' }} !important;
+                      --bubble-accent-color: {{ 'rgba(140,140,140,0.45)' if locked else 'var(--theme-studio-bubble-slider-color)' }} !important;
                       --bubble-icon-color: {{ 'rgba(140,140,140,0.65)' if locked else 'var(--accent-color)' }} !important;
                     }
                     ha-card {
@@ -8632,7 +8629,7 @@ views:
                       {% set locked = not is_state('input_text.theme_studio_theme_bubble_slider_color_override', 'auto') %}
                       filter: {{ 'grayscale(1) saturate(0.25)' if locked else 'none' }};
                       pointer-events: {{ 'none' if locked else 'auto' }};
-                      --bubble-accent-color: {{ 'rgba(140,140,140,0.45)' if locked else 'var(--bubble-slider-main-background-color)' }} !important;
+                      --bubble-accent-color: {{ 'rgba(140,140,140,0.45)' if locked else 'var(--theme-studio-bubble-slider-color)' }} !important;
                       --bubble-icon-color: {{ 'rgba(140,140,140,0.65)' if locked else 'var(--accent-color)' }} !important;
                     }
                     ha-card {
@@ -9503,6 +9500,7 @@ views:
     cards: []
     footer: {}
   - type: sections
+    theme: Theme Studio Dynamic
     max_columns: 2
     title: Background
     path: background
@@ -10828,6 +10826,7 @@ views:
     footer: {}
     cards: []
   - type: sections
+    theme: Theme Studio Dynamic
     max_columns: 2
     title: Surface FX
     path: surface-fx
@@ -11097,7 +11096,7 @@ views:
                   styles:
                     card:
                       - min-height: 110px
-                      - border-radius: var(--my-chip-radius)
+                      - border-radius: var(--theme-studio-chip-radius)
                       - background: |
                           [[[
                             return entity.state === 'on'
@@ -11961,6 +11960,7 @@ views:
               background: transparent !important;
             }
   - type: sections
+    theme: Theme Studio Dynamic
     max_columns: 1
     title: Fonts
     path: fonts
@@ -12654,6 +12654,7 @@ views:
     footer: {}
     cards: []
   - title: Theme Studio Guide
+    theme: Theme Studio Dynamic
     path: theme-studio-guide
     icon: mdi:book-open-variant
     subview: false
@@ -12874,7 +12875,7 @@ views:
 
 
               See the [GitHub
-              README](https://github.com/Dinnsen/Theme-Studio#custom-navbar) for
+              README](https://github.com/Dinnsen/theme-studio#theme-variables-for-your-own-dashboards) for
               the full YAML setup.
 
 
