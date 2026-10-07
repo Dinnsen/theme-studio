@@ -94,7 +94,7 @@
     "bubble_slider_opacity": 100.0
   },
   "dark": {
-    "accent_color_override": "auto",
+    "accent_color_override": "#8DB38A",
     "accent_contrast": 28.0,
     "accent_hue_shift": -44.0,
     "accent_saturation": 14.0,
