@@ -120,8 +120,9 @@ Theme Studio copies its managed files into `/config` when the integration starts
 ## What Theme Studio changes
 
 - **Managed files are overwritten on start.** The package, dashboard, presets, CLI script and bundled theme are refreshed every time the integration starts. A changed file is backed up first as `<file>.bak_YYYYMMDD_HHMMSS`. Turn off *Overwrite managed files* in the integration options to keep your own edits. User themes in `/config/theme_studio/user_themes/` are never touched.
+- **Editor state survives restarts.** The studio keeps your current values and selected theme when Home Assistant restarts.
 - **Your default theme is left alone.** Theme Studio only sets *Theme Studio Dynamic* as the Home Assistant default theme when `input_boolean.theme_studio_set_as_default_theme` is on (off by default).
-- **No global layout CSS.** Themes no longer hide the header, change view padding or limit the width of sidebar views. Use [Kiosk Mode](https://github.com/NemesisRE/kiosk-mode) or your own card-mod if you want that.
+- **No global layout CSS.** Themes no longer hide the header, change view padding, blur every card or limit the width of sidebar views. Use [Kiosk Mode](https://github.com/NemesisRE/kiosk-mode) or your own card-mod if you want that.
 
 ## File Structure
 
@@ -174,8 +175,20 @@ Generated themes expose these variables for use in card-mod, button-card and Bub
 | `--theme-studio-card-shadow-css` | Card border effect + shadow |
 | `--theme-studio-header-blend-height` | Height of the header fade |
 | `--theme-studio-header-blend-enabled` | `1` or `0` |
+| `--theme-studio-card-backdrop-filter` | Glass blur from the *Blur* slider, e.g. `blur(17px)` – opt in per card |
 
-Cards also get Home Assistant's native variables directly (`--ha-card-background`, `--ha-card-border-radius`, `--ha-card-box-shadow`, `--ha-card-backdrop-filter`, dialog and switch colors and `--ha-color-primary-05` … `--ha-color-primary-95`), so standard cards follow the theme without card-mod.
+Cards also get Home Assistant's native variables directly (`--ha-card-background`, `--ha-card-border-radius`, `--ha-card-box-shadow`, dialog and switch colors and `--ha-color-primary-05` … `--ha-color-primary-95`), so standard cards follow the theme without card-mod.
+
+Blur is deliberately **not** applied to every card, because transparent cards (headers, chips, overlays) would get a blurred box behind them. Add it where you want glass:
+
+```yaml
+card_mod:
+  style: |
+    ha-card {
+      backdrop-filter: var(--theme-studio-card-backdrop-filter);
+      -webkit-backdrop-filter: var(--theme-studio-card-backdrop-filter);
+    }
+```
 
 ## Recommended recorder settings
 

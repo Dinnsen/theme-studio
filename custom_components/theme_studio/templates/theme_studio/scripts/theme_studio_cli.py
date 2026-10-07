@@ -1353,9 +1353,7 @@ def build(args):
         'bubble-pop-up-background-color': popup_bg,
         # --- Native Home Assistant variables (no card-mod required) ---
         'ha-font-family-heading': 'var(--primary-font-family)',
-        'ha-card-backdrop-filter': f'blur({round(blur_strength)}px)' if blur_strength > 0 else 'none',
         'ha-dialog-surface-background': 'var(--ha-card-background)',
-        'ha-dialog-surface-backdrop-filter': 'var(--ha-card-backdrop-filter, none)',
         'ha-bottom-sheet-surface-background': 'var(--ha-card-background)',
         'ha-dialog-border-radius': 'var(--ha-card-border-radius)',
         'dialog-box-shadow': 'none',
@@ -1370,6 +1368,10 @@ def build(args):
         'theme-studio-panel-background-color': background2,
         'theme-studio-sub-button-background-color': bubble_sub,
         'theme-studio-chip-radius': f'{round(chip_radius)}px',
+        # Opt-in glass blur: use backdrop-filter: var(--theme-studio-card-backdrop-filter)
+        # on the cards that should blur. Setting --ha-card-backdrop-filter globally
+        # would also blur transparent cards (headers, chips, overlays).
+        'theme-studio-card-backdrop-filter': f'blur({round(blur_strength)}px)' if blur_strength > 0 else 'none',
         'theme-studio-bubble-slider-color': bubble_slider_color,
         'bubble-climate-background-color': bubble_bg,
     }

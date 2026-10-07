@@ -30,7 +30,7 @@ REMOVED_PREFIXES = (
 REQUIRED_NATIVE_KEYS = {
     "ha-font-family-body",
     "ha-font-family-heading",
-    "ha-card-backdrop-filter",
+    "theme-studio-card-backdrop-filter",
     "ha-card-border-radius",
     "ha-card-border-width",
     "ha-card-box-shadow",
@@ -150,3 +150,36 @@ def test_bundled_standard_theme_matches_default_preset(tmp_path) -> None:
 
     bundled = TEMPLATES / "themes" / "theme_studio_standard.yaml"
     assert bundled.read_text(encoding="utf-8") == expected.read_text(encoding="utf-8")
+
+
+def test_theme_does_not_blur_every_card() -> None:
+    cli = load_cli_module()
+    for name, variant, values in build_preset_variants(cli):
+        assert "ha-card-backdrop-filter" not in values, f"{name}/{variant}"
+        assert "ha-dialog-surface-backdrop-filter" not in values, f"{name}/{variant}"
+
+
+def test_editor_helpers_survive_restart() -> None:
+    package = PACKAGE_PATH.read_text(encoding="utf-8")
+    helpers_with_initial = set()
+    current = None
+    for line in package.splitlines():
+        match = re.match(r"^  ([a-z0-9_]+):$", line)
+        if match:
+            current = match.group(1)
+        elif line.startswith("    initial:"):
+            helpers_with_initial.add(current)
+    assert helpers_with_initial == {
+        "theme_studio_busy",
+        "theme_studio_busy_message",
+        "theme_studio_pending_new_theme_name",
+        "theme_studio_picker_red",
+        "theme_studio_picker_green",
+        "theme_studio_picker_blue",
+    }
+
+
+def test_default_preset_is_not_forced_over_a_selected_user_theme() -> None:
+    package = PACKAGE_PATH.read_text(encoding="utf-8")
+    block = package.split("- id: theme_studio_apply_default_when_none_selected", 1)[1].split("\n- id:", 1)[0]
+    assert "input_text.theme_studio_selected_user_theme" in block
