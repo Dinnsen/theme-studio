@@ -280,7 +280,7 @@ var I=globalThis,O=I.ShadowRoot&&(I.ShadyCSS===void 0||I.ShadyCSS.nativeShadow)&
   }
   .role {
     display: grid;
-    grid-template-columns: 44px minmax(0, 1fr) auto auto;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
     align-items: center;
     gap: 10px;
     padding: 8px 10px;
@@ -288,6 +288,25 @@ var I=globalThis,O=I.ShadowRoot&&(I.ShadyCSS===void 0||I.ShadyCSS.nativeShadow)&
   }
   .role:first-child {
     border-top: 0;
+  }
+  .role-text {
+    min-width: 0;
+  }
+  .role-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .badge.small {
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 6px;
+  }
+  .sec-foot {
+    border-top: 1px solid var(--ts-line);
+    padding-top: 18px;
+    display: flex;
   }
   .rs {
     width: 44px;
@@ -1651,9 +1670,6 @@ var I=globalThis,O=I.ShadowRoot&&(I.ShadyCSS===void 0||I.ShadyCSS.nativeShadow)&
             ${this._variantButton("light","Light")} ${this._variantButton("dark","Dark")}
           </div>
           ${i&&!i.builtin&&this._canEdit?l`
-                <button class="btn icon hide-p" aria-label="Delete theme" title="Delete theme" @click=${()=>this._dialog="delete"}>
-                  ${h("trash",19)}
-                </button>
                 <button class="btn primary" ?disabled=${this._busy} @click=${()=>void this._build()} title="Write the theme file so Home Assistant uses your changes">
                   ${h("upload",18)}<span class="hide-t">Update in HA</span>
                 </button>
@@ -1687,6 +1703,9 @@ var I=globalThis,O=I.ShadowRoot&&(I.ShadyCSS===void 0||I.ShadyCSS.nativeShadow)&
                         <p class="sp">${d.description}</p>
                       </div>
                       ${d.id==="check"?this._renderCheck():d.groups.map(o=>this._renderGroup(o))}
+                      ${!i.builtin&&this._canEdit?l`<div class="sec-foot">
+                            <button class="btn danger" @click=${()=>this._dialog="delete"}>${h("trash",18)}Delete theme</button>
+                          </div>`:c}
                     </div>`:l`<div class="loading">Loading…</div>`}
               </section>
               ${this._renderPreview()}
@@ -1775,11 +1794,13 @@ var I=globalThis,O=I.ShadowRoot&&(I.ShadyCSS===void 0||I.ShadyCSS.nativeShadow)&
                   @input=${u=>this._change([p],ce(e,u.target.value.toUpperCase()),`role-${e.id}-${p}`)}
                 /><span class="rs-lock" aria-hidden="true">${h("lock",12)}</span>`:c}
         </div>
-        <div style="min-width: 0">
+        <div class="role-text">
           <div class="rn">${e.label}</div>
-          <div class="val">${s?"Manual":"Auto"} · ${r||"\u2013"}</div>
+          <div class="role-meta">
+            <span class="val">${s?"Manual":"Auto"} · ${r||"\u2013"}</span>
+            ${n?l`<span class=${o?"badge small":"badge small warn"} title=${`Lowest contrast: ${n.label} (needs ${n.minimum}:1)`}>${n.ratio.toFixed(1)}:1</span>`:c}
+          </div>
         </div>
-        ${n?l`<span class=${o?"badge":"badge warn"} title=${`Lowest contrast: ${n.label} (needs ${n.minimum}:1)`}>${n.ratio.toFixed(1)}:1</span>`:l`<span></span>`}
         <div class="mode" role="group" aria-label=${`${e.label} colour mode`}>
           <button class=${s?"":"on"} ?disabled=${!this._canEdit} @click=${()=>s&&this._change([p],pe(e))}>Auto</button>
           <button
