@@ -145,6 +145,20 @@
         }
       }
     },
+    "theme_from_image": {
+      "name": "Theme from image",
+      "description": "Create a new user theme with a light and a dark variant from the colours of a background image, check its contrast and open it in the studio. Nothing existing is changed.",
+      "fields": {
+        "image": {
+          "name": "Image",
+          "description": "File name in /config/www/background. Defaults to the selected background image."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Name of the new user theme. Defaults to 'From' followed by the image name."
+        }
+      }
+    },
     "palette_from_image": {
       "name": "Colours from image",
       "description": "Read the main colours of a background image and suggest a base colour, an accent and the background contrast.",

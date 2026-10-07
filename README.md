@@ -221,6 +221,7 @@ card_mod:
 | `theme_studio.undo` | Returns the studio editor to the previous step (up to 25 steps since Home Assistant started). Also the *Undo* button in the studio. |
 | `theme_studio.export_user_theme` | Writes a user theme to `/config/www/theme_studio/exports/` and returns it as JSON and as a share string. A notification links to the file. |
 | `theme_studio.import_user_theme` | Creates a new user theme from JSON or a share string. Without data it imports every `.json`/`.txt` file in `/config/theme_studio/imports/`. Never overwrites a theme; a name that is taken gets a number. |
+| `theme_studio.theme_from_image` | Creates a new user theme with a light and a dark variant from the colours of a background image, checks its contrast and opens it in the studio. Also the *Theme from image* button. |
 | `theme_studio.palette_from_image` | Reads the main colours of a background image and suggests base colour, accent and background contrast. With `apply: true` they go into the editor (Undo brings the old colours back). |
 | `theme_studio.copy_variant` | Copies the light variant to dark or the other way round. Lightness is mirrored and light/dark-specific colours go back to auto, so the copy stays readable. |
 | `theme_studio.set_options` | Replaces the option list of a Theme Studio select. |

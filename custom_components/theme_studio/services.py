@@ -30,9 +30,12 @@ from .const import (
     SERVICE_EXPORT_USER_THEME,
     SERVICE_IMPORT_USER_THEME,
     SERVICE_PALETTE_FROM_IMAGE,
+    SERVICE_SET_OPTIONS,
+    SERVICE_THEME_FROM_IMAGE,
     SERVICE_UNDO,
     SIGNAL_CATALOGS_CHANGED,
     SIGNAL_CONTRAST_UPDATED,
+    SELECT_USER_THEMES,
 )
 from .engine import ThemeEngine
 from .sharing import ImportError_
@@ -246,6 +249,46 @@ def async_setup_services(hass: HomeAssistant) -> None:
         await _async_notify(hass, "Theme Studio import", "\n".join(lines))
         return result
 
+    async def theme_from_image(call: ServiceCall) -> ServiceResponse:
+        engine = _engine(hass)
+        image = call.data.get("image") or _state(hass, "select.theme_studio_theme_background_image_select")
+        try:
+            result = await hass.async_add_executor_job(
+                engine.theme_from_image, image, call.data.get("name")
+            )
+        except (OSError, ValueError) as err:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="image_not_readable",
+                translation_placeholders={"image": str(image), "error": str(err)},
+            ) from err
+        if not result.get("ok"):
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="image_not_readable",
+                translation_placeholders={"image": str(image), "error": result.get("reason", "")},
+            )
+        await hass.async_add_executor_job(engine.write_user_theme_index)
+        async_dispatcher_send(hass, SIGNAL_CATALOGS_CHANGED)
+        # Make the new theme selectable and open it in the studio.
+        state = hass.states.get(SELECT_USER_THEMES)
+        if state is not None:
+            options = list(state.attributes.get("options") or [])
+            if result["name"] not in options:
+                await hass.services.async_call(
+                    DOMAIN,
+                    SERVICE_SET_OPTIONS,
+                    {"entity_id": SELECT_USER_THEMES, "options": [*options, result["name"]]},
+                    blocking=True,
+                )
+            await hass.services.async_call(
+                "select",
+                "select_option",
+                {"entity_id": SELECT_USER_THEMES, "option": result["name"]},
+                blocking=True,
+            )
+        return result
+
     async def palette_from_image(call: ServiceCall) -> ServiceResponse:
         engine = _engine(hass)
         image = call.data.get("image") or _state(hass, "select.theme_studio_theme_background_image_select")
@@ -365,6 +408,12 @@ def async_setup_services(hass: HomeAssistant) -> None:
             SERVICE_IMPORT_USER_THEME,
             import_user_theme,
             vol.Schema({vol.Optional("data"): cv.string, vol.Optional("name"): cv.string}),
+            SupportsResponse.OPTIONAL,
+        ),
+        (
+            SERVICE_THEME_FROM_IMAGE,
+            theme_from_image,
+            vol.Schema({vol.Optional("image"): cv.string, vol.Optional("name"): cv.string}),
             SupportsResponse.OPTIONAL,
         ),
         (
