@@ -10,16 +10,19 @@ from __future__ import annotations
 import argparse
 from contextlib import redirect_stdout
 from dataclasses import dataclass, field
+from datetime import datetime
 import importlib.util
 import io
 import json
 from pathlib import Path
 import re
+import shutil
 import threading
 from types import ModuleType
 from typing import Any
 
 from . import palette as palette_module, previews as previews_module, sharing
+from . import variants as variants_module
 from .definitions import load_definitions
 from .const import (
     BACKGROUND_DIR,
@@ -508,6 +511,13 @@ class ThemeEngine:
             described["contrast"] = contrast
         return described
 
+    def _merged_settings(self, settings: dict[str, Any]) -> dict[str, Any]:
+        """Stored settings on top of the editor defaults, limited to known keys."""
+        allowed = set(self.setting_keys)
+        merged = {key: value for key, value in self._defaults().items() if key in allowed}
+        merged.update(_plain_settings(settings, allowed))
+        return merged
+
     def _theme_files(self) -> list[tuple[Path, bool]]:
         """Built-in presets in their usual order, then user themes by name."""
         order = {self.cli.slugify(name): index for index, name in enumerate(self.cli.BUILTIN_PRESET_NAMES)}
@@ -542,6 +552,9 @@ class ThemeEngine:
                 theme[variant] = self._describe(self._build(settings), with_variables)
             except (ValueError, TypeError, KeyError, ZeroDivisionError):
                 theme[variant] = None
+                continue
+            if with_variables:
+                theme[variant]["settings"] = self._merged_settings(settings)
         return theme
 
     def theme_cards(self) -> list[dict[str, Any]]:
@@ -562,11 +575,186 @@ class ThemeEngine:
 
     def preview(self, settings: dict[str, Any]) -> dict[str, Any]:
         """Build one variant from settings without writing anything."""
-        allowed = set(self.setting_keys)
-        clean = {
-            key: value
-            for key, value in settings.items()
-            if key in allowed and isinstance(value, (str, int, float, bool))
-        }
+        clean = _plain_settings(settings, set(self.setting_keys))
         return self._describe(self._build(clean), with_variables=True)
 
+    # Panel (editing) -------------------------------------------------------
+
+    def schema(self) -> list[dict[str, Any]]:
+        """The per-variant settings the editor can change, with their limits."""
+        allowed = set(self.setting_keys)
+        settings = []
+        for definition in load_definitions():
+            if not definition.setting or definition.setting not in allowed:
+                continue
+            label = definition.name.split(" - ", 1)[-1]
+            settings.append(
+                {
+                    "key": definition.setting,
+                    "platform": definition.platform,
+                    "label": label[:1].upper() + label[1:],
+                    "min": definition.min,
+                    "max": definition.max,
+                    "step": definition.step,
+                    "options": list(definition.options),
+                    "default": self._defaults().get(definition.setting),
+                }
+            )
+        return settings
+
+    def _user_path(self, slug: str) -> Path | None:
+        """The file of a user theme, or None for presets and unknown slugs."""
+        if not slug or "/" in slug or "\\" in slug or slug.startswith("."):
+            return None
+        path = self.user_theme_dir / f"{slug}.json"
+        return path if path.is_file() and path.stem != "index" else None
+
+    def _taken_slugs(self, except_slug: str | None = None) -> set[str]:
+        slugs = {self.cli.slugify(name) for name in self.cli.BUILTIN_PRESET_NAMES}
+        for path, _builtin in self._theme_files():
+            slugs.add(path.stem)
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            if isinstance(data, dict) and data.get("name") and path.stem != except_slug:
+                slugs.add(self.cli.slugify(str(data["name"])))
+        slugs.discard(except_slug or "")
+        return slugs
+
+    def _backup_once(self, path: Path) -> None:
+        """One timestamped copy per user theme per Home Assistant run."""
+        done: set[str] = self.__dict__.setdefault("_backed_up", set())
+        if path.stem in done:
+            return
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        shutil.copy2(path, path.with_name(f"{path.name}.bak_{stamp}"))
+        done.add(path.stem)
+
+    def save_theme(
+        self, slug: str, name: str | None, variants: dict[str, dict[str, Any]]
+    ) -> dict[str, Any]:
+        """Write editor changes into a user theme. Built-in presets are never written."""
+        path = self._user_path(slug)
+        if path is None:
+            plain = slug == Path(slug).name and not slug.startswith(".")
+            reason = "built_in" if plain and (self.preset_dir / f"{slug}.json").is_file() else "not_found"
+            return {"ok": False, "reason": reason, "slug": slug}
+        try:
+            theme = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {"ok": False, "reason": "unreadable", "slug": slug}
+        if not isinstance(theme, dict):
+            return {"ok": False, "reason": "unreadable", "slug": slug}
+        if name is not None:
+            name = name.strip()[:60]
+            if not name:
+                return {"ok": False, "reason": "invalid_name", "slug": slug}
+            if self.cli.slugify(name) != slug and self.cli.slugify(name) in self._taken_slugs(slug):
+                return {"ok": False, "reason": "name_taken", "slug": slug, "name": name}
+            theme["name"] = name
+        allowed = set(self.setting_keys)
+        for variant, settings in variants.items():
+            if variant not in sharing.VARIANTS or not isinstance(settings, dict):
+                continue
+            stored = theme.get(variant) if isinstance(theme.get(variant), dict) else {}
+            theme[variant] = {**stored, **_plain_settings(settings, allowed)}
+        self._backup_once(path)
+        path.write_text(json.dumps(theme, indent=2, ensure_ascii=False), encoding="utf-8")
+        return {"ok": True, "slug": slug, "name": theme.get("name", slug)}
+
+    def new_theme(
+        self, source: str | None, name: str | None, base_color: str | None = None
+    ) -> dict[str, Any]:
+        """A new user theme copied from a preset or user theme (default: Default)."""
+        source_path = None
+        for path, _builtin in self._theme_files():
+            if path.stem == (source or "default"):
+                source_path = path
+        if source_path is None:
+            return {"ok": False, "reason": "source_not_found", "source": source}
+        try:
+            data = json.loads(source_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {"ok": False, "reason": "unreadable", "source": source}
+        wanted = (name or f"My {data.get('name') or source_path.stem}").strip()[:60] or "My theme"
+        final_name = sharing.unique_name(wanted, self._taken_slugs(), self.cli.slugify)
+        slug = self.cli.slugify(final_name)
+        stored = {
+            "name": final_name,
+            "slug": slug,
+            "theme": data.get("theme") or {},
+            "light": dict(data.get("light") or {}),
+            "dark": dict(data.get("dark") or {}),
+        }
+        if base_color and variants_module.HEX_RE.match(base_color.strip()):
+            for variant in sharing.VARIANTS:
+                stored[variant]["base_color"] = variants_module.mirror_lightness(base_color.strip(), variant)
+        self.user_theme_dir.mkdir(parents=True, exist_ok=True)
+        target = self.user_theme_dir / f"{slug}.json"
+        if target.exists():
+            return {"ok": False, "reason": "target_exists", "name": final_name}
+        target.write_text(json.dumps(stored, indent=2, ensure_ascii=False), encoding="utf-8")
+        return {"ok": True, "slug": slug, "name": final_name}
+
+    def delete_theme(self, slug: str) -> dict[str, Any]:
+        """Delete a user theme and its built theme file. Presets cannot be deleted."""
+        path = self._user_path(slug)
+        if path is None:
+            return {"ok": False, "reason": "not_found", "slug": slug}
+        try:
+            name = str(json.loads(path.read_text(encoding="utf-8")).get("name") or slug)
+        except (OSError, json.JSONDecodeError, AttributeError):
+            name = slug
+        # A copy stays next to it, so a deleted user theme can always be restored.
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        shutil.copy2(path, path.with_name(f"{path.name}.bak_{stamp}"))
+        path.unlink()
+        built = []
+        for stem in {slug, self.cli.slugify(name)}:
+            target = self.theme_output_dir / f"{stem}.yaml"
+            if target.is_file():
+                target.unlink()
+                built.append(target.name)
+        return {"ok": True, "slug": slug, "name": name, "removed_theme_files": built}
+
+    def theme_name(self, slug: str) -> str | None:
+        for path, _builtin in self._theme_files():
+            if path.stem == slug:
+                try:
+                    return str(json.loads(path.read_text(encoding="utf-8")).get("name") or slug)
+                except (OSError, json.JSONDecodeError, AttributeError):
+                    return slug
+        return None
+
+    def mirror(self, settings: dict[str, Any], target: str) -> dict[str, Any]:
+        """Settings for ``target`` made from the other variant; nothing is written."""
+        allowed = set(self.setting_keys)
+        clean = _plain_settings(settings, allowed)
+        mirrored = variants_module.mirror_variant({key: str(value) for key, value in clean.items()}, target)
+        numbers = {item["key"] for item in self.schema() if item["platform"] == "number"}
+        result: dict[str, Any] = {}
+        for key, value in mirrored.items():
+            if key in numbers:
+                try:
+                    result[key] = float(value)
+                    continue
+                except (TypeError, ValueError):
+                    pass
+            result[key] = value
+        return result
+
+
+def _plain_settings(settings: dict[str, Any], allowed: set[str]) -> dict[str, Any]:
+    """Known settings with plain values; switches as on/off, text capped."""
+    clean: dict[str, Any] = {}
+    for key, value in settings.items():
+        if key not in allowed or value is None:
+            continue
+        if isinstance(value, bool):
+            clean[key] = "on" if value else "off"
+        elif isinstance(value, (int, float)):
+            clean[key] = value
+        elif isinstance(value, str):
+            clean[key] = value[:255]
+    return clean

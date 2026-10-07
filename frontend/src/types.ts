@@ -1,6 +1,26 @@
 export interface Hass {
   callWS<T>(message: { type: string; [key: string]: unknown }): Promise<T>;
   themes?: { darkMode?: boolean };
+  user?: { is_admin?: boolean };
+}
+
+export type SettingValue = string | number | boolean;
+export type Settings = Record<string, SettingValue>;
+
+export interface SchemaItem {
+  key: string;
+  platform: "number" | "text" | "switch" | "select";
+  label: string;
+  min: number | null;
+  max: number | null;
+  step: number | null;
+  options: string[];
+  default: SettingValue | null;
+}
+
+export interface Background {
+  file: string;
+  url: string;
 }
 
 export interface Route {
@@ -37,9 +57,13 @@ export interface ContrastPair {
   ok: boolean;
 }
 
-export interface VariantDetail extends VariantCard {
+export interface VariantPreview extends VariantCard {
   variables: Record<string, string>;
   contrast: ContrastPair[];
+}
+
+export interface VariantDetail extends VariantPreview {
+  settings: Settings;
 }
 
 export interface ThemeCard {
