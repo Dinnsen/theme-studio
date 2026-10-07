@@ -136,3 +136,17 @@ def test_dashboard_views_use_dynamic_theme_and_no_legacy_vars() -> None:
     assert views.count("    theme: Theme Studio Dynamic") == len(view_starts)
     for legacy in ("--d1nnsen-", "--my-", "ha-textfield", "--bubble-slider-main-background-color"):
         assert legacy not in dashboard, legacy
+
+
+def test_bundled_standard_theme_matches_default_preset(tmp_path) -> None:
+    cli = load_cli_module()
+    preset = json.loads((PRESET_DIR / "default.json").read_text(encoding="utf-8"))
+    modes = {
+        variant: cli.build(cli.namespace_from_settings(preset[variant], "/tmp/unused.yaml"))
+        for variant in ("light", "dark")
+    }
+    expected = tmp_path / "theme_studio_standard.yaml"
+    cli.write_theme_yaml("Theme Studio Standard", modes, str(expected))
+
+    bundled = TEMPLATES / "themes" / "theme_studio_standard.yaml"
+    assert bundled.read_text(encoding="utf-8") == expected.read_text(encoding="utf-8")

@@ -89,6 +89,15 @@ The dashboard path **must** be `theme-studio`; the navigation bar links to `/the
 5. Add [Fonts](#fonts) as **Resources**.
 6. Restart Home Assistant again.
 7. Open the Theme Studio dashboard. Every view uses the **Theme Studio Dynamic** theme, so the live preview works without changing your profile.
+8. For the rest of Home Assistant, pick **Theme Studio Standard** (or one of your own built themes) in your profile or as the default theme. It has a light and a dark mode and is not affected while you experiment in the studio.
+
+### Which theme is which
+
+| Theme | Use it for |
+| --- | --- |
+| Theme Studio Dynamic | Live preview. Changes the moment you move a slider and shows one variant (light or dark) at a time. Used automatically by the Theme Studio dashboard. |
+| Theme Studio Standard | Ready-made theme with light and dark mode, built from the default values. A safe default for your dashboards. |
+| Your built themes | Press **Build theme** to export a user theme with both its light and dark variant. |
 
 ### Updating
 
@@ -125,6 +134,7 @@ Theme Studio automatically installs the following folders:
   scripts/            theme_studio_cli.py (managed)
 
 /config/themes/theme_studio_dynamic.yaml          bundled fallback (managed)
+/config/themes/theme_studio_standard.yaml         Theme Studio Standard, light + dark (managed)
 /config/themes/theme_studio/theme_studio_dynamic.yaml   live preview theme
 /config/themes/theme_studio/<your_theme>.yaml     built themes
 /config/packages/theme_studio_dynamic.yaml        helpers, scripts, automations (managed)
