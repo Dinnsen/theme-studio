@@ -365,6 +365,16 @@ var I=globalThis,U=I.ShadowRoot&&(I.ShadyCSS===void 0||I.ShadyCSS.nativeShadow)&
     cursor: pointer;
     width: 100%;
   }
+  .tr-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .tr-title {
+    font-weight: 600;
+    font-size: 14px;
+  }
   .switch {
     width: 46px;
     height: 28px;
