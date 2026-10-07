@@ -15,6 +15,11 @@ USER_THEME_DIR = ("theme_studio", "user_themes")
 THEME_OUTPUT_DIR = ("themes", "theme_studio")
 LIVE_THEME_FILE = ("themes", "theme_studio", "theme_studio_dynamic.yaml")
 BACKGROUND_DIR = ("www", "background")
+EXPORT_DIR = ("www", "theme_studio", "exports")
+EXPORT_URL = "/local/theme_studio/exports"
+IMPORT_DIR = ("theme_studio", "imports")
+PREVIEW_DIR = ("www", "theme_studio", "previews")
+PREVIEW_URL = "/local/theme_studio/previews"
 
 SELECT_PRESETS = "select.theme_studio_theme_presets"
 SELECT_USER_THEMES = "select.theme_studio_user_themes"
@@ -29,6 +34,10 @@ SERVICE_BUILD_THEME = "build_theme"
 SERVICE_REFRESH_CATALOGS = "refresh_catalogs"
 SERVICE_SET_OPTIONS = "set_options"
 SERVICE_COPY_VARIANT = "copy_variant"
+SERVICE_EXPORT_USER_THEME = "export_user_theme"
+SERVICE_IMPORT_USER_THEME = "import_user_theme"
+SERVICE_UNDO = "undo"
+SERVICE_PALETTE_FROM_IMAGE = "palette_from_image"
 
 SIGNAL_CATALOGS_CHANGED = f"{DOMAIN}_catalogs_changed"
 SIGNAL_CONTRAST_UPDATED = f"{DOMAIN}_contrast_updated"

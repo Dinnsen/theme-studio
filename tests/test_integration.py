@@ -23,6 +23,7 @@ SENSORS = {
     "sensor.theme_studio_background_image_catalog",
     "sensor.theme_studio_active_preset",
     "sensor.theme_studio_contrast",
+    "button.theme_studio_undo",
     # Template sensors defined in the package itself.
     "sensor.theme_studio_theme_summary",
     "sensor.theme_studio_picker_hex",
@@ -276,3 +277,129 @@ def test_obsolete_cli_copy_is_removed_and_not_reinstalled(tmp_path) -> None:
     assert not old.exists()
     assert not old.parent.exists()
     assert len(result["removed_files"]) == 2
+
+
+def engine_for(tmp_path):
+    asset_manager = load_module("asset_manager")
+    hass = types.SimpleNamespace(
+        config=types.SimpleNamespace(path=lambda *parts: str(tmp_path.joinpath(*parts)))
+    )
+    asset_manager.initialize_assets(hass, overwrite=True, backup=True)
+    return load_module("engine").ThemeEngine.create(str(tmp_path)), hass
+
+
+def test_export_and_import_round_trip_never_overwrites(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    copied = engine.copy_preset("Glass", "My Glass")
+    assert copied["ok"], copied
+    original = (tmp_path / "theme_studio" / "user_themes" / "my_glass.json").read_text(encoding="utf-8")
+
+    exported = engine.export_user_theme("My Glass")
+    assert exported["ok"]
+    assert (tmp_path / "www" / "theme_studio" / "exports" / "my_glass.json").exists()
+    assert exported["url"] == "/local/theme_studio/exports/my_glass.json"
+    assert exported["share_string"].startswith("TS1:")
+
+    from_share = engine.import_user_theme(exported["share_string"])
+    from_json = engine.import_user_theme(
+        (tmp_path / "www" / "theme_studio" / "exports" / "my_glass.json").read_text(encoding="utf-8")
+    )
+    assert from_share["name"] == "My Glass (2)"
+    assert from_json["name"] == "My Glass (3)"
+    # The original user theme is untouched.
+    assert (tmp_path / "theme_studio" / "user_themes" / "my_glass.json").read_text(encoding="utf-8") == original
+    imported = json.loads((tmp_path / "theme_studio" / "user_themes" / "my_glass_2.json").read_text(encoding="utf-8"))
+    stored = json.loads(original)
+    assert imported["light"] == stored["light"]
+    assert imported["dark"] == stored["dark"]
+
+
+def test_import_cannot_take_a_built_in_preset_name(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    sharing = load_module("sharing")
+    document = {"name": "Glass", "light": {"base_color": "#ffffff"}, "dark": {"base_color": "#000000"}}
+    result = engine.import_user_theme(json.dumps(document))
+    assert result["name"] == "Glass (2)"
+    assert (tmp_path / "theme_studio" / "presets" / "glass.json").exists()
+    try:
+        sharing.parse_import("not a theme", [])
+    except sharing.ImportError_ as err:
+        assert str(err) == "bad_json"
+    else:
+        raise AssertionError("garbage was accepted")
+
+
+def test_share_string_decompression_is_bounded() -> None:
+    import base64
+    import zlib
+
+    sharing = load_module("sharing")
+    bomb = zlib.compress(b"{" + b" " * (sharing.MAX_IMPORT_BYTES * 4) + b"}", 9)
+    text = sharing.SHARE_PREFIX + base64.urlsafe_b64encode(bomb).decode()
+    try:
+        sharing.parse_import(text, [])
+    except sharing.ImportError_ as err:
+        assert str(err) == "too_large"
+    else:
+        raise AssertionError("oversized share string was accepted")
+
+
+def test_import_folder_marks_files_as_imported(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    folder = tmp_path / "theme_studio" / "imports"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "one.json").write_text(
+        json.dumps({"name": "Shared", "light": {"base_color": "#eeeeee"}, "dark": {"base_color": "#111111"}}),
+        encoding="utf-8",
+    )
+    (folder / "broken.txt").write_text("TS1:not-base64!!", encoding="utf-8")
+
+    result = engine.import_folder()
+
+    assert [item["name"] for item in result["imported"]] == ["Shared"]
+    assert [item["file"] for item in result["failed"]] == ["broken.txt"]
+    assert (folder / "one.json.imported").exists()
+    assert (folder / "broken.txt").exists()
+
+
+def test_undo_history_steps_back_and_ignores_restores() -> None:
+    history = load_module("history").EditorHistory(max_steps=3)
+    assert history.undo() is None
+    for value in ("a", "b", "b", "c"):
+        history.record({"text.x": value})
+    assert len(history) == 3
+    assert history.undo() == {"text.x": "b"}
+    history.restoring = True
+    assert history.record({"text.x": "b2"}) is False
+    history.restoring = False
+    assert history.undo() == {"text.x": "a"}
+    assert history.undo() is None
+
+
+def test_palette_from_bundled_image(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    result = engine.palette_from_image("orange-fade.jpg")
+    assert result["ok"]
+    assert re.fullmatch(r"#[0-9A-F]{6}", result["suggested_base_color"])
+    assert re.fullmatch(r"#[0-9A-F]{6}", result["suggested_accent_color"])
+    assert 10 <= result["suggested_background_contrast"] <= 100
+    assert abs(sum(colour["share"] for colour in result["colours"]) - 1) < 0.01
+    # Only names inside /config/www/background are accepted.
+    assert engine.palette_from_image("../../secrets.yaml")["ok"] is False
+
+
+def test_preset_previews_are_written_and_removed_on_uninstall(tmp_path) -> None:
+    import xml.etree.ElementTree as ElementTree
+
+    engine, hass = engine_for(tmp_path)
+    written = engine.write_previews()
+    folder = tmp_path / "www" / "theme_studio" / "previews"
+    files = sorted(folder.glob("*.svg"))
+    assert len(files) == 22
+    assert len(written) == 22
+    assert engine.write_previews() == []  # unchanged files are not rewritten
+    for path in files:
+        ElementTree.parse(path)
+
+    load_module("asset_manager").remove_assets(hass)
+    assert not folder.exists()

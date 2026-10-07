@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import argparse
 from contextlib import redirect_stdout
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import importlib.util
 import io
 import json
@@ -18,8 +18,14 @@ import threading
 from types import ModuleType
 from typing import Any
 
+from . import palette as palette_module, previews as previews_module, sharing
+from .definitions import load_definitions
 from .const import (
     BACKGROUND_DIR,
+    EXPORT_DIR,
+    EXPORT_URL,
+    IMPORT_DIR,
+    PREVIEW_DIR,
     LIVE_THEME_FILE,
     LIVE_THEME_NAME,
     PRESET_DIR,
@@ -41,6 +47,25 @@ IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}
 _STDOUT_LOCK = threading.Lock()
 
 
+def _variant_setting_keys(cli: ModuleType) -> list[str]:
+    """Every per-variant setting: the CLI's keys plus the surface FX keys the editor stores."""
+    prefix = "theme_studio_light_"
+    stored = {
+        definition.key[len(prefix):]
+        for definition in load_definitions()
+        if definition.key.startswith(prefix) and definition.platform != "button"
+    }
+    return sorted(set(cli.SETTING_KEYS) | stored)
+
+
+def _integration_version() -> str:
+    try:
+        manifest = json.loads((Path(__file__).with_name("manifest.json")).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return ""
+    return str(manifest.get("version", ""))
+
+
 def _load_cli() -> ModuleType:
     spec = importlib.util.spec_from_file_location("theme_studio_cli_engine", CLI_PATH)
     if spec is None or spec.loader is None:
@@ -56,11 +81,14 @@ class ThemeEngine:
 
     config_dir: Path
     cli: ModuleType
+    version: str = ""
+    setting_keys: list[str] = field(default_factory=list)
 
     @classmethod
     def create(cls, config_dir: str) -> ThemeEngine:
         """Load the CLI and point it at this installation (blocking)."""
-        engine = cls(Path(config_dir), _load_cli())
+        cli = _load_cli()
+        engine = cls(Path(config_dir), cli, _integration_version(), _variant_setting_keys(cli))
         engine.cli.USER_THEME_DIR = str(engine.user_theme_dir)
         engine.cli.THEME_OUTPUT_DIR = str(engine.theme_output_dir)
         return engine
@@ -195,3 +223,89 @@ class ThemeEngine:
         except (OSError, json.JSONDecodeError):
             return {}
         return data if isinstance(data, dict) else {}
+
+    # Sharing ---------------------------------------------------------------
+
+    def _user_theme_slugs(self) -> set[str]:
+        slugs = {self.cli.slugify(name) for name in self.cli.BUILTIN_PRESET_NAMES}
+        if self.user_theme_dir.exists():
+            slugs |= {path.stem for path in self.user_theme_dir.glob("*.json") if path.stem != "index"}
+        return slugs
+
+    def export_user_theme(self, name: str) -> dict[str, Any]:
+        """Write a user theme to /config/www/theme_studio/exports and return it."""
+        path = self.cli.resolve_preset(str(self.preset_dir), name)
+        if not path or not path.exists() or path.resolve().parent != self.user_theme_dir.resolve():
+            return {"ok": False, "reason": "user_theme_not_found", "name": name}
+        theme = json.loads(path.read_text(encoding="utf-8"))
+        document = sharing.export_document(theme, self.setting_keys, self.version)
+        export_dir = self._path(EXPORT_DIR)
+        export_dir.mkdir(parents=True, exist_ok=True)
+        target = export_dir / f"{path.stem}.json"
+        target.write_text(json.dumps(document, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        return {
+            "ok": True,
+            "name": document["name"],
+            "file": str(target),
+            "url": f"{EXPORT_URL}/{target.name}",
+            "share_string": sharing.to_share_string(document),
+        }
+
+    def import_user_theme(self, data: str, name: str | None = None) -> dict[str, Any]:
+        """Create a new user theme from JSON or a share string. Never overwrites."""
+        theme = sharing.parse_import(data, self.setting_keys)
+        wanted = (name or theme["name"]).strip() or "Imported theme"
+        final_name = sharing.unique_name(wanted, self._user_theme_slugs(), self.cli.slugify)
+        slug = self.cli.slugify(final_name)
+        self.user_theme_dir.mkdir(parents=True, exist_ok=True)
+        target = self.user_theme_dir / f"{slug}.json"
+        if target.exists():  # unique_name already avoided this; never overwrite.
+            return {"ok": False, "reason": "target_exists", "name": final_name}
+        stored = {
+            "name": final_name,
+            "slug": slug,
+            "theme": theme["theme"],
+            "light": theme["light"],
+            "dark": theme["dark"],
+        }
+        target.write_text(json.dumps(stored, indent=2, ensure_ascii=False), encoding="utf-8")
+        return {"ok": True, "name": final_name, "slug": slug, "renamed": final_name != wanted}
+
+    def import_folder(self) -> dict[str, Any]:
+        """Import every .json/.txt file in /config/theme_studio/imports.
+
+        Imported files are renamed to ``<file>.imported`` so they are not
+        imported twice; files that fail keep their name.
+        """
+        folder = self._path(IMPORT_DIR)
+        folder.mkdir(parents=True, exist_ok=True)
+        imported, failed = [], []
+        for path in sorted(folder.iterdir()):
+            if not path.is_file() or path.suffix.lower() not in (".json", ".txt"):
+                continue
+            try:
+                result = self.import_user_theme(path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError, sharing.ImportError_) as err:
+                failed.append({"file": path.name, "reason": str(err)})
+                continue
+            if result.get("ok"):
+                path.rename(path.with_name(path.name + ".imported"))
+                imported.append({"file": path.name, "name": result["name"]})
+            else:
+                failed.append({"file": path.name, "reason": result.get("reason", "")})
+        return {"ok": not failed, "imported": imported, "failed": failed, "folder": str(folder)}
+
+    # Images and previews ---------------------------------------------------
+
+    def palette_from_image(self, image: str) -> dict[str, Any]:
+        """Colours of an image in /config/www/background (name only)."""
+        name = Path(str(image)).name
+        path = self.background_dir / name
+        if not name or not path.is_file():
+            return {"ok": False, "reason": "image_not_found", "image": name}
+        result = palette_module.palette_from_image(path)
+        result.update({"ok": True, "image": name})
+        return result
+
+    def write_previews(self) -> list[str]:
+        return previews_module.write_previews(self.cli, self.preset_dir, self._path(PREVIEW_DIR))

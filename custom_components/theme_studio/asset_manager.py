@@ -178,6 +178,11 @@ GENERATED_FILES = (
     ("themes", "theme_studio", "theme_studio_dynamic.yaml"),
 )
 
+# Generated folders whose files are removed on uninstall (exports are kept).
+GENERATED_DIRS = (
+    ("www", "theme_studio", "previews"),
+)
+
 # Kept on uninstall: images may be used by the user's own built themes.
 KEEP_ON_REMOVE = (
     ("www", "background"),
@@ -223,7 +228,17 @@ def remove_assets(hass: HomeAssistant) -> dict[str, Any]:
         for backup_file in target.parent.glob(f"{target.name}.bak_*"):
             _remove(backup_file)
 
-    for folder in (config_dir / "theme_studio" / "scripts", config_dir / "theme_studio" / "presets"):
+    for parts in GENERATED_DIRS:
+        folder = config_dir.joinpath(*parts)
+        if folder.is_dir():
+            for generated in folder.glob("*.svg"):
+                _remove(generated)
+
+    for folder in (
+        config_dir / "theme_studio" / "scripts",
+        config_dir / "theme_studio" / "presets",
+        *(config_dir.joinpath(*parts) for parts in GENERATED_DIRS),
+    ):
         try:
             if folder.is_dir() and not any(folder.iterdir()):
                 folder.rmdir()
