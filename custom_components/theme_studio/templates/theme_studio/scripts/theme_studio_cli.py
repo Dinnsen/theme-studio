@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse, colorsys, json, re
+import argparse, colorsys, json, math, re
 from pathlib import Path
 
 THEME_NAME = 'Theme Studio Dynamic'
@@ -102,22 +102,6 @@ def border_css_to_ring_shadow(border_css: str) -> str:
     if txt == '-0':
         txt = '0'
     return f"0 0 0 {txt}px {color}"
-
-def build_font_face_css(enabled: bool, font_family: str, font_path: str) -> str:
-    if not enabled:
-        return ''
-    family = (font_family or '').strip()
-    path = (font_path or '').strip()
-    if not family or not path:
-        return ''
-    safe_family = family.replace('"', '\\"')
-    return (
-        "@font-face {\n"
-        f"  font-family: \"{safe_family}\";\n"
-        f"  src: url(\"{path}\");\n"
-        "  font-display: swap;\n"
-        "}\n"
-    )
 
 def normalize_bg_url(url: str) -> str:
     u = (url or '').strip().replace('\\', '/')
@@ -671,6 +655,70 @@ def compute_accent_offset(base_s: float, base_l: float, neutrality: float, accen
     offset = 34 + (complement_bias + dark_bias + light_bias + intent_bias) * 118
     return clamp(offset, 34, 152)
 
+def _srgb_to_linear(c: float) -> float:
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def _linear_to_srgb(c: float) -> float:
+    c = clamp(c, 0.0, 1.0)
+    return 12.92 * c if c <= 0.0031308 else 1.055 * (c ** (1 / 2.4)) - 0.055
+
+
+def _rgb_to_oklch(r: float, g: float, b: float):
+    r, g, b = _srgb_to_linear(r), _srgb_to_linear(g), _srgb_to_linear(b)
+    l_ = (0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b) ** (1 / 3)
+    m_ = (0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b) ** (1 / 3)
+    s_ = (0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b) ** (1 / 3)
+    lab_l = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_
+    lab_a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_
+    lab_b = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
+    chroma = (lab_a ** 2 + lab_b ** 2) ** 0.5
+    hue = math.atan2(lab_b, lab_a)
+    return lab_l, chroma, hue
+
+
+def _oklch_to_hex(lab_l: float, chroma: float, hue: float) -> str:
+    lab_a = chroma * math.cos(hue)
+    lab_b = chroma * math.sin(hue)
+    l_ = (lab_l + 0.3963377774 * lab_a + 0.2158037573 * lab_b) ** 3
+    m_ = (lab_l - 0.1055613458 * lab_a - 0.0638541728 * lab_b) ** 3
+    s_ = (lab_l - 0.0894841775 * lab_a - 1.2914855480 * lab_b) ** 3
+    r = 4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_
+    g = -1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_
+    b = -0.0041960863 * l_ - 0.7034186147 * m_ + 1.7076147010 * s_
+    return '#' + ''.join(f'{round(_linear_to_srgb(v) * 255):02x}' for v in (r, g, b))
+
+
+def accent_palette(color: str) -> dict:
+    """Return --ha-color-primary-05..95 derived from the accent colour.
+
+    Home Assistant only builds this palette from the profile primary colour, so
+    without it Web Awesome components (buttons, switches, sliders) stay HA blue.
+    The step logic follows the frontend's generateColorPalette().
+    """
+    value = (color or '').strip()
+    if value.startswith('#'):
+        r, g, b = (c / 255 for c in hex_to_rgb(value))
+    else:
+        h, s, l = parse_hsl_like(value)
+        r, g, b = colorsys.hls_to_rgb(wrap_h(h) / 360, clamp(l, 0, 100) / 100, clamp(s, 0, 100) / 100)
+    base_l, base_c, base_h = _rgb_to_oklch(r, g, b)
+
+    palette = {}
+    for step in (5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95):
+        if step == 50:
+            lab_l, chroma = base_l, base_c
+        elif step < 50:
+            factor = step / 50
+            lab_l, chroma = base_l * factor, base_c * (0.9 + 0.1 * factor)
+        else:
+            factor = (step - 50) / 45
+            lab_l = min(1.0, base_l + (1 - base_l) * factor)
+            chroma = base_c * max(0.0, 1 - factor * 0.7)
+        palette[f'ha-color-primary-{step:02d}'] = _oklch_to_hex(lab_l, chroma, base_h)
+    return palette
+
+
 def build_override_surface(hex_value: str, alpha: float):
     h0, s0, l0 = hex_to_hsl(hex_value)
     return hsla(h0, s0, l0, alpha)
@@ -891,11 +939,6 @@ def build(args):
         custom_font_family if use_custom_font and custom_font_family else primary_font_family
     )
 
-    font_face_css = build_font_face_css(
-        use_custom_font,
-        custom_font_family,
-        custom_font_path
-    )
 
     card_h = wrap_h(theme_surface_h + card_bg_hue_shift)
     card_s = clamp(theme_surface_sat + card_bg_saturation_shift, 0, card_sat_cap)
@@ -1153,128 +1196,22 @@ def build(args):
 
     bg_scrim_css = background_scrim(background, 100 - background_contrast) if bg_image_css != 'none' else 'none'
 
-    card_mod_root = font_face_css + f"""
-ha-card:not(.theme-studio-no-fx) {{
-  border-radius: {round(radius)}px !important;
-  --ha-card-border-radius: {round(radius)}px !important;
-  overflow: hidden;
-  border: var(--theme-studio-card-border-css, none) !important;
-  box-shadow: var(--theme-studio-card-shadow-css, none) !important;
-}}
-
-ha-card.theme-studio-no-fx {{
-  border: none !important;
-  box-shadow: none !important;
-}}
-
-button-card,
-.button-card-main,
-button-card > * {{
-  border-radius: {round(chip_radius)}px !important;
-}}
-""" + """
-@media only screen and (max-width: 768px) {
-  .header {
-    display: none;
-    opacity: 0;
-  }
-
-  #view {
-    padding-top: 0 !important;
-    margin-top: 0 !important;
-    min-height: calc(100vh - env(safe-area-inset-top)) !important;
-  }
-}
-
-#root {
-  --masonry-view-card-margin: 0px 0px 0px;
-}
-
-#root > hui-card[hidden],
-#root > hui-vertical-stack-card[hidden] {
-  margin: 0 !important;
-}
-
-home-assistant,
-home-assistant-main,
-ha-app-layout,
-app-drawer-layout,
-partial-panel-resolver,
-ha-panel-lovelace,
-hui-root,
-hui-view,
-grid-layout,
-.view,
-#root,
-hui-card {
-  --lovelace-background: transparent !important;
-  background: transparent !important;
-  background-color: transparent !important;
-}
-
-.background {
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  height: 100dvh !important;
-  background-position: center top !important;
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-  pointer-events: none !important;
-  z-index: 0 !important;
-}
-
-#view {
-  --lovelace-background: transparent !important;
-  position: relative;
-  min-height: 100vh !important;
-  min-height: 100dvh !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  z-index: 1 !important;
-}
-""".strip() + "\n"
 
     vals = {
         'primary-font-family': resolved_primary_font_family,
-	'ha-font-family-body': 'var(--primary-font-family)',
-        'paper-font-common-base_-_font-family': 'var(--primary-font-family)',
-        'paper-font-common-code_-_font-family': 'var(--primary-font-family)',
-        'paper-font-body1_-_font-family': 'var(--primary-font-family)',
-        'paper-font-subhead_-_font-family': 'var(--primary-font-family)',
-        'paper-font-headline_-_font-family': 'var(--primary-font-family)',
-        'paper-font-caption_-_font-family': 'var(--primary-font-family)',
-        'paper-font-title_-_font-family': 'var(--primary-font-family)',
+        'ha-font-family-body': 'var(--primary-font-family)',
         'ha-card-header-font-family': 'var(--primary-font-family)',
         'text-color': text,
         'primary-text-color': 'var(--text-color)',
         'text-primary-color': 'var(--text-color)',
         'sidebar-text-color': 'var(--text-color)',
-        'pbs-button-color': 'var(--text-color)',
-        'pbs-button-rgb-color': 'var(--text-color)',
-        'pbs-button-rgb-state-color': 'var(--text-color)',
-        'pbs-button-rgb-default-color': 'var(--text-color)',
-        'rgb-state-default-color': 'var(--text-color)',
-        'pbs-button-rgb-fallback': 'var(--text-color)',
         'secondary-text-color': resolved_secondary_text,
         'text-medium-light-color': text_medium_light,
         'text-medium-color': text_medium,
         'disabled-text-color': resolved_disabled_text,
         'primary-color': 'var(--accent-color)',
-        'mdc-text-field-fill-color': 'var(--ha-card-background)',
-        'mdc-text-field-ink-color': 'var(--primary-text-color)',
-        'mdc-select-fill-color': 'var(--ha-card-background)',
-        'mdc-text-field-label-ink-color': 'var(--secondary-text-color)',
-        'input-background-color': 'var(--ha-card-background)',
-        'ha-color-form-background': 'var(--ha-card-background)',
-        'ha-color-form-background-hover': 'color-mix(in srgb, var(--primary-text-color) 8%, var(--ha-card-background))',
-        'input-fill-color': 'var(--ha-card-background)',
-        'input-ink-color': 'var(--primary-text-color)',
-        'input-label-ink-color': 'var(--secondary-text-color)',
         'input-disabled-fill-color': 'color-mix(in srgb, var(--ha-card-background) 70%, transparent)',
         'input-disabled-ink-color': 'var(--disabled-text-color)',
-        'input-disabled-label-ink-color': 'var(--disabled-text-color)',
         'input-idle-line-color': 'color-mix(in srgb, var(--secondary-text-color) 28%, transparent)',
         'input-dropdown-icon-color': 'var(--secondary-text-color)',
         'input-hover-line-color': 'var(--primary-color)',
@@ -1296,36 +1233,18 @@ hui-card {
         'ha-card-background': ha_card_bg,
         'ha-card-box-shadow': 'var(--theme-studio-card-shadow-css)',
         'ha-card-border-radius': f'{round(radius)}px',
-        'ha-card-border-style': 'none !important',
-        'ha-card-border-width': 'none !important',
-        'ha-card-border-color': 'none !important',
-        'border-color': 'none',
+        'ha-card-border-width': '0px',
+        'ha-card-border-color': 'transparent',
         'grid-card-gap': '14px',
-        'border-style': 'none !important',
-        'paper-item-icon-color': resolved_state_icon,
-        'paper-item-icon-active-color': resolved_state_icon_active,
         'state-icon-color': resolved_state_icon,
         'state-icon-active-color': resolved_state_icon_active,
         'sidebar-background-color': 'var(--background-color)',
         'sidebar-icon-color': resolved_sidebar_icon,
         'sidebar-selected-icon-color': resolved_state_icon_active,
         'sidebar-selected-text-color': 'var(--text-color)',
-        'paper-listbox-background-color': 'var(--sidebar-background-color)',
         'divider-color': resolved_divider,
         'light-primary-color': 'var(--ha-card-background)',
-        'paper-slider-knob-color': 'var(--accent-color)',
-        'paper-slider-pin-color': 'var(--background-color-2)',
-        'paper-slider-active-color': bubble_slider_color,
-        'paper-slider-container-color': 'var(--background-color-2)',
-        'paper-toggle-button-checked-bar-color': 'var(--accent-color)',
         'mdc-theme-primary': 'var(--accent-color)',
-        'switch-unchecked-color': text_medium,
-        'switch-checked-button-color': 'var(--accent-color)',
-        'switch-unchecked-track-color': 'var(--background-color-2)',
-        'switch-checked-track-color': 'var(--background-color-2)',
-        'paper-radio-button-checked-color': 'var(--accent-color)',
-        'more-info-header-background': 'var(--secondary-background-color)',
-        'paper-dialog-background-color': 'var(--background-color)',
         'table-row-background-color': 'var(--background-color)',
         'table-row-alternative-background-color': 'var(--ha-card-background)',
         'label-badge-background-color': 'var(--background-color)',
@@ -1334,29 +1253,11 @@ hui-card {
         'label-badge-blue': alarm_night,
         'label-badge-green': alarm_disarmed,
         'label-badge-yellow': tertiary,
-        'paper-input-container-focus-color': 'var(--accent-color)',
-        'ha-textfield-fill-color': 'var(--ha-card-background)',
-        'ha-textfield-input-text-color': 'var(--primary-text-color)',
-        'ha-textfield-text-color': 'var(--primary-text-color)',
-        'ha-textfield-label-text-color': resolved_secondary_text,
-        'ha-textfield-caret-color': 'var(--accent-color)',
-        'ha-selector-fill-color': 'var(--ha-card-background)',
-        'input-background-color': 'var(--ha-card-background)',
         'ha-color-form-background': 'var(--ha-card-background)',
         'ha-color-form-background-hover': 'color-mix(in srgb, var(--primary-text-color) 8%, var(--ha-card-background))',
         'md-filled-field-container-color': 'var(--ha-card-background)',
         'md-filled-field-label-text-color': resolved_secondary_text,
         'md-filled-field-input-text-color': 'var(--primary-text-color)',
-        'md-filled-field-focus-label-text-color': 'var(--accent-color)',
-        'md-filled-field-caret-color': 'var(--accent-color)',
-        'md-filled-text-field-container-color': 'var(--ha-card-background)',
-        'md-filled-text-field-label-text-color': resolved_secondary_text,
-        'md-filled-text-field-input-text-color': 'var(--primary-text-color)',
-        'md-filled-text-field-focus-label-text-color': 'var(--accent-color)',
-        'md-filled-text-field-caret-color': 'var(--accent-color)',
-        'md-outlined-field-label-text-color': resolved_secondary_text,
-        'md-outlined-field-input-text-color': 'var(--primary-text-color)',
-        'md-outlined-field-focus-label-text-color': 'var(--accent-color)',
         'mdc-theme-surface': 'var(--ha-card-background)',
         'mdc-theme-on-surface': 'var(--primary-text-color)',
         'mdc-select-fill-color': 'var(--ha-card-background)',
@@ -1370,28 +1271,15 @@ hui-card {
         'mdc-text-field-label-ink-color': resolved_secondary_text,
         'mdc-text-field-idle-line-color': 'color-mix(in srgb, var(--secondary-text-color) 28%, transparent)',
         'mdc-text-field-hover-line-color': 'var(--accent-color)',
-        'text-field-fill-color': 'var(--ha-card-background)',
-        'text-field-ink-color': 'var(--primary-text-color)',
-        'text-field-label-ink-color': resolved_secondary_text,
         'input-fill-color': 'var(--ha-card-background)',
         'input-ink-color': 'var(--primary-text-color)',
         'input-label-ink-color': resolved_secondary_text,
-        'ch-background': 'var(--background-color)',
-        'ch-active-tab-color': 'var(--accent-color)',
-        'ch-notification-dot-color': 'var(--accent-color)',
-        'ch-all-tabs-color': 'var(--sidebar-icon-color)',
-        'ch-tab-indicator-color': 'var(--accent-color)',
         'mini-media-player-base-color': 'var(--text-color)',
         'mini-media-player-accent-color': 'var(--accent-color)',
         'alarm-color-armed': alarm_armed,
         'alarm-color-disarmed': alarm_disarmed,
         'alarm-color-night': alarm_night,
-        'card-mod-theme': THEME_NAME,
         'theme-studio-signature': 'theme-studio-dynamic',
-        'card-mod-root-yaml': card_mod_root,
-        'card-mod-more-info-yaml': "$: |\n  .mdc-dialog .mdc-dialog__scrim,\n  ha-dialog .mdc-dialog__scrim,\n  md-dialog::part(scrim) {\n    backdrop-filter: blur(15px);\n    -webkit-backdrop-filter: blur(15px);\n    background: rgba(0,0,0,.6);\n  }\n  .mdc-dialog .mdc-dialog__container .mdc-dialog__surface,\n  ha-dialog .mdc-dialog__surface,\n  md-dialog {\n    box-shadow: none !important;\n    border-radius: var(--ha-card-border-radius);\n    background: var(--ha-card-background) !important;\n    color: var(--primary-text-color) !important;\n    --mdc-theme-surface: var(--ha-card-background);\n    --mdc-theme-on-surface: var(--primary-text-color);\n    --mdc-dialog-content-ink-color: var(--primary-text-color);\n    --mdc-dialog-heading-ink-color: var(--primary-text-color);\n    --mdc-text-button-label-text-color: var(--accent-color);\n    --md-sys-color-surface: var(--ha-card-background);\n    --md-sys-color-on-surface: var(--primary-text-color);\n    --md-sys-color-primary: var(--accent-color);\n  }\n  .mdc-dialog__title,\n  .mdc-dialog__content,\n  .mdc-dialog__button,\n  .mdc-button,\n  .mdc-button__label,\n  ha-dialog *,\n  md-dialog * {\n    color: var(--primary-text-color) !important;\n  }\n.: |\n  :host {\n    --ha-card-box-shadow: none;\n  }\n",
-        'card-mod-view-yaml': "hui-sidebar-view:\n  $: |\n    @media only screen and (min-width: 768px) {\n        .container {\n          max-width: 520px;\n          margin: auto !important;\n          width: -webkit-fill-available;\n        }\n    }\n    #wrapper: |\n      $: |\n        #progressContainer {\n            border-radius: 14px !important;\n    }\n  .: |\n    \"#view>hui-view>hui-sidebar-view$#main>hui-card-options:nth-child(7)>vertical-stack-in-card$ha-card>div>hui-horizontal-stack-card$#root>hui-grid-card$#root>hui-entities-card$#states>div:nth-child(4)>slider-entity-row$div>ha-slider$#sliderBar$#progressContainer\" {\n        border-radius: 14px !important;\n    }\n",
-        'card-mod-card': 'ha-card {\n  transition: none;\n  border-style: none !important\n}',
         'md-sys-color-primary': 'var(--accent-color)',
         'md-sys-color-on-primary': text_on(primary_l),
         'md-sys-color-primary-container': primary_container,
@@ -1422,24 +1310,6 @@ hui-card {
         'md-sys-color-inverse-primary': 'var(--accent-color)',
         'icon-primary-color': 'var(--state-icon-color)',
         'icon-secondary-color': 'var(--state-icon-active-color)',
-        'my-card-blur': f'{round(blur_strength)}px',
-        'my-card-opacity': f'{card_opacity:.2f}',
-        'my-chip-radius': f'{round(chip_radius)}px',
-        'my-navbar-bg': navbar_bg,
-        'my-glass-bg': hsla(accent_h, surface_s, surface_l + surface_step + 2.2, min(card_opacity + 0.04, 1.0)),
-        'my-chip-bg': chip_bg,
-        'd1nnsen-bubble-bg-color': bubble_bg,
-        'd1nnsen-bubble-sub-button-bg': bubble_sub,
-        'd1nnsen-bubble-accent-color': bubble_slider_color,
-        'd1nnsen-bubble-text-color': bubble_text_color,
-        'd1nnsen-card-text-color': card_text_color,
-        'd1nnsen-popup-text-color': popup_text_color,
-        'd1nnsen-font-label-color': font_label_color,
-        'd1nnsen-popup-bg-color': popup_bg,
-        'd1nnsen-header-fade-color': background,
-        'd1nnsen-soft-bg-color': surface_container_high,
-        'd1nnsen-panel-bg': background2,
-        'd1nnsen-muted-icon-color': resolved_secondary_text,
         'theme-studio-border-type': border_type,
         'theme-studio-shadow-type': shadow_type,
         'theme-studio-border-css': border_css,
@@ -1457,9 +1327,6 @@ hui-card {
         'theme-studio-background-scrim': bg_scrim_css,
         'theme-studio-background-overlay': bg_overlay_css,
         'theme-studio-background-overlay-preview': bg_overlay_css_preview,
-        'd1nnsen-background-image': 'var(--theme-studio-background-image)',
-        'd1nnsen-background-scrim': 'var(--theme-studio-background-scrim)',
-        'd1nnsen-background-overlay': 'var(--theme-studio-background-overlay)',
         'theme-studio-overlay-name': overlay,
         'theme-studio-overlay-contrast': f'{round(overlay_strength)}',
         'theme-studio-background-contrast': f'{round(background_contrast)}',
@@ -1469,30 +1336,42 @@ hui-card {
         'theme-studio-overlay-offset-y': f'{round(overlay_offset_y)}',
         'theme-studio-overlay-scale': f'{round(overlay_scale)}',
         'theme-studio-overlay-spread': f'{round(overlay_spread)}',
-	'lovelace-background': (
-   	    "center top / cover no-repeat fixed var(--theme-studio-background-overlay), "
-	    "center top / cover no-repeat fixed var(--theme-studio-background-scrim), "
-	    "center top / cover no-repeat fixed var(--theme-studio-background-image)"
-	),
+        'lovelace-background': (
+               "center top / cover no-repeat fixed var(--theme-studio-background-overlay), "
+            "center top / cover no-repeat fixed var(--theme-studio-background-scrim), "
+            "center top / cover no-repeat fixed var(--theme-studio-background-image)"
+        ),
         'bubble-main-background-color': bubble_bg,
-        'bubble-border-css': bubble_border_css,
-        'bubble-shadow-css': bubble_shadow_css,
         'bubble-button-main-background-color': bubble_bg,
-        'bubble-main-box-shadow': bubble_fx_combined_css,
         'bubble-box-shadow': bubble_fx_combined_css,
-        'bubble-main-border': bubble_border_css,
         'bubble-border': bubble_border_css,
         'bubble-select-main-background-color': bubble_bg,
-        'bubble-climate-main-background-color': bubble_bg,
         'bubble-sub-button-background-color': bubble_sub,
-	'bubble-accent-color': bubble_slider_color,
-        'bubble-slider-main-background-color': bubble_slider_color,
+        'bubble-accent-color': bubble_slider_color,
         'bubble-pop-up-main-background-color': popup_bg,
-        'bubble-pop-up-box-shadow': popup_fx_combined_css,
         'bubble-pop-up-border': popup_border_css,
-        'bubble-popup-border-css': popup_border_css,
-        'bubble-popup-shadow-css': popup_shadow_css,
         'bubble-pop-up-background-color': popup_bg,
+        # --- Native Home Assistant variables (no card-mod required) ---
+        'ha-font-family-heading': 'var(--primary-font-family)',
+        'ha-card-backdrop-filter': f'blur({round(blur_strength)}px)' if blur_strength > 0 else 'none',
+        'ha-dialog-surface-background': 'var(--ha-card-background)',
+        'ha-dialog-surface-backdrop-filter': 'var(--ha-card-backdrop-filter, none)',
+        'ha-bottom-sheet-surface-background': 'var(--ha-card-background)',
+        'ha-dialog-border-radius': 'var(--ha-card-border-radius)',
+        'dialog-box-shadow': 'none',
+        'ha-dialog-scrim-backdrop-filter': 'blur(15px)',
+        'mdc-dialog-scrim-color': 'rgba(0, 0, 0, 0.6)',
+        'ha-switch-background-color': 'var(--background-color-2)',
+        'ha-switch-checked-background-color': 'var(--accent-color)',
+        'ha-switch-checked-border-color': 'var(--accent-color)',
+        **accent_palette(resolved_accent),
+        # --- Theme Studio variables for dashboards ---
+        'theme-studio-soft-background-color': surface_container_high,
+        'theme-studio-panel-background-color': background2,
+        'theme-studio-sub-button-background-color': bubble_sub,
+        'theme-studio-chip-radius': f'{round(chip_radius)}px',
+        'theme-studio-bubble-slider-color': bubble_slider_color,
+        'bubble-climate-background-color': bubble_bg,
     }
     return vals
 

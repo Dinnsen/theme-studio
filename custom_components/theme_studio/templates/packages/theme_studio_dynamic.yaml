@@ -1239,6 +1239,9 @@ input_boolean:
   theme_studio_busy:
     name: Theme Studio - busy
     initial: false
+  theme_studio_set_as_default_theme:
+    name: Theme Studio - set as default theme
+    icon: mdi:palette-swatch-variant
 input_select:
   theme_studio_theme_background_overlay:
     name: theme_studio theme - background overlay
@@ -1444,9 +1447,9 @@ shell_command:
     --preset-dir /config/theme_studio/presets
     --source '{{ (states("input_select.theme_studio_theme_presets") if states("input_select.theme_studio_theme_presets") not in ["", "None", "unknown", "unavailable"] else (states("input_select.theme_studio_user_themes") if states("input_select.theme_studio_user_themes") not in ["", "None", "unknown", "unavailable"] else states("input_text.theme_studio_selected_user_theme"))) | replace("'", "'\"'\"'") }}'
     --name '{{ states("input_text.theme_studio_theme_name") | replace("'", "'\"'\"'") }}'
-  theme_studio_delete_preset: python3 /config/theme_studio/scripts/theme_studio_cli.py delete-preset --preset-dir /config/theme_studio/presets --name "{{ states('input_select.theme_studio_user_themes') if states('input_select.theme_studio_user_themes') not in ['unknown','unavailable','','None'] else (states('input_select.theme_studio_theme_presets') if states('input_select.theme_studio_theme_presets') not in ['unknown','unavailable','','None'] else 'Default') }}"
+  theme_studio_delete_user_theme: python3 /config/theme_studio/scripts/theme_studio_cli.py delete-preset --preset-dir /config/theme_studio/presets --name "{{ name }}"
   theme_studio_build_theme: python3 /config/theme_studio/scripts/theme_studio_cli.py build-theme --preset-dir /config/theme_studio/presets --output-dir /config/themes/theme_studio --name "{{ states('input_select.theme_studio_user_themes') if states('input_select.theme_studio_user_themes') not in ['unknown','unavailable','','None'] else states('input_select.theme_studio_theme_presets') }}"
-  theme_studio_refresh_preset_index: bash -lc "python3 /config/theme_studio/scripts/theme_studio_cli.py list-presets --preset-dir /config/theme_studio/presets --output-json /config/theme_studio/presets/index.json >/dev/null && python3 /config/theme_studio/scripts/theme_studio_cli.py list-user-themes --preset-dir /config/theme_studio/presets --output-json /config/theme_studio/user_themes/index.json"
+  theme_studio_refresh_preset_index: python3 /config/theme_studio/scripts/theme_studio_cli.py list-user-themes --preset-dir /config/theme_studio/presets --output-json /config/theme_studio/user_themes/index.json
 template:
 - sensor:
   - name: theme_studio theme summary
@@ -2092,9 +2095,14 @@ automation:
   - delay: 00:00:01
   - service: frontend.reload_themes
   - delay: 00:00:01
-  - service: frontend.set_theme
-    data:
-      name: Theme Studio Dynamic
+  - if:
+    - condition: state
+      entity_id: input_boolean.theme_studio_set_as_default_theme
+      state: 'on'
+    then:
+    - service: frontend.set_theme
+      data:
+        name: Theme Studio Dynamic
   mode: restart
 - id: theme_studio_save_light
   alias: Theme Studio - save light theme
@@ -4167,7 +4175,9 @@ automation:
       entity_id: input_text.theme_studio_busy_message
     data:
       value: "Deleting User Theme: {{ delete_name | trim }}"
-  - service: shell_command.theme_studio_delete_theme
+  - service: shell_command.theme_studio_delete_user_theme
+    data:
+      name: "{{ delete_name | trim }}"
   - delay: 00:00:01
   - service: shell_command.theme_studio_refresh_preset_index
   - delay: 00:00:01
@@ -4759,9 +4769,14 @@ automation:
   - delay: 00:00:01
   - service: frontend.reload_themes
   - delay: 00:00:01
-  - service: frontend.set_theme
-    data:
-      name: Theme Studio Dynamic
+  - if:
+    - condition: state
+      entity_id: input_boolean.theme_studio_set_as_default_theme
+      state: 'on'
+    then:
+    - service: frontend.set_theme
+      data:
+        name: Theme Studio Dynamic
   mode: restart
 - id: theme_studio_save_light_surface_fx
   alias: Theme Studio - save light surface fx

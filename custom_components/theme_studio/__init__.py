@@ -15,6 +15,8 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
 SERVICE_INITIALIZE_ASSETS = "initialize_assets"
 SERVICE_REINSTALL_ASSETS = "reinstall_assets"
 
@@ -69,10 +71,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = data
 
+    overwrite = bool(data.get("overwrite", True))
     backup = bool(data.get("backup", True))
 
     try:
-        result = await async_initialize_assets(hass, overwrite=True, backup=backup)
+        result = await async_initialize_assets(hass, overwrite=overwrite, backup=backup)
         hass.data[DOMAIN][entry.entry_id]["last_asset_install"] = result
 
         if not result.get("success", False):
