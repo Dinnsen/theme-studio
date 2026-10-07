@@ -102,18 +102,19 @@ def test_bundled_theme_is_current() -> None:
     assert "  ha-color-primary-50:" in text
 
 
-def test_every_called_shell_command_is_defined() -> None:
+def test_every_called_theme_studio_service_is_registered() -> None:
     package = PACKAGE_PATH.read_text(encoding="utf-8")
-    block = package.split("\nshell_command:\n", 1)[1].split("\ntemplate:\n", 1)[0]
-    defined = set(re.findall(r"^  ([a-z0-9_]+):", block, re.M))
-    called = set(re.findall(r"shell_command\.([a-z0-9_]+)", package))
-    assert called <= defined, f"Undefined shell_commands: {sorted(called - defined)}"
+    services_yaml = (ROOT / "custom_components" / "theme_studio" / "services.yaml").read_text(encoding="utf-8")
+    declared = set(re.findall(r"^([a-z_]+):", services_yaml, re.M))
+    called = set(re.findall(r"service: theme_studio\.([a-z_]+)", package))
+    assert called
+    assert called <= declared, f"Undeclared services: {sorted(called - declared)}"
 
 
 def test_delete_flow_passes_explicit_theme_name() -> None:
     package = PACKAGE_PATH.read_text(encoding="utf-8")
-    assert '--name "{{ name }}"' in package
-    assert 'name: "{{ delete_name | trim }}"' in package
+    block = package.split("- service: theme_studio.delete_user_theme\n", 1)[1]
+    assert block.startswith('    data:\n      name: "{{ delete_name | trim }}"\n')
 
 
 def test_managed_preset_index_is_never_rewritten() -> None:
@@ -123,9 +124,8 @@ def test_managed_preset_index_is_never_rewritten() -> None:
 
 def test_default_theme_is_only_set_when_enabled() -> None:
     package = PACKAGE_PATH.read_text(encoding="utf-8")
-    assert "theme_studio_set_as_default_theme:" in package
     assert package.count("frontend.set_theme") == package.count(
-        "entity_id: input_boolean.theme_studio_set_as_default_theme"
+        "entity_id: switch.theme_studio_set_as_default_theme"
     )
 
 
@@ -160,16 +160,11 @@ def test_theme_does_not_blur_every_card() -> None:
 
 
 def test_editor_helpers_survive_restart() -> None:
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-    helpers_with_initial = set()
-    current = None
-    for line in package.splitlines():
-        match = re.match(r"^  ([a-z0-9_]+):$", line)
-        if match:
-            current = match.group(1)
-        elif line.startswith("    initial:"):
-            helpers_with_initial.add(current)
-    assert helpers_with_initial == {
+    helpers = json.loads(
+        (ROOT / "custom_components" / "theme_studio" / "helpers.json").read_text(encoding="utf-8")
+    )["helpers"]
+    reset_on_start = {helper["key"] for helper in helpers if helper.get("reset_on_start")}
+    assert reset_on_start == {
         "theme_studio_busy",
         "theme_studio_busy_message",
         "theme_studio_pending_new_theme_name",
@@ -182,4 +177,4 @@ def test_editor_helpers_survive_restart() -> None:
 def test_default_preset_is_not_forced_over_a_selected_user_theme() -> None:
     package = PACKAGE_PATH.read_text(encoding="utf-8")
     block = package.split("- id: theme_studio_apply_default_when_none_selected", 1)[1].split("\n- id:", 1)[0]
-    assert "input_text.theme_studio_selected_user_theme" in block
+    assert "text.theme_studio_selected_user_theme" in block

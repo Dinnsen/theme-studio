@@ -1394,6 +1394,7 @@ def slugify(name: str) -> str:
 
 RESERVED_PRESETS = {slugify(name) for name in BUILTIN_PRESET_NAMES}
 USER_THEME_DIR = '/config/theme_studio/user_themes'
+THEME_OUTPUT_DIR = '/config/themes/theme_studio'
 
 def namespace_from_settings(settings: dict, output_path: str):
     values = {}
@@ -1679,7 +1680,7 @@ def cmd_delete_preset(args):
         preset_path.unlink()
         deleted_preset = True
 
-    theme_path = Path('/config/themes/theme_studio') / f"{slug}.yaml"
+    theme_path = Path(THEME_OUTPUT_DIR) / f"{slug}.yaml"
     if theme_path.exists():
         theme_path.unlink()
         deleted_theme = True

@@ -1,30 +1,72 @@
 initialize_assets:
-  name: Initialize assets
-  description: Install or update bundled Theme Studio files into /config.
   fields:
     overwrite:
-      name: Overwrite managed files
-      description: Update bundled managed files if they already exist. User themes are never overwritten.
       required: false
       default: true
       selector:
         boolean:
     backup:
-      name: Backup existing files
-      description: Create timestamped .bak files before overwriting managed files.
       required: false
       default: true
       selector:
         boolean:
 
 reinstall_assets:
-  name: Reinstall assets
-  description: Force reinstall bundled Theme Studio files into /config. User themes are never overwritten.
   fields:
     backup:
-      name: Backup existing files
-      description: Create timestamped .bak files before overwriting managed files.
       required: false
       default: true
       selector:
         boolean:
+
+generate:
+
+save_preset:
+  fields:
+    payload:
+      required: true
+      selector:
+        object:
+
+copy_preset:
+  fields:
+    source:
+      required: true
+      example: Dark Blue
+      selector:
+        text:
+    name:
+      required: true
+      example: My Theme
+      selector:
+        text:
+
+delete_user_theme:
+  fields:
+    name:
+      required: true
+      example: My Theme
+      selector:
+        text:
+
+build_theme:
+  fields:
+    name:
+      required: true
+      example: My Theme
+      selector:
+        text:
+
+refresh_catalogs:
+
+set_options:
+  target:
+    entity:
+      integration: theme_studio
+      domain: select
+  fields:
+    options:
+      required: true
+      example: '["None", "My Theme"]'
+      selector:
+        object:

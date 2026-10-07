@@ -294,35 +294,51 @@ Navbar styling should use Theme Studio variables where possible:
 
 Do not rename helpers unless ALL references are updated.
 
+Since v0.6.0 the editor helpers are entities owned by the integration and
+defined in `custom_components/theme_studio/helpers.json` (platforms `number`,
+`text`, `switch`, `select`, `button`). `legacy_domain` in that file is the old
+YAML helper domain and is only used to migrate values once.
+
 Common helpers include:
 
 ```text
-input_text.theme_studio_theme_base_color
-input_text.theme_studio_theme_accent_color_override
-input_text.theme_studio_theme_card_bg_override
-input_text.theme_studio_theme_bubble_bg_override
-input_text.theme_studio_theme_popup_bg_override
-input_text.theme_studio_theme_navbar_bg_override
-input_text.theme_studio_selected_user_theme
-input_text.theme_studio_theme_name
-input_text.theme_studio_loaded_variant
-input_text.theme_studio_busy_message
+text.theme_studio_theme_base_color
+text.theme_studio_theme_accent_color_override
+text.theme_studio_theme_card_bg_override
+text.theme_studio_theme_bubble_bg_override
+text.theme_studio_theme_popup_bg_override
+text.theme_studio_theme_navbar_bg_override
+text.theme_studio_selected_user_theme
+text.theme_studio_theme_name
+text.theme_studio_loaded_variant
+text.theme_studio_busy_message
 
-input_select.theme_studio_theme_presets
-input_select.theme_studio_user_themes
-input_select.theme_studio_theme_border_type
-input_select.theme_studio_theme_shadow_type
+select.theme_studio_theme_presets
+select.theme_studio_user_themes
+select.theme_studio_theme_border_type
+select.theme_studio_theme_shadow_type
 
-input_boolean.theme_studio_theme_bubble_use_fx
-input_boolean.theme_studio_theme_popup_use_fx
+switch.theme_studio_theme_bubble_use_fx
+switch.theme_studio_theme_popup_use_fx
 
-sensor.theme_studio_preset_index
-sensor.theme_studio_selected_preset
+sensor.theme_studio_preset_catalog
+sensor.theme_studio_user_theme_catalog
+sensor.theme_studio_background_image_catalog
+sensor.theme_studio_active_preset
 ```
+
+The live preview arguments are mapped to entities in
+`LIVE_ARGUMENT_ENTITIES` in `const.py`; keep it equal to
+`LIVE_ARGUMENT_KEYS` in `theme_studio_cli.py`.
+
+Automations in the package that use `platform: state` must start with the
+reload guard condition (`trigger.platform != 'state' or ...`), because the
+integration's entities are removed and re-added when it reloads.
 
 Rules:
 
 - When adding a helper:
+  - add it to `helpers.json`
   - update scripts
   - automations
   - templates

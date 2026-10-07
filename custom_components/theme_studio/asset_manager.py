@@ -107,14 +107,7 @@ def initialize_assets(
     _mkdir(config_dir / "theme_studio" / "user_themes", result)
     _mkdir(config_dir / "www" / "background", result)
 
-    copy_jobs = [
-        (TEMPLATES_DIR / "packages", config_dir / "packages"),
-        (TEMPLATES_DIR / "lovelace", config_dir / "lovelace"),
-        (TEMPLATES_DIR / "themes", config_dir / "themes"),
-        (TEMPLATES_DIR / "theme_studio" / "presets", config_dir / "theme_studio" / "presets"),
-        (TEMPLATES_DIR / "theme_studio" / "scripts", config_dir / "theme_studio" / "scripts"),
-        (TEMPLATES_DIR / "www" / "background", config_dir / "www" / "background"),
-    ]
+    copy_jobs = _copy_jobs(config_dir)
 
     for source, destination in copy_jobs:
         _copy_tree_contents(
@@ -158,6 +151,76 @@ async def async_initialize_assets(
             backup=backup,
         )
     )
+
+
+def _copy_jobs(config_dir: Path) -> list[tuple[Path, Path]]:
+    """Return (bundled source, /config destination) pairs."""
+    return [
+        (TEMPLATES_DIR / "packages", config_dir / "packages"),
+        (TEMPLATES_DIR / "lovelace", config_dir / "lovelace"),
+        (TEMPLATES_DIR / "themes", config_dir / "themes"),
+        (TEMPLATES_DIR / "theme_studio" / "presets", config_dir / "theme_studio" / "presets"),
+        (TEMPLATES_DIR / "theme_studio" / "scripts", config_dir / "theme_studio" / "scripts"),
+        (TEMPLATES_DIR / "www" / "background", config_dir / "www" / "background"),
+    ]
+
+
+# Removed on uninstall in addition to the bundled files themselves.
+GENERATED_FILES = (
+    ("themes", "theme_studio", "theme_studio_dynamic.yaml"),
+)
+
+# Kept on uninstall: images may be used by the user's own built themes.
+KEEP_ON_REMOVE = (
+    ("www", "background"),
+)
+
+
+def remove_assets(hass: HomeAssistant) -> dict[str, Any]:
+    """Delete the files Theme Studio installed (blocking).
+
+    User themes (/config/theme_studio/user_themes), built themes in
+    /config/themes/theme_studio and background images are kept.
+    """
+    config_dir = Path(hass.config.path())
+    removed: list[str] = []
+    errors: list[str] = []
+
+    def _remove(path: Path) -> None:
+        if _is_protected_target(path, config_dir) or not path.is_file():
+            return
+        try:
+            path.unlink()
+            removed.append(_display(path))
+        except OSError as err:
+            errors.append(f"Could not remove {path}: {err}")
+
+    for source_root, destination_root in _copy_jobs(config_dir):
+        relative_root = destination_root.relative_to(config_dir).parts
+        if any(relative_root[: len(keep)] == keep for keep in KEEP_ON_REMOVE):
+            continue
+        if not source_root.exists():
+            continue
+        for source in source_root.rglob("*"):
+            if not source.is_file() or _should_skip(source):
+                continue
+            target = destination_root / source.relative_to(source_root)
+            _remove(target)
+            for backup_file in target.parent.glob(f"{target.name}.bak_*"):
+                _remove(backup_file)
+
+    for parts in GENERATED_FILES:
+        _remove(config_dir.joinpath(*parts))
+
+    for folder in (config_dir / "theme_studio" / "scripts", config_dir / "theme_studio" / "presets"):
+        try:
+            if folder.is_dir() and not any(folder.iterdir()):
+                folder.rmdir()
+        except OSError:
+            pass
+
+    _LOGGER.info("Theme Studio assets removed: %s (errors: %s)", len(removed), len(errors))
+    return {"success": not errors, "removed_files": removed, "errors": errors}
 
 
 def _mkdir(path: Path, result: AssetInstallResult) -> None:

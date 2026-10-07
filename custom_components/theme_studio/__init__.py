@@ -2,100 +2,86 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import logging
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
-import voluptuous as vol
 
-from .asset_manager import async_initialize_assets
-from .const import DOMAIN
+from .asset_manager import async_initialize_assets, remove_assets
+from .const import DOMAIN, PLATFORMS
+from .definitions import HelperDefinition, load_definitions
+from .engine import ThemeEngine
+from .services import async_setup_services
 
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
-SERVICE_INITIALIZE_ASSETS = "initialize_assets"
-SERVICE_REINSTALL_ASSETS = "reinstall_assets"
 
-SERVICE_SCHEMA = vol.Schema(
-    {
-        vol.Optional("overwrite", default=True): cv.boolean,
-        vol.Optional("backup", default=True): cv.boolean,
-    }
-)
+@dataclass
+class ThemeStudioData:
+    """Runtime data for a Theme Studio config entry."""
+
+    engine: ThemeEngine
+    definitions: list[HelperDefinition]
+    last_asset_install: dict[str, Any]
+
+
+type ThemeStudioConfigEntry = ConfigEntry[ThemeStudioData]
 
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
-    """Set up Theme Studio services."""
-
-    async def _handle_initialize_assets(call: ServiceCall) -> dict[str, Any]:
-        """Install/update bundled Theme Studio assets."""
-        overwrite = bool(call.data.get("overwrite", True))
-        backup = bool(call.data.get("backup", True))
-        return await async_initialize_assets(hass, overwrite=overwrite, backup=backup)
-
-    async def _handle_reinstall_assets(call: ServiceCall) -> dict[str, Any]:
-        """Force reinstall bundled Theme Studio assets."""
-        backup = bool(call.data.get("backup", True))
-        return await async_initialize_assets(hass, overwrite=True, backup=backup)
-
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_INITIALIZE_ASSETS,
-        _handle_initialize_assets,
-        schema=SERVICE_SCHEMA,
-        supports_response=SupportsResponse.ONLY,
-    )
-
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_REINSTALL_ASSETS,
-        _handle_reinstall_assets,
-        schema=vol.Schema({vol.Optional("backup", default=True): cv.boolean}),
-        supports_response=SupportsResponse.ONLY,
-    )
-
+    """Register Theme Studio services."""
+    async_setup_services(hass)
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Theme Studio from a config entry and install assets automatically."""
+async def async_setup_entry(hass: HomeAssistant, entry: ThemeStudioConfigEntry) -> bool:
+    """Set up Theme Studio from a config entry."""
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
-    data = {
-        **dict(entry.data),
-        **dict(entry.options),
-    }
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = data
-
-    overwrite = bool(data.get("overwrite", True))
-    backup = bool(data.get("backup", True))
-
+    options = {**entry.data, **entry.options}
     try:
-        result = await async_initialize_assets(hass, overwrite=overwrite, backup=backup)
-        hass.data[DOMAIN][entry.entry_id]["last_asset_install"] = result
-
-        if not result.get("success", False):
-            _LOGGER.warning("Theme Studio asset installation completed with errors: %s", result)
-        else:
-            _LOGGER.info("Theme Studio assets installed during setup: %s", result)
-
-    except Exception:  # noqa: BLE001 - keep integration setup resilient and log full traceback.
+        install = await async_initialize_assets(
+            hass,
+            overwrite=bool(options.get("overwrite", True)),
+            backup=bool(options.get("backup", True)),
+        )
+    except Exception:  # noqa: BLE001 - keep setup resilient and log the traceback.
         _LOGGER.exception("Theme Studio automatic asset installation failed")
         return False
 
+    if not install.get("success", False):
+        _LOGGER.warning("Theme Studio asset installation completed with errors: %s", install)
+
+    definitions = await hass.async_add_executor_job(load_definitions)
+    engine = await hass.async_add_executor_job(ThemeEngine.create, hass.config.path())
+    entry.runtime_data = ThemeStudioData(engine, definitions, install)
+
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 
-async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Reload Theme Studio when config entry options change."""
+async def _async_update_listener(hass: HomeAssistant, entry: ThemeStudioConfigEntry) -> None:
+    """Reload Theme Studio when its options change."""
     await hass.config_entries.async_reload(entry.entry_id)
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload Theme Studio config entry."""
-    hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
-    return True
+async def async_unload_entry(hass: HomeAssistant, entry: ThemeStudioConfigEntry) -> bool:
+    """Unload Theme Studio."""
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Remove the files Theme Studio installed when the integration is deleted.
+
+    User themes, built themes and background images are kept. The package
+    stays loaded until the next restart.
+    """
+    result = await hass.async_add_executor_job(remove_assets, hass)
+    _LOGGER.info("Theme Studio removed its managed files: %s", result)
+    if hass.services.has_service("frontend", "reload_themes"):
+        await hass.services.async_call("frontend", "reload_themes", blocking=True)

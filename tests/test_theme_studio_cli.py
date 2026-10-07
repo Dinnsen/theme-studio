@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -148,18 +149,18 @@ def test_save_preset_updates_only_active_variant(tmp_path, monkeypatch, capsys) 
     assert saved["dark"]["base_color"] == "#000000"
 
 
-def test_package_keeps_stable_live_command_and_copy_flow() -> None:
+def test_package_uses_integration_services_for_file_operations() -> None:
     package = PACKAGE_PATH.read_text(encoding="utf-8")
 
     assert "live-json" not in package
-    assert "theme_studio_cli.py live --base" in package
-    assert "theme_studio_copy_preset_as_user_theme" in package
-    assert "shell_command.theme_studio_copy_preset_as_user_theme" in package
-    assert '\\"active_variant\\": states(\\"input_text.theme_studio_loaded_variant\\")' in package
+    assert "shell_command" not in package
+    assert "theme_studio_cli.py" not in package
+    assert "- service: theme_studio.generate" in package
+    assert "- service: theme_studio.copy_preset" in package
+    assert "- service: theme_studio.save_preset" in package
+    assert '"active_variant": states("text.theme_studio_loaded_variant")' in package
     assert "Save as new handles loading the newly created user theme" in package
     assert "Save as new blocked" in package
-    assert "name: theme_studio_selected_preset" in package
-    assert "read-preset --preset-dir /config/theme_studio/presets --name '{{" not in package
 
 
 def test_package_trims_variant_comparisons_before_branching() -> None:
@@ -183,20 +184,14 @@ def test_autoload_flows_do_not_save_inactive_variant_helpers() -> None:
     )[0]
 
     for section in (preset_autoload, user_autoload):
-        assert "input_button.theme_studio_theme_load_light_theme" in section
-        assert "input_button.theme_studio_theme_load_dark_theme" in section
-        assert "input_button.theme_studio_theme_save_light_theme" not in section
-        assert "input_button.theme_studio_theme_save_dark_theme" not in section
+        assert "button.theme_studio_theme_load_light_theme" in section
+        assert "button.theme_studio_theme_load_dark_theme" in section
+        assert "button.theme_studio_theme_save_light_theme" not in section
+        assert "button.theme_studio_theme_save_dark_theme" not in section
 
 
-def test_selected_preset_sensor_handles_missing_value_json() -> None:
+def test_package_has_no_subprocess_sections() -> None:
     package = PACKAGE_PATH.read_text(encoding="utf-8")
+    top_level = set(re.findall(r"^([a-z_]+):\s*$", package, re.M))
 
-    assert "value_json is defined and value_json.name is defined" in package
-
-
-def test_command_line_sensors_use_explicit_refresh_friendly_polling() -> None:
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-
-    assert package.count("scan_interval: 3600") == 4
-    assert package.count("command_timeout: 10") == 4
+    assert top_level == {"template", "script", "automation"}
