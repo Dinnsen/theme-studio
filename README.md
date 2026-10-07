@@ -36,6 +36,7 @@
 - [File Structure](#file-structure)
 - [Fonts](#fonts)
 - [Theme variables for your own dashboards](#theme-variables-for-your-own-dashboards)
+- [Services](#services)
 - [Recommended recorder settings](#recommended-recorder-settings)
 - [Uninstall](#uninstall)
 
@@ -103,6 +104,12 @@ The dashboard path **must** be `theme-studio`; the navigation bar links to `/the
 
 Theme Studio copies its managed files into `/config` when the integration starts. Home Assistant has already loaded the package by then, so **restart twice after an update** to run the new package.
 
+**Upgrading to 0.6.** The editor values now live in entities owned by the integration (`number.`, `text.`, `switch.`, `select.` and `button.theme_studio_*`) instead of YAML helpers (`input_number.` … `input_button.theme_studio_*`). The object ids are unchanged; only the domain changes.
+
+1. Update in HACS and restart. The new entities copy their values from the old helpers, which are still loaded at this point.
+2. Restart again. The new package loads and the old helpers, `shell_command`s and `command_line` sensors disappear.
+3. If your own dashboards or automations use Theme Studio helpers, change the domain (for example `input_text.theme_studio_theme_base_color` -> `text.theme_studio_theme_base_color`). The sensors are renamed to `sensor.theme_studio_preset_catalog`, `sensor.theme_studio_user_theme_catalog`, `sensor.theme_studio_background_image_catalog` and `sensor.theme_studio_active_preset`.
+
 ## Workflow
 
 1. Open Theme Studio dashboard.
@@ -121,7 +128,8 @@ Theme Studio copies its managed files into `/config` when the integration starts
 
 - **Managed files are overwritten on start.** The package, dashboard, presets, CLI script and bundled theme are refreshed every time the integration starts. A changed file is backed up first as `<file>.bak_YYYYMMDD_HHMMSS`. Turn off *Overwrite managed files* in the integration options to keep your own edits. User themes in `/config/theme_studio/user_themes/` are never touched.
 - **Editor state survives restarts.** The studio keeps your current values and selected theme when Home Assistant restarts.
-- **Your default theme is left alone.** Theme Studio only sets *Theme Studio Dynamic* as the Home Assistant default theme when `input_boolean.theme_studio_set_as_default_theme` is on (off by default).
+- **Your default theme is left alone.** Theme Studio only sets *Theme Studio Dynamic* as the Home Assistant default theme when `switch.theme_studio_set_as_default_theme` is on (off by default).
+- **No shell commands.** Generating, saving, copying, deleting and building themes run inside the integration as services (see [Services](#services)). Nothing starts a `python3` subprocess, and the live theme is only reloaded on your screens when it actually changed.
 - **No global layout CSS.** Themes no longer hide the header, change view padding, blur every card or limit the width of sidebar views. Use [Kiosk Mode](https://github.com/NemesisRE/kiosk-mode) or your own card-mod if you want that.
 
 ## File Structure
@@ -138,7 +146,7 @@ Theme Studio automatically installs the following folders:
 /config/themes/theme_studio_standard.yaml         Theme Studio Standard, light + dark (managed)
 /config/themes/theme_studio/theme_studio_dynamic.yaml   live preview theme
 /config/themes/theme_studio/<your_theme>.yaml     built themes
-/config/packages/theme_studio_dynamic.yaml        helpers, scripts, automations (managed)
+/config/packages/theme_studio_dynamic.yaml        scripts, automations, template sensors (managed)
 /config/lovelace/theme_studio_dashboard.yaml      dashboard (managed)
 /config/www/background/                           background images
 ```
@@ -190,9 +198,22 @@ card_mod:
     }
 ```
 
+## Services
+
+| Service | What it does |
+| --- | --- |
+| `theme_studio.generate` | Builds the live preview theme from the editor entities. Reloads themes only when the file changed. |
+| `theme_studio.save_preset` | Saves the active variant (light or dark) of a user theme. |
+| `theme_studio.copy_preset` | Creates a new user theme from a preset or user theme. Never overwrites an existing one. |
+| `theme_studio.delete_user_theme` | Deletes a user theme and its built theme file. |
+| `theme_studio.build_theme` | Exports a user theme or preset with light and dark mode to `/config/themes/theme_studio/`. |
+| `theme_studio.refresh_catalogs` | Rereads presets, user themes and background images. |
+| `theme_studio.set_options` | Replaces the option list of a Theme Studio select. |
+| `theme_studio.initialize_assets` / `theme_studio.reinstall_assets` | Installs the managed files again and returns what changed. |
+
 ## Recommended recorder settings
 
-Theme Studio uses about 280 helpers that change often while you edit. Keep them out of the database:
+Theme Studio uses about 280 editor entities that change often while you edit. Keep them out of the database:
 
 ```yaml
 recorder:
@@ -203,9 +224,9 @@ recorder:
 
 ## Uninstall
 
-1. Remove the integration in Settings -> Devices & Services and uninstall it in HACS.
-2. Remove the `theme-studio` dashboard block from `configuration.yaml`.
-3. Delete the managed files listed under [File Structure](#file-structure). Keep `/config/theme_studio/user_themes/` and `/config/themes/theme_studio/` if you want your themes.
+1. Remove the integration in Settings -> Devices & Services. Theme Studio deletes its managed files (package, dashboard, presets, CLI script, bundled themes, live theme and their `.bak_*` backups). Your user themes in `/config/theme_studio/user_themes/`, built themes in `/config/themes/theme_studio/` and images in `/config/www/background/` are kept.
+2. Uninstall it in HACS.
+3. Remove the `theme-studio` dashboard block from `configuration.yaml`.
 4. Restart Home Assistant.
 
 ## Functions

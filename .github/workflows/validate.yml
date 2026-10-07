@@ -23,6 +23,8 @@ jobs:
           test -f custom_components/theme_studio/const.py
           test -f custom_components/theme_studio/services.yaml
           test -f custom_components/theme_studio/asset_manager.py
+          test -f custom_components/theme_studio/engine.py
+          test -f custom_components/theme_studio/helpers.json
           test -f custom_components/theme_studio/brand/icon.png
           test -d custom_components/theme_studio/templates
           test -d custom_components/theme_studio/templates/packages
@@ -33,3 +35,27 @@ jobs:
           test -d custom_components/theme_studio/templates/theme_studio/scripts
           test -d custom_components/theme_studio/templates/theme_studio/user_themes
           test -f custom_components/theme_studio/templates/theme_studio/user_themes/.gitkeep
+
+  hassfest:
+    name: Validate with hassfest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Run hassfest
+        uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    name: Validate with HACS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run HACS validation
+        uses: hacs/action@main
+        with:
+          category: integration
+          # brands: the icon ships in custom_components/theme_studio/brand.
+          # topics: add GitHub topics to the repository, then remove this.
+          ignore: brands topics

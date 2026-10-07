@@ -1,0 +1,2740 @@
+{
+ "version": 1,
+ "helpers": [
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - contrast",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_tone",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - tone",
+   "min": -25,
+   "max": 25,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_accent_strength",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - accent strength",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_neutrality",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - neutrality",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_card_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - card opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 88.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_blur_strength",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - blur strength",
+   "min": 0,
+   "max": 30,
+   "step": 1,
+   "mode": "slider",
+   "default": 17.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_radius",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - radius",
+   "min": 0,
+   "max": 32,
+   "step": 1,
+   "mode": "slider",
+   "default": 28.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_chip_radius",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - chip radius",
+   "min": 0,
+   "max": 32,
+   "step": 1,
+   "mode": "slider",
+   "default": 20.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_overlay_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - overlay contrast",
+   "min": 1,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 22.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_background_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - background contrast",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_header_blend_height",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - header blend height",
+   "min": 80,
+   "max": 320,
+   "step": 1,
+   "mode": "slider",
+   "default": 170.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_overlay_offset_y",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - overlay start from top",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 29.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_overlay_scale",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - overlay size",
+   "min": 50,
+   "max": 200,
+   "step": 1,
+   "mode": "slider",
+   "default": 100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_overlay_spread",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - overlay spread",
+   "min": 50,
+   "max": 200,
+   "step": 1,
+   "mode": "slider",
+   "default": 100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_accent_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - accent contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_card_bg_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - card background contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_bubble_bg_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - bubble background contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_popup_bg_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - popup background contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_surface_lift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - surface lift",
+   "min": -30,
+   "max": 30,
+   "step": 1,
+   "mode": "slider",
+   "unit": "%",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_surface_lift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - surface lift",
+   "min": -30,
+   "max": 30,
+   "step": 1,
+   "mode": "slider",
+   "unit": "%",
+   "default": -30.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_surface_lift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - surface lift",
+   "min": -30,
+   "max": 30,
+   "step": 1,
+   "mode": "slider",
+   "unit": "%",
+   "default": -30.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_accent_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - accent contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_accent_strength",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - accent strength",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_background_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - background contrast",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_header_blend_height",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - header blend height",
+   "min": 80,
+   "max": 320,
+   "step": 1,
+   "mode": "slider",
+   "default": 80.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_overlay_offset_y",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - overlay start from top",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_overlay_scale",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - overlay size",
+   "min": 50,
+   "max": 200,
+   "step": 1,
+   "mode": "slider",
+   "default": 50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_overlay_spread",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - overlay spread",
+   "min": 50,
+   "max": 200,
+   "step": 1,
+   "mode": "slider",
+   "default": 50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_blur_strength",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - blur strength",
+   "min": 0,
+   "max": 30,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_bubble_bg_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - bubble background contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_card_bg_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - card background contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_card_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - card opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_chip_radius",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - chip radius",
+   "min": 0,
+   "max": 32,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - contrast",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_neutrality",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - neutrality",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_overlay_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - overlay contrast",
+   "min": 1,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 1.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_popup_bg_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - popup background contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_radius",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - radius",
+   "min": 0,
+   "max": 32,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_tone",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - tone",
+   "min": -25,
+   "max": 25,
+   "step": 1,
+   "mode": "slider",
+   "default": -25.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_accent_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - accent contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_accent_strength",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - accent strength",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_background_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - background contrast",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_header_blend_height",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - header blend height",
+   "min": 80,
+   "max": 320,
+   "step": 1,
+   "mode": "slider",
+   "default": 80.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_overlay_offset_y",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - overlay start from top",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_overlay_scale",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - overlay size",
+   "min": 50,
+   "max": 200,
+   "step": 1,
+   "mode": "slider",
+   "default": 50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_overlay_spread",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - overlay spread",
+   "min": 50,
+   "max": 200,
+   "step": 1,
+   "mode": "slider",
+   "default": 50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_blur_strength",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - blur strength",
+   "min": 0,
+   "max": 30,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_bubble_bg_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - bubble background contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_card_bg_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - card background contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_card_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - card opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_chip_radius",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - chip radius",
+   "min": 0,
+   "max": 32,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - contrast",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_neutrality",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - neutrality",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_overlay_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - overlay contrast",
+   "min": 1,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 1.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_popup_bg_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - popup background contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_radius",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - radius",
+   "min": 0,
+   "max": 32,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_tone",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - tone",
+   "min": -25,
+   "max": 25,
+   "step": 1,
+   "mode": "slider",
+   "default": -25.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_picker_red",
+   "legacy_domain": "input_number",
+   "name": "theme_studio picker - red",
+   "reset_on_start": true,
+   "min": 0,
+   "max": 255,
+   "step": 1,
+   "mode": "slider",
+   "default": 52.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_picker_green",
+   "legacy_domain": "input_number",
+   "name": "theme_studio picker - green",
+   "reset_on_start": true,
+   "min": 0,
+   "max": 255,
+   "step": 1,
+   "mode": "slider",
+   "default": 67.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_picker_blue",
+   "legacy_domain": "input_number",
+   "name": "theme_studio picker - blue",
+   "reset_on_start": true,
+   "min": 0,
+   "max": 255,
+   "step": 1,
+   "mode": "slider",
+   "default": 52.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_accent_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - accent hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_accent_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - accent saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_card_bg_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - card bg hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_card_bg_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - card bg saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_bubble_bg_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - bubble bg hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_bubble_bg_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - bubble bg saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_popup_bg_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - popup bg hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_popup_bg_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - popup bg saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_bubble_bg_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - bubble bg opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 92.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_popup_bg_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - popup bg opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 92.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_navbar_bg_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - navbar bg opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 85.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_border_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - border contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_border_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - border hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_border_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - border saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_border_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - border opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 28.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_border_size",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - border size",
+   "min": 0,
+   "max": 12,
+   "step": 1,
+   "mode": "slider",
+   "default": 4.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_shadow_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - shadow contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_shadow_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - shadow hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_shadow_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - shadow saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_shadow_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - shadow opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 42.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_shadow_size",
+   "legacy_domain": "input_number",
+   "name": "theme_studio theme - shadow size",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 40.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_border_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - border contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_border_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - border hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_border_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - border saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_border_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - border opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_border_size",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - border size",
+   "min": 0,
+   "max": 12,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_shadow_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - shadow contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_shadow_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - shadow hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_shadow_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - shadow saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_shadow_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - shadow opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_shadow_size",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - shadow size",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_border_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - border contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_border_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - border hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_border_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - border saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_border_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - border opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_border_size",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - border size",
+   "min": 0,
+   "max": 12,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_shadow_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - shadow contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_shadow_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - shadow hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_shadow_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - shadow saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_shadow_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - shadow opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_shadow_size",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - shadow size",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_navbar_bg_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - navbar bg opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_navbar_bg_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - navbar bg opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_accent_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - accent hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_accent_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - accent saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_card_bg_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - card bg hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_card_bg_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - card bg saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_bubble_bg_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - bubble bg hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_bubble_bg_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - bubble bg saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_popup_bg_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - popup bg hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_popup_bg_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - popup bg saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_bubble_bg_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - bubble bg opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_popup_bg_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio light - popup bg opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_accent_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - accent hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_accent_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - accent saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_card_bg_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - card bg hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_card_bg_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - card bg saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_bubble_bg_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - bubble bg hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_bubble_bg_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - bubble bg saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_popup_bg_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - popup bg hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_popup_bg_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - popup bg saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_bubble_bg_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - bubble bg opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_popup_bg_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme_studio dark - popup bg opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_bubble_slider_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme studio theme - bubble slider contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_bubble_slider_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme studio theme - bubble slider hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_bubble_slider_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme studio theme - bubble slider saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_theme_bubble_slider_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme studio theme - bubble slider opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_bubble_slider_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme studio light - bubble slider contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_bubble_slider_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme studio light - bubble slider hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_bubble_slider_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme studio light - bubble slider saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_light_bubble_slider_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme studio light - bubble slider opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_bubble_slider_contrast",
+   "legacy_domain": "input_number",
+   "name": "theme studio dark - bubble slider contrast",
+   "min": -100,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": -100.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_bubble_slider_hue_shift",
+   "legacy_domain": "input_number",
+   "name": "theme studio dark - bubble slider hue shift",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "mode": "slider",
+   "default": -180.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_bubble_slider_saturation",
+   "legacy_domain": "input_number",
+   "name": "theme studio dark - bubble slider saturation",
+   "min": -50,
+   "max": 50,
+   "step": 1,
+   "mode": "slider",
+   "default": -50.0
+  },
+  {
+   "platform": "number",
+   "key": "theme_studio_dark_bubble_slider_opacity",
+   "legacy_domain": "input_number",
+   "name": "theme studio dark - bubble slider opacity",
+   "min": 0,
+   "max": 100,
+   "step": 1,
+   "mode": "slider",
+   "default": 0.0
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_base_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - base color",
+   "max": 9,
+   "default": "#344334"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_custom_background_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - custom background color",
+   "max": 9,
+   "default": "#344334"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_background_image_url",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - background image url",
+   "max": 255,
+   "default": "/local/background/CloudWhite.png"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_custom_text_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - custom text color",
+   "max": 9,
+   "default": "#ffffff"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_custom_icon_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - custom icon color",
+   "max": 9,
+   "default": "#ffffff"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_custom_navbar_icon_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - custom navbar icon color",
+   "max": 9,
+   "default": "#ffffff"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_navbar_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - navbar background override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_bubble_slider_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - bubble slider color override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_accent_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - accent color override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_card_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - card background override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_bubble_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - bubble background override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_popup_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - popup background override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_secondary_background_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - secondary background color override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_secondary_text_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - secondary text color override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_disabled_text_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - disabled text color override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_app_header_background_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - app header background color override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_app_header_text_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - app header text color override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_divider_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - divider color override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_sidebar_icon_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - sidebar icon color override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_state_icon_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - state icon color override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_state_icon_active_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - state icon active color override",
+   "max": 16,
+   "default": "auto"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_accent_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - accent color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_background_image_url",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - background image url",
+   "max": 255,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_base_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - base color",
+   "max": 9,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_bubble_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - bubble background override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_card_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - card background override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_custom_background_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - custom background color",
+   "max": 9,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_custom_icon_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - custom icon color",
+   "max": 9,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_custom_navbar_icon_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - custom navbar icon color",
+   "max": 9,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_navbar_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - navbar background override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_bubble_slider_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - bubble slider color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_custom_text_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - custom text color",
+   "max": 9,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_popup_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - popup background override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_secondary_background_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - secondary background color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_secondary_text_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - secondary text color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_disabled_text_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - disabled text color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_app_header_background_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - app header background color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_app_header_text_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - app header text color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_divider_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - divider color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_sidebar_icon_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - sidebar icon color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_state_icon_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - state icon color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_state_icon_active_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - state icon active color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_accent_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - accent color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_background_image_url",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - background image url",
+   "max": 255,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_base_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - base color",
+   "max": 9,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_bubble_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - bubble background override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_card_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - card background override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_custom_background_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - custom background color",
+   "max": 9,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_custom_icon_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - custom icon color",
+   "max": 9,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_custom_navbar_icon_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - custom navbar icon color",
+   "max": 9,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_navbar_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - navbar background override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_bubble_slider_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - bubble slider color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_custom_text_color",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - custom text color",
+   "max": 9,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_popup_bg_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - popup background override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_secondary_background_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - secondary background color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_secondary_text_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - secondary text color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_disabled_text_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - disabled text color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_app_header_background_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - app header background color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_app_header_text_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - app header text color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_divider_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - divider color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_sidebar_icon_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - sidebar icon color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_state_icon_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - state icon color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_state_icon_active_color_override",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - state icon active color override",
+   "max": 16,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_primary_font_family",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - primary font family",
+   "max": 100,
+   "default": "sans-serif"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_custom_font_family",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - custom font family",
+   "max": 100,
+   "default": "CustomFont"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_custom_font_path",
+   "legacy_domain": "input_text",
+   "name": "theme_studio theme - custom font path",
+   "max": 255,
+   "default": "/local/fonts/custom-font.woff2"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_primary_font_family",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - primary font family",
+   "max": 100,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_custom_font_family",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - custom font family",
+   "max": 100,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_light_custom_font_path",
+   "legacy_domain": "input_text",
+   "name": "theme_studio light - custom font path",
+   "max": 255,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_primary_font_family",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - primary font family",
+   "max": 100,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_custom_font_family",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - custom font family",
+   "max": 100,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_dark_custom_font_path",
+   "legacy_domain": "input_text",
+   "name": "theme_studio dark - custom font path",
+   "max": 255,
+   "default": ""
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_theme_name",
+   "legacy_domain": "input_text",
+   "name": "Theme Studio - theme name",
+   "max": 100,
+   "default": "My Theme"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_loaded_variant",
+   "legacy_domain": "input_text",
+   "name": "Theme Studio - loaded variant",
+   "max": 16,
+   "default": "Dark"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_selected_user_theme",
+   "legacy_domain": "input_text",
+   "name": "Theme Studio - selected user theme",
+   "max": 100,
+   "default": "None"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_busy_message",
+   "legacy_domain": "input_text",
+   "name": "Theme Studio - busy message",
+   "reset_on_start": true,
+   "max": 255,
+   "default": "Idle"
+  },
+  {
+   "platform": "text",
+   "key": "theme_studio_pending_new_theme_name",
+   "legacy_domain": "input_text",
+   "name": "Theme Studio - pending new theme name",
+   "reset_on_start": true,
+   "max": 100,
+   "default": ""
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_theme_use_custom_background_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio theme - use custom background color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_theme_use_background_image",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio theme - use background image",
+   "default": true
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_theme_enable_header_blend",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio theme - enable header blend",
+   "default": true
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_theme_use_custom_text_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio theme - use custom text color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_theme_use_custom_icon_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio theme - use custom icon color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_theme_use_custom_navbar_icon_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio theme - use custom navbar icon color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_theme_preview_toggle",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio theme - preview toggle",
+   "default": true
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_light_preview_toggle",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio light - preview toggle",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_light_use_background_image",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio light - use background image",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_light_enable_header_blend",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio light - enable header blend",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_light_use_custom_background_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio light - use custom background color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_light_use_custom_icon_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio light - use custom icon color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_light_use_custom_navbar_icon_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio light - use custom navbar icon color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_light_use_custom_text_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio light - use custom text color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_dark_preview_toggle",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio dark - preview toggle",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_dark_use_background_image",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio dark - use background image",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_dark_enable_header_blend",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio dark - enable header blend",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_dark_use_custom_background_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio dark - use custom background color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_dark_use_custom_icon_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio dark - use custom icon color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_dark_use_custom_navbar_icon_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio dark - use custom navbar icon color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_theme_use_custom_font",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio theme - use custom font",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_light_use_custom_font",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio light - use custom font",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_dark_use_custom_font",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio dark - use custom font",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_dark_use_custom_text_color",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio dark - use custom text color",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_help_mode",
+   "legacy_domain": "input_boolean",
+   "name": "Theme Studio Help",
+   "icon": "mdi:help-circle-outline",
+   "default": true
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_preview_landscape",
+   "legacy_domain": "input_boolean",
+   "name": "Theme Studio Preview Landscape",
+   "icon": "mdi:tablet-dashboard",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_theme_bubble_use_fx",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio theme - bubble use surface fx",
+   "default": true
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_theme_popup_use_fx",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio theme - popup use surface fx",
+   "default": true
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_light_bubble_use_fx",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio light - bubble use surface fx",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_light_popup_use_fx",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio light - popup use surface fx",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_dark_bubble_use_fx",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio dark - bubble use surface fx",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_dark_popup_use_fx",
+   "legacy_domain": "input_boolean",
+   "name": "theme_studio dark - popup use surface fx",
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_busy",
+   "legacy_domain": "input_boolean",
+   "name": "Theme Studio - busy",
+   "reset_on_start": true,
+   "default": false
+  },
+  {
+   "platform": "switch",
+   "key": "theme_studio_set_as_default_theme",
+   "legacy_domain": "input_boolean",
+   "name": "Theme Studio - set as default theme",
+   "icon": "mdi:palette-swatch-variant",
+   "default": false
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_theme_background_overlay",
+   "legacy_domain": "input_select",
+   "name": "theme_studio theme - background overlay",
+   "options": [
+    "none",
+    "soft_veil",
+    "mesh_glow",
+    "vignette",
+    "aurora",
+    "aurora_vertical",
+    "spotlight",
+    "diagonal_fade",
+    "topographic",
+    "mist",
+    "frost",
+    "dual_orb",
+    "soft_stripes",
+    "cinematic",
+    "halo"
+   ],
+   "default": "diagonal_fade"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_theme_preview_mode",
+   "legacy_domain": "input_select",
+   "name": "theme_studio theme - preview mode",
+   "options": [
+    "Relaxed",
+    "Focused",
+    "Vibrant"
+   ],
+   "default": "Relaxed"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_light_background_overlay",
+   "legacy_domain": "input_select",
+   "name": "theme_studio light - background overlay",
+   "options": [
+    "none",
+    "soft_veil",
+    "mesh_glow",
+    "vignette",
+    "aurora",
+    "aurora_vertical",
+    "spotlight",
+    "diagonal_fade",
+    "topographic",
+    "mist",
+    "frost",
+    "dual_orb",
+    "soft_stripes",
+    "cinematic",
+    "halo"
+   ],
+   "default": "none"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_light_preview_mode",
+   "legacy_domain": "input_select",
+   "name": "theme_studio light - preview mode",
+   "options": [
+    "Relaxed",
+    "Focused",
+    "Vibrant"
+   ],
+   "default": "Relaxed"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_dark_background_overlay",
+   "legacy_domain": "input_select",
+   "name": "theme_studio dark - background overlay",
+   "options": [
+    "none",
+    "soft_veil",
+    "mesh_glow",
+    "vignette",
+    "aurora",
+    "aurora_vertical",
+    "spotlight",
+    "diagonal_fade",
+    "topographic",
+    "mist",
+    "frost",
+    "dual_orb",
+    "soft_stripes",
+    "cinematic",
+    "halo"
+   ],
+   "default": "none"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_dark_preview_mode",
+   "legacy_domain": "input_select",
+   "name": "theme_studio dark - preview mode",
+   "options": [
+    "Relaxed",
+    "Focused",
+    "Vibrant"
+   ],
+   "default": "Relaxed"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_theme_presets",
+   "legacy_domain": "input_select",
+   "name": "Theme Studio - theme presets",
+   "options": [
+    "None",
+    "Default",
+    "Glass",
+    "MD3",
+    "Dark Blue",
+    "Flavors",
+    "Vision",
+    "Dark Green",
+    "Purple",
+    "Pink Mono",
+    "Black White",
+    "Aurora"
+   ],
+   "default": "Default"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_user_themes",
+   "legacy_domain": "input_select",
+   "name": "Theme Studio - user themes",
+   "options": [
+    "None"
+   ],
+   "default": "None"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_theme_background_image_select",
+   "legacy_domain": "input_select",
+   "name": "theme_studio theme - background image",
+   "options": [
+    "CloudWhite.png",
+    "CloudBlack.png"
+   ],
+   "default": "CloudWhite.png"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_theme_border_type",
+   "legacy_domain": "input_select",
+   "name": "theme_studio theme - border type",
+   "options": [
+    "none",
+    "soft_hairline",
+    "glass_edge",
+    "etched",
+    "inner_glow",
+    "accent_line",
+    "double_line",
+    "bevel_edge",
+    "glow_line"
+   ],
+   "default": "soft_hairline"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_theme_shadow_type",
+   "legacy_domain": "input_select",
+   "name": "theme_studio theme - shadow effect",
+   "options": [
+    "none",
+    "soft_depth",
+    "glass_glow",
+    "ambient_lift",
+    "neon_glow",
+    "studio_depth",
+    "drop_shadow",
+    "soft_float",
+    "cinematic_depth"
+   ],
+   "default": "glass_glow"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_light_border_type",
+   "legacy_domain": "input_select",
+   "name": "theme_studio light - border type",
+   "options": [
+    "none",
+    "soft_hairline",
+    "glass_edge",
+    "etched",
+    "inner_glow",
+    "accent_line",
+    "double_line",
+    "bevel_edge",
+    "glow_line"
+   ],
+   "default": "none"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_light_shadow_type",
+   "legacy_domain": "input_select",
+   "name": "theme_studio light - shadow effect",
+   "options": [
+    "none",
+    "soft_depth",
+    "glass_glow",
+    "ambient_lift",
+    "neon_glow",
+    "studio_depth",
+    "drop_shadow",
+    "soft_float",
+    "cinematic_depth"
+   ],
+   "default": "none"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_dark_border_type",
+   "legacy_domain": "input_select",
+   "name": "theme_studio dark - border type",
+   "options": [
+    "none",
+    "soft_hairline",
+    "glass_edge",
+    "etched",
+    "inner_glow",
+    "accent_line",
+    "double_line",
+    "bevel_edge",
+    "glow_line"
+   ],
+   "default": "none"
+  },
+  {
+   "platform": "select",
+   "key": "theme_studio_dark_shadow_type",
+   "legacy_domain": "input_select",
+   "name": "theme_studio dark - shadow effect",
+   "options": [
+    "none",
+    "soft_depth",
+    "glass_glow",
+    "ambient_lift",
+    "neon_glow",
+    "studio_depth",
+    "drop_shadow",
+    "soft_float",
+    "cinematic_depth"
+   ],
+   "default": "none"
+  },
+  {
+   "platform": "button",
+   "key": "theme_studio_theme_regenerate",
+   "legacy_domain": "input_button",
+   "name": "theme_studio theme - regenerate now"
+  },
+  {
+   "platform": "button",
+   "key": "theme_studio_theme_save_light_theme",
+   "legacy_domain": "input_button",
+   "name": "theme_studio theme - save light theme"
+  },
+  {
+   "platform": "button",
+   "key": "theme_studio_theme_save_dark_theme",
+   "legacy_domain": "input_button",
+   "name": "theme_studio theme - save dark theme"
+  },
+  {
+   "platform": "button",
+   "key": "theme_studio_theme_save_current",
+   "legacy_domain": "input_button",
+   "name": "theme_studio theme - save current theme"
+  },
+  {
+   "platform": "button",
+   "key": "theme_studio_theme_load_light_theme",
+   "legacy_domain": "input_button",
+   "name": "theme_studio theme - load light theme"
+  },
+  {
+   "platform": "button",
+   "key": "theme_studio_theme_load_dark_theme",
+   "legacy_domain": "input_button",
+   "name": "theme_studio theme - load dark theme"
+  },
+  {
+   "platform": "button",
+   "key": "theme_studio_new_theme",
+   "legacy_domain": "input_button",
+   "name": "Theme Studio - new theme"
+  },
+  {
+   "platform": "button",
+   "key": "theme_studio_delete_theme",
+   "legacy_domain": "input_button",
+   "name": "Theme Studio - delete theme"
+  },
+  {
+   "platform": "button",
+   "key": "theme_studio_build_theme",
+   "legacy_domain": "input_button",
+   "name": "Theme Studio - build theme"
+  },
+  {
+   "platform": "button",
+   "key": "theme_studio_refresh_theme_presets",
+   "legacy_domain": "input_button",
+   "name": "Theme Studio - refresh theme presets"
+  }
+ ]
+}

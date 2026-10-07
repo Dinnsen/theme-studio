@@ -14,7 +14,8 @@
       "single_instance_allowed": "Only one Theme Studio instance is allowed."
     },
     "abort": {
-      "single_instance_allowed": "Theme Studio is already configured."
+      "single_instance_allowed": "Theme Studio is already configured.",
+      "already_configured": "Theme Studio is already configured."
     }
   },
   "options": {
@@ -27,6 +28,108 @@
           "backup": "Create backups before overwriting"
         }
       }
+    }
+  },
+  "services": {
+    "initialize_assets": {
+      "name": "Initialize assets",
+      "description": "Install or update the bundled Theme Studio files in /config. User themes are never overwritten.",
+      "fields": {
+        "overwrite": {
+          "name": "Overwrite managed files",
+          "description": "Update bundled files that already exist."
+        },
+        "backup": {
+          "name": "Backup existing files",
+          "description": "Create timestamped .bak files before overwriting."
+        }
+      }
+    },
+    "reinstall_assets": {
+      "name": "Reinstall assets",
+      "description": "Force reinstall the bundled Theme Studio files. User themes are never overwritten.",
+      "fields": {
+        "backup": {
+          "name": "Backup existing files",
+          "description": "Create timestamped .bak files before overwriting."
+        }
+      }
+    },
+    "generate": {
+      "name": "Generate live theme",
+      "description": "Build Theme Studio Dynamic from the current editor values and reload themes if it changed."
+    },
+    "save_preset": {
+      "name": "Save user theme",
+      "description": "Save the editor values as a user theme.",
+      "fields": {
+        "payload": {
+          "name": "Payload",
+          "description": "Theme name, active variant and the light/dark settings."
+        }
+      }
+    },
+    "copy_preset": {
+      "name": "Copy preset",
+      "description": "Create a new user theme from a preset or user theme.",
+      "fields": {
+        "source": {
+          "name": "Source",
+          "description": "Preset or user theme to copy."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Name of the new user theme."
+        }
+      }
+    },
+    "delete_user_theme": {
+      "name": "Delete user theme",
+      "description": "Delete a user theme and its built theme file.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "User theme to delete."
+        }
+      }
+    },
+    "build_theme": {
+      "name": "Build theme",
+      "description": "Export a preset or user theme as a Home Assistant theme with light and dark mode.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "Preset or user theme to build."
+        }
+      }
+    },
+    "refresh_catalogs": {
+      "name": "Refresh catalogs",
+      "description": "Re-read presets, user themes and background images."
+    },
+    "set_options": {
+      "name": "Set options",
+      "description": "Replace the options of a Theme Studio select.",
+      "fields": {
+        "options": {
+          "name": "Options",
+          "description": "New list of options."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "not_loaded": {
+      "message": "Theme Studio is not set up."
+    },
+    "invalid_payload": {
+      "message": "The payload must be an object with the theme settings."
+    },
+    "invalid_option": {
+      "message": "{option} is not an option of {entity_id}."
+    },
+    "preset_not_found": {
+      "message": "Preset or user theme {name} was not found ({error})."
     }
   }
 }
