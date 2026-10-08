@@ -372,14 +372,14 @@ export const SECTIONS: Section[] = [
       {
         id: "font",
         title: "Font",
-        hint: "Fonts other than System and Sans-serif need to be added as a dashboard resource; see Fonts in the README.",
+        hint: "Theme Studio loads these fonts in Home Assistant for you; nothing to add as a resource. Orbitron has no ø/Ø of its own.",
         controls: [{ type: "fonts" }],
       },
       {
         id: "custom-font",
         title: "Your own font",
         collapsible: true,
-        hint: "Put the font file in /config/www/fonts/ and add an @font-face stylesheet as a dashboard resource.",
+        hint: "Put the font file (.woff2, .woff, .ttf or .otf) in /config/www/fonts/ and enter /local/fonts/<file>. Theme Studio loads it for you.",
         controls: [
           { type: "switch", key: "use_custom_font", label: "Use my own font" },
           { type: "text", key: "custom_font_family", label: "Font family name", placeholder: "My Font" },
