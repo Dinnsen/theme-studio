@@ -358,7 +358,7 @@ export class ThemeStudioPanel extends LitElement {
       return "In use · everyone";
     }
     if (this._inUse.device === name) {
-      return "In use · this device";
+      return "In use · you";
     }
     return undefined;
   }
@@ -676,9 +676,9 @@ export class ThemeStudioPanel extends LitElement {
         slug: this._edit.slug,
         scope,
       });
-      // The same event the profile page's theme picker sends. For everyone,
-      // this device switches to "use the default theme", so the new default is
-      // visible here too (a theme picked in a profile would otherwise win).
+      // The same event the profile page's theme picker sends, so the change
+      // shows at once. For everyone this user follows the default theme (a
+      // theme picked in the profile would otherwise win).
       this.dispatchEvent(
         new CustomEvent("settheme", {
           detail: { theme: scope === "everyone" ? "" : result.theme },
@@ -695,7 +695,7 @@ export class ThemeStudioPanel extends LitElement {
       this._showToast(
         scope === "everyone"
           ? `“${result.theme}” is now the theme for everyone.`
-          : `“${result.theme}” is now used on this device.`,
+          : `“${result.theme}” is now your theme.`,
       );
     } catch (error) {
       this._showToast(`Could not use the theme: ${errorText(error)}`);
@@ -1864,8 +1864,8 @@ export class ThemeStudioPanel extends LitElement {
             <button class="btn icon" aria-label="Close" @click=${this._closeDialog}>${icon("close", 18)}</button>
           </div>
           <div class="opts two">
-            ${option("device", "phone", "This device", "Only the browser or app you are using now.")}
-            ${option("everyone", "home", "Everyone", "The default theme, also on this device. People who picked their own theme in their profile keep it.")}
+            ${option("device", "phone", "Just me", "Your profile, on all your devices. Others keep their theme.")}
+            ${option("everyone", "home", "Everyone", "The default theme. You follow it too; people who picked their own theme in their profile keep it.")}
           </div>
           <p class="hint">After more changes, use the theme again to update it everywhere it is used.</p>
           <div class="field">

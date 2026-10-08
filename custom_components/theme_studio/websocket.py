@@ -7,6 +7,7 @@ need an administrator and never touch the built-in presets.
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import voluptuous as vol
@@ -18,6 +19,8 @@ from .const import DOMAIN
 from .engine import ThemeEngine
 from .sharing import ImportError_
 from .theme_registry import async_reload_themes
+
+_LOGGER = logging.getLogger(__name__)
 
 WS_THEMES = f"{DOMAIN}/themes"
 WS_THEME = f"{DOMAIN}/theme"
@@ -319,7 +322,31 @@ async def ws_use(
             await hass.services.async_call(
                 "frontend", "set_theme", {"name": theme_name, "mode": mode}, blocking=True
             )
+    # The theme picked in a user's profile wins over the default theme. It is
+    # stored per user, so set it here too: "everyone" makes this user follow
+    # the default, "device" picks the theme for this user on all their devices.
+    await _async_set_user_theme(
+        hass, connection.user.id if connection.user else None,
+        "" if msg["scope"] == "everyone" else theme_name,
+    )
     connection.send_result(msg["id"], {"ok": True, "name": name, "theme": theme_name, "scope": msg["scope"]})
+
+
+async def _async_set_user_theme(hass: HomeAssistant, user_id: str | None, theme: str) -> None:
+    """Set the theme in a user's profile ("" = use the default theme)."""
+    if not user_id:
+        return
+    try:
+        from homeassistant.components.frontend.storage import async_user_store  # noqa: PLC0415
+
+        store = await async_user_store(hass, user_id)
+        current = store.data.get("theme")
+        value = dict(current) if isinstance(current, dict) else {}
+        value["theme"] = theme
+        await store.async_set_item("theme", value)
+    except (ImportError, AttributeError, OSError) as err:
+        # The panel also sets it in the browser; this only makes it stick.
+        _LOGGER.debug("Theme Studio could not set the profile theme: %s", err)
 
 
 @websocket_api.websocket_command({vol.Required("type"): WS_EXPORT, vol.Required("slug"): SLUG})
