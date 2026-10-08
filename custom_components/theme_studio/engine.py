@@ -665,6 +665,32 @@ class ThemeEngine:
                 built.append(target.name)
         return {"ok": True, "slug": slug, "name": name, "removed_theme_files": built}
 
+    def refresh_built_themes(self) -> list[str]:
+        """Rebuild theme files in /config/themes/theme_studio after an engine change.
+
+        Only themes that were built before (their file exists) are rebuilt,
+        and a file is only rewritten when its content changes.
+        """
+        rebuilt = []
+        for path, _builtin in self._theme_files():
+            try:
+                name = str(json.loads(path.read_text(encoding="utf-8")).get("name") or "").strip()
+            except (OSError, json.JSONDecodeError, AttributeError):
+                continue
+            if not name:
+                continue
+            target = self.theme_output_dir / f"{self.cli.slugify(name)}.yaml"
+            if not target.is_file():
+                continue
+            before = target.read_text(encoding="utf-8")
+            try:
+                self.build_theme(name)
+            except SystemExit:
+                continue
+            if target.read_text(encoding="utf-8") != before:
+                rebuilt.append(name)
+        return rebuilt
+
     def theme_name(self, slug: str) -> str | None:
         for path, _builtin in self._theme_files():
             if path.stem == slug:

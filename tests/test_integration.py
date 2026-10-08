@@ -754,3 +754,32 @@ def test_panel_options_include_themes_and_fonts() -> None:
     strings = json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))
     options = strings["options"]["step"]["init"]["data"]
     assert {const.CONF_REGISTER_THEMES, const.CONF_LOAD_FONTS} <= set(options)
+
+
+def test_themes_leave_icon_colours_to_the_cards(tmp_path) -> None:
+    """--icon-primary-color would override the colour every card gives its icons."""
+    engine, _ = engine_for(tmp_path)
+    for variant in ("light", "dark"):
+        variables = engine.theme_detail("default")[variant]["variables"]
+        assert "icon-primary-color" not in variables
+        assert "icon-secondary-color" not in variables
+    standard = (TEMPLATES / "themes" / "theme_studio_standard.yaml").read_text(encoding="utf-8")
+    assert "icon-primary-color" not in standard
+
+
+def test_built_themes_are_rebuilt_after_an_engine_change(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    engine.new_theme("glass", "Evening")
+    engine.new_theme("glass", "Never used")
+    engine.build_theme("Evening")
+    built = tmp_path / "themes" / "theme_studio" / "evening.yaml"
+    current = built.read_text(encoding="utf-8")
+
+    assert engine.refresh_built_themes() == []  # up to date: nothing rewritten
+
+    built.write_text(current.replace("  modes:\n", "  modes:\n    stale: true\n", 1), encoding="utf-8")
+    assert engine.refresh_built_themes() == ["Evening"]
+    assert built.read_text(encoding="utf-8") == current
+    # Themes that were never built are not built now.
+    assert not (tmp_path / "themes" / "theme_studio" / "never_used.yaml").exists()
+

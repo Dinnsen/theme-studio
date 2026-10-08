@@ -2,6 +2,12 @@
 
 All notable changes to Theme Studio. Versions follow [semantic versioning](https://semver.org/); the version is the one in `custom_components/theme_studio/manifest.json`.
 
+## [1.0.1] - 2026-10-08
+
+### Fixed
+- Icons kept the theme's icon colour even where a card sets its own (a lit lamp, a white logo on a dark badge, icons on pictures): themes no longer set `icon-primary-color` and `icon-secondary-color`.
+- Theme files you already use are rebuilt when Theme Studio starts, so fixes like this reach them without pressing *Use theme* again. Only themes with a file in `/config/themes/theme_studio/` are rebuilt, and only when their content changes.
+
 ## [1.0.0] - 2026-10-08
 
 Theme Studio is now the panel in the sidebar. Installing it is HACS, restart, add the integration; nothing has to be added to `configuration.yaml`.
@@ -90,6 +96,7 @@ Theme Studio is now the panel in the sidebar. Installing it is HACS, restart, ad
 
 Earlier versions (0.1–0.4, April–May 2026) built the original YAML dashboard and theme generator.
 
+[1.0.1]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.0
 [0.13.0]: https://github.com/Dinnsen/theme-studio/pull/43
 [0.12.1]: https://github.com/Dinnsen/theme-studio/pull/42
