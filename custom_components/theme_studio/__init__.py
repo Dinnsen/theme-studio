@@ -20,6 +20,7 @@ from .history import EditorHistory
 from .migration import find_orphaned_legacy_entities, find_retired_entities
 from .panel import async_register_panel, async_unregister_panel
 from .services import async_generate, async_setup_services
+from .upload import async_register_upload
 from .websocket import async_register_commands
 
 _LOGGER = logging.getLogger(__name__)
@@ -45,6 +46,7 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     """Register Theme Studio services and the panel's WebSocket commands."""
     async_setup_services(hass)
     async_register_commands(hass)
+    async_register_upload(hass)
     return True
 
 

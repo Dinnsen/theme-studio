@@ -366,6 +366,16 @@ export const editorStyles = css`
     cursor: pointer;
     width: 100%;
   }
+  .tr-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .tr-title {
+    font-weight: 600;
+    font-size: 14px;
+  }
   .switch {
     width: 46px;
     height: 28px;
@@ -509,6 +519,105 @@ export const editorStyles = css`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .tile {
+    border: 1px solid var(--ts-line);
+    background: var(--ts-panel2);
+    border-radius: 16px;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12.5px;
+    min-width: 0;
+  }
+  .tile:hover:not(:disabled) {
+    border-color: var(--ts-muted);
+  }
+  .tile.on {
+    border-color: var(--ts-sel);
+    box-shadow: 0 0 0 2px var(--ts-sel-soft);
+    background: var(--ts-panel);
+  }
+  .tile-label {
+    padding: 0 4px 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tile-art {
+    height: 64px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 14px;
+    overflow: hidden;
+    background-color: var(--primary-background-color, var(--ts-panel));
+  }
+  .tile-art.overlay {
+    background-image: var(--theme-studio-background-overlay-preview, none);
+    background-size: cover;
+  }
+  .tile-card {
+    width: 100%;
+    height: 100%;
+    background: var(--ha-card-background, var(--ts-panel));
+    border-radius: min(var(--ha-card-border-radius, 12px), 12px);
+    box-shadow: var(--ha-card-box-shadow, none);
+    border: var(--ha-card-border-width, 0px) solid var(--ha-card-border-color, transparent);
+  }
+  .font-art {
+    height: 64px;
+    border-radius: 11px;
+    background: var(--ts-panel);
+    border: 1px solid var(--ts-line);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 10px;
+    overflow: hidden;
+  }
+  .font-aa {
+    font-size: 22px;
+    line-height: 1.1;
+    font-weight: 600;
+  }
+  .font-sm {
+    font-size: 11.5px;
+    color: var(--ts-muted);
+    font-weight: 400;
+  }
+  .image.none,
+  .image.upload {
+    position: relative;
+    justify-content: flex-start;
+  }
+  .image-none {
+    height: 64px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    color: var(--ts-muted);
+    background: var(--ts-panel);
+    border: 1px dashed var(--ts-line);
+  }
+  .image.upload input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .image.upload.busy {
+    opacity: 0.6;
+  }
   .toast {
     position: fixed;
     left: 50%;
@@ -571,7 +680,8 @@ export const editorStyles = css`
     .opts {
       grid-template-columns: minmax(0, 1fr);
     }
-    .images {
+    .images,
+    .tiles {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .toast {

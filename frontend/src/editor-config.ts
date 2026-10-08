@@ -15,12 +15,19 @@ export interface RoleDef {
   colour?: string;
 }
 
+export type TilePreview = "border" | "shadow" | "overlay";
+
 export type Control =
   | { type: "base" }
-  | { type: "slider"; key: string; label?: string; ends?: [string, string] }
+  | { type: "slider"; key: string; label?: string; ends?: [string, string]; unit?: string }
   | { type: "segmented"; key: string; label: string; options: [string, string][]; hint?: string }
   | { type: "roles"; roles: RoleDef[] }
-  | { type: "mirror" };
+  | { type: "mirror" }
+  | { type: "switch"; key: string; label: string; hint?: string }
+  | { type: "text"; key: string; label: string; placeholder?: string; hint?: string }
+  | { type: "tiles"; key: string; preview: TilePreview; options: [string, string][]; fixed?: Record<string, string> }
+  | { type: "images" }
+  | { type: "fonts" };
 
 export interface Group {
   id: string;
@@ -30,15 +37,71 @@ export interface Group {
   controls: Control[];
 }
 
-export type SectionId = "colours" | "check";
+export type SectionId = "colours" | "surfaces" | "background" | "type" | "check";
 
 export interface Section {
   id: SectionId;
   label: string;
   icon: IconName;
   description: string;
+  /** Offer "Same for Light and Dark" in this section. */
+  linkable?: boolean;
   groups: Group[];
 }
+
+export const BORDER_TYPES: [string, string][] = [
+  ["none", "None"],
+  ["soft_hairline", "Hairline"],
+  ["glass_edge", "Glass edge"],
+  ["etched", "Etched"],
+  ["inner_glow", "Inner glow"],
+  ["accent_line", "Accent line"],
+  ["double_line", "Double line"],
+  ["bevel_edge", "Bevel"],
+  ["glow_line", "Glow line"],
+];
+
+export const SHADOW_TYPES: [string, string][] = [
+  ["none", "None"],
+  ["soft_depth", "Soft depth"],
+  ["glass_glow", "Glass glow"],
+  ["ambient_lift", "Ambient lift"],
+  ["neon_glow", "Neon glow"],
+  ["studio_depth", "Studio depth"],
+  ["drop_shadow", "Drop shadow"],
+  ["soft_float", "Soft float"],
+  ["cinematic_depth", "Cinematic"],
+];
+
+export const OVERLAYS: [string, string][] = [
+  ["none", "None"],
+  ["soft_veil", "Soft veil"],
+  ["mesh_glow", "Mesh glow"],
+  ["vignette", "Vignette"],
+  ["aurora", "Aurora"],
+  ["aurora_vertical", "Aurora vertical"],
+  ["spotlight", "Spotlight"],
+  ["diagonal_fade", "Diagonal fade"],
+  ["topographic", "Topographic"],
+  ["mist", "Mist"],
+  ["frost", "Frost"],
+  ["dual_orb", "Dual orb"],
+  ["soft_stripes", "Soft stripes"],
+  ["cinematic", "Cinematic"],
+  ["halo", "Halo"],
+];
+
+/** The font names the dashboard's font buttons use. */
+export const FONTS: [string, string][] = [
+  ["sans-serif", "Sans-serif"],
+  ["system-ui", "System"],
+  ["Roboto", "Roboto"],
+  ["Inter", "Inter"],
+  ["Quicksand", "Quicksand"],
+  ["Iosevka Charon Mono", "Iosevka"],
+  ["Josefin Sans", "Josefin Sans"],
+  ["Orbitron", "Orbitron"],
+];
 
 export const MAIN_ROLES: RoleDef[] = [
   {
@@ -183,6 +246,145 @@ export const SECTIONS: Section[] = [
         ],
       },
       { id: "mirror", title: "Light and Dark", controls: [{ type: "mirror" }] },
+    ],
+  },
+  {
+    id: "surfaces",
+    label: "Surfaces",
+    icon: "layers",
+    description: "Shape, glass, borders and shadows of cards, Bubble cards and pop-ups.",
+    linkable: true,
+    groups: [
+      {
+        id: "shape",
+        title: "Shape",
+        controls: [
+          { type: "slider", key: "radius", label: "Card corners", unit: "px" },
+          { type: "slider", key: "chip_radius", label: "Chip corners", unit: "px" },
+        ],
+      },
+      {
+        id: "glass",
+        title: "Glass",
+        hint: "Blur shows on see-through cards: lower the opacity first.",
+        controls: [
+          { type: "slider", key: "card_opacity", label: "Card opacity", unit: "%" },
+          { type: "slider", key: "blur_strength", label: "Glass blur", unit: "px" },
+          { type: "slider", key: "bubble_bg_opacity", label: "Bubble card opacity", unit: "%" },
+          { type: "slider", key: "popup_bg_opacity", label: "Pop-up opacity", unit: "%" },
+          { type: "slider", key: "navbar_bg_opacity", label: "Navbar opacity", unit: "%" },
+        ],
+      },
+      {
+        id: "border",
+        title: "Border",
+        hint: "The tiles show the border only.",
+        controls: [
+          { type: "tiles", key: "border_type", preview: "border", options: BORDER_TYPES, fixed: { shadow_type: "none" } },
+          { type: "slider", key: "border_size", label: "Border size" },
+          { type: "slider", key: "border_opacity", label: "Border opacity", unit: "%" },
+        ],
+      },
+      {
+        id: "border-fine",
+        title: "Border colour",
+        collapsible: true,
+        controls: [
+          { type: "slider", key: "border_contrast", label: "Contrast" },
+          { type: "slider", key: "border_hue_shift", label: "Hue shift" },
+          { type: "slider", key: "border_saturation", label: "Saturation" },
+        ],
+      },
+      {
+        id: "shadow",
+        title: "Shadow",
+        hint: "The tiles show the shadow only.",
+        controls: [
+          { type: "tiles", key: "shadow_type", preview: "shadow", options: SHADOW_TYPES, fixed: { border_type: "none" } },
+          { type: "slider", key: "shadow_size", label: "Shadow size" },
+          { type: "slider", key: "shadow_opacity", label: "Shadow opacity", unit: "%" },
+        ],
+      },
+      {
+        id: "shadow-fine",
+        title: "Shadow colour",
+        collapsible: true,
+        controls: [
+          { type: "slider", key: "shadow_contrast", label: "Contrast" },
+          { type: "slider", key: "shadow_hue_shift", label: "Hue shift" },
+          { type: "slider", key: "shadow_saturation", label: "Saturation" },
+        ],
+      },
+      {
+        id: "bubble",
+        title: "Bubble Card and pop-ups",
+        controls: [
+          { type: "switch", key: "bubble_use_fx", label: "Border and shadow on Bubble cards" },
+          { type: "switch", key: "popup_use_fx", label: "Border and shadow on pop-ups" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "background",
+    label: "Background",
+    icon: "image",
+    description: "A plain page colour or an image behind your dashboards. The page colour is under Colours.",
+    linkable: true,
+    groups: [
+      {
+        id: "image",
+        title: "Image",
+        controls: [
+          { type: "images" },
+          { type: "slider", key: "background_contrast", label: "Image visibility", ends: ["Page colour", "Full image"] },
+        ],
+      },
+      {
+        id: "overlay",
+        title: "Overlay",
+        controls: [
+          { type: "tiles", key: "background_overlay", preview: "overlay", options: OVERLAYS },
+          { type: "slider", key: "overlay_contrast", label: "Overlay strength" },
+          { type: "slider", key: "overlay_offset_y", label: "Overlay starts from the top", unit: "%" },
+          { type: "slider", key: "overlay_scale", label: "Overlay size", unit: "%" },
+          { type: "slider", key: "overlay_spread", label: "Overlay spread", unit: "%" },
+        ],
+      },
+      {
+        id: "header",
+        title: "Header",
+        controls: [
+          { type: "switch", key: "enable_header_blend", label: "Blend the header into the page" },
+          { type: "slider", key: "header_blend_height", label: "Blend height", unit: "px" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "type",
+    label: "Type",
+    icon: "type",
+    description: "The font your dashboards use.",
+    linkable: true,
+    groups: [
+      {
+        id: "font",
+        title: "Font",
+        hint: "Fonts other than System and Sans-serif need to be added as a dashboard resource; see Fonts in the README.",
+        controls: [{ type: "fonts" }],
+      },
+      {
+        id: "custom-font",
+        title: "Your own font",
+        collapsible: true,
+        hint: "Put the font file in /config/www/fonts/ and add an @font-face stylesheet as a dashboard resource.",
+        controls: [
+          { type: "switch", key: "use_custom_font", label: "Use my own font" },
+          { type: "text", key: "custom_font_family", label: "Font family name", placeholder: "My Font" },
+          { type: "text", key: "custom_font_path", label: "Font file", placeholder: "/local/fonts/my-font.woff2" },
+        ],
+      },
     ],
   },
   {

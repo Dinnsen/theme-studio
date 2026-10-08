@@ -8,9 +8,11 @@ import {
   manualValue,
   setAuto,
   setManual,
+  FONTS,
   type Control,
   type Group,
   type RoleDef,
+  type Section,
   type SectionId,
 } from "./editor-config";
 import { editorStyles } from "./editor-styles";
@@ -43,6 +45,14 @@ const SAVE_DELAY = 900;
 const PREVIEW_DELAY = 90;
 const COALESCE_MS = 800;
 const HISTORY_LIMIT = 60;
+const TILE_DELAY = 250;
+const LINK_STORAGE = "theme-studio-linked";
+const UPLOAD_URL = "/api/theme_studio/background";
+const UPLOAD_ERRORS: Record<string, string> = {
+  not_an_image: "That file is not an image.",
+  unsupported_format: "Use a PNG, JPEG, WebP or GIF image.",
+  too_large: "The image is larger than 15 MB.",
+};
 
 interface EditState {
   slug: string;
@@ -161,6 +171,8 @@ export class ThemeStudioPanel extends LitElement {
     _newImage: { state: true },
     _newName: { state: true },
     _backgrounds: { state: true },
+    _linked: { state: true },
+    _tiles: { state: true },
   };
 
   static override styles = [panelStyles, mockStyles, editorStyles];
@@ -196,6 +208,8 @@ export class ThemeStudioPanel extends LitElement {
   declare _newImage?: string;
   declare _newName: string;
   declare _backgrounds?: Background[];
+  declare _linked: Set<string>;
+  declare _tiles: Record<string, { signature: string; options: Record<string, Record<string, string>> }>;
 
   private _schema = new Map<string, SchemaItem>();
   private _schemaLoading = false;
@@ -211,6 +225,9 @@ export class ThemeStudioPanel extends LitElement {
   private _lastTime = 0;
   private _libraryStale = false;
   private _toastTimer?: number;
+  private _wantedTiles = new Map<string, Extract<Control, { type: "tiles" }>>();
+  private _tileTimer?: number;
+  private _tileSeq = 0;
 
   constructor() {
     super();
@@ -232,6 +249,16 @@ export class ThemeStudioPanel extends LitElement {
     this._newSource = "default";
     this._newColour = "#3A6EA5";
     this._newName = "";
+    this._tiles = {};
+    this._linked = new Set();
+    try {
+      const stored = JSON.parse(window.localStorage.getItem(LINK_STORAGE) ?? "[]");
+      if (Array.isArray(stored)) {
+        this._linked = new Set(stored.map(String));
+      }
+    } catch {
+      // Private mode or blocked storage: links are not remembered.
+    }
   }
 
   override disconnectedCallback(): void {
@@ -262,6 +289,9 @@ export class ThemeStudioPanel extends LitElement {
     if (this.hass && slug && slug !== this._detailSlug) {
       void this._loadDetail(slug);
     }
+    if (changed.has("_section") && this._section === "background") {
+      void this._loadBackgrounds();
+    }
     if (!slug && this._libraryStale && changed.has("route")) {
       this._libraryStale = false;
       void this._loadThemes();
@@ -271,6 +301,10 @@ export class ThemeStudioPanel extends LitElement {
   protected override updated(changed: PropertyValues<this>): void {
     if (changed.has("_previews")) {
       this._resolveProbe();
+    }
+    if (this._wantedTiles.size) {
+      window.clearTimeout(this._tileTimer);
+      this._tileTimer = window.setTimeout(() => void this._loadTiles(), TILE_DELAY);
     }
   }
 
@@ -687,6 +721,94 @@ export class ThemeStudioPanel extends LitElement {
     }
   }
 
+  private _isLinked(section: Section): boolean {
+    return Boolean(section.linkable && this._edit && this._linked.has(this._edit.slug));
+  }
+
+  private _targets(section: Section): Variant[] {
+    return this._isLinked(section) ? [...VARIANTS] : [this._variant];
+  }
+
+  private _toggleLinked(): void {
+    if (!this._edit) {
+      return;
+    }
+    const next = new Set(this._linked);
+    if (next.has(this._edit.slug)) {
+      next.delete(this._edit.slug);
+    } else {
+      next.add(this._edit.slug);
+    }
+    this._linked = next;
+    try {
+      window.localStorage.setItem(LINK_STORAGE, JSON.stringify([...next]));
+    } catch {
+      // Not remembered; it still works until the page is reloaded.
+    }
+  }
+
+  private _tileSignature(control: Extract<Control, { type: "tiles" }>): string {
+    const settings = this._edit?.settings[this._variant] ?? {};
+    return `${this._edit?.slug}|${this._variant}|${JSON.stringify({ ...settings, [control.key]: "" })}`;
+  }
+
+  private async _loadTiles(): Promise<void> {
+    if (!this.hass || !this._edit) {
+      return;
+    }
+    const wanted = [...this._wantedTiles.values()];
+    this._wantedTiles.clear();
+    const sequence = ++this._tileSeq;
+    const settings = this._edit.settings[this._variant];
+    const updates: typeof this._tiles = {};
+    for (const control of wanted) {
+      const signature = this._tileSignature(control);
+      try {
+        const result = await this.hass.callWS<{ options: { value: string; variables: Record<string, string> }[] }>({
+          type: "theme_studio/preview_options",
+          settings,
+          key: control.key,
+          values: control.options.map(([value]) => value),
+          fixed: control.fixed ?? {},
+        });
+        updates[control.key] = {
+          signature,
+          options: Object.fromEntries(result.options.map((option) => [option.value, option.variables])),
+        };
+      } catch {
+        updates[control.key] = { signature, options: {} };
+      }
+    }
+    if (sequence === this._tileSeq) {
+      this._tiles = { ...this._tiles, ...updates };
+    }
+  }
+
+  private async _upload(file: File, section: Section): Promise<void> {
+    if (!this.hass?.fetchWithAuth) {
+      this._showToast("Uploading needs a newer Home Assistant frontend.");
+      return;
+    }
+    const body = new FormData();
+    body.append("file", file, file.name);
+    this._busy = true;
+    try {
+      const response = await this.hass.fetchWithAuth(UPLOAD_URL, { method: "POST", body });
+      const result = (await response.json().catch(() => ({}))) as { ok?: boolean; url?: string; file?: string; reason?: string; message?: string };
+      if (!response.ok || !result.ok || !result.url) {
+        throw new Error(UPLOAD_ERRORS[result.reason ?? ""] ?? result.message ?? response.statusText);
+      }
+      this._backgrounds = undefined;
+      await this._loadBackgrounds();
+      this._change(this._targets(section), { use_background_image: "on", background_image_url: result.url });
+      this._showToast(`${result.file} is uploaded and in use.`);
+    } catch (error) {
+      this._showToast(`Could not upload: ${errorText(error)}`);
+    } finally {
+      this._busy = false;
+    }
+  }
+
   /** Colours that only exist as CSS variables are read back from the browser. */
   private _resolveProbe(): void {
     const box = this.renderRoot.querySelector<HTMLElement>(".probe");
@@ -963,7 +1085,8 @@ export class ThemeStudioPanel extends LitElement {
                         <h2 class="sh">${section.label}</h2>
                         <p class="sp">${section.description}</p>
                       </div>
-                      ${section.id === "check" ? this._renderCheck() : section.groups.map((group) => this._renderGroup(group))}
+                      ${section.linkable && this._canEdit ? this._renderLinkRow(section) : nothing}
+                      ${section.id === "check" ? this._renderCheck() : section.groups.map((group) => this._renderGroup(group, section))}
                       ${!edit.builtin && this._canEdit
                         ? html`<div class="sec-foot">
                             <button class="btn danger" @click=${() => (this._dialog = "delete")}>${icon("trash", 18)}Delete theme</button>
@@ -993,7 +1116,18 @@ export class ThemeStudioPanel extends LitElement {
     </button>`;
   }
 
-  private _renderGroup(group: Group): TemplateResult {
+  private _renderLinkRow(section: Section): TemplateResult {
+    const linked = this._isLinked(section);
+    return html`<button class="toggle-row" aria-pressed=${linked ? "true" : "false"} @click=${() => this._toggleLinked()}>
+      <span class="tr-text">
+        <span class="tr-title">Same for Light and Dark</span>
+        <span class="hint">${linked ? "Changes here apply to both variants." : `Changes here only apply to ${this._variant === "light" ? "Light" : "Dark"}.`}</span>
+      </span>
+      <span class="switch ${linked ? "on" : ""}" aria-hidden="true"></span>
+    </button>`;
+  }
+
+  private _renderGroup(group: Group, section: Section): TemplateResult {
     const open = !group.collapsible || this._open.has(group.id);
     const toggle = () => {
       const next = new Set(this._open);
@@ -1011,29 +1145,165 @@ export class ThemeStudioPanel extends LitElement {
               <span class="h">${group.title}</span>${icon("chevron", 18)}
             </button>`
           : html`<div class="h">${group.title}</div>`}
-        ${open ? group.controls.map((control) => this._renderControl(control)) : nothing}
+        ${open ? group.controls.map((control) => this._renderControl(control, section)) : nothing}
         ${open && group.hint ? html`<p class="hint">${group.hint}</p>` : nothing}
       </div>
     `;
   }
 
-  private _renderControl(control: Control): TemplateResult | typeof nothing {
+  private _renderControl(control: Control, section: Section): TemplateResult | typeof nothing {
     const settings = this._edit?.settings[this._variant];
     if (!settings) {
       return nothing;
     }
+    const targets = this._targets(section);
     switch (control.type) {
       case "base":
         return this._renderBase(settings);
       case "slider":
-        return this._renderSlider(control, settings);
+        return this._renderSlider(control, settings, targets);
       case "segmented":
-        return this._renderSegmented(control, settings);
+        return this._renderSegmented(control, settings, targets);
       case "roles":
         return html`<div class="roles">${control.roles.map((role) => this._renderRole(role, settings))}</div>`;
       case "mirror":
         return this._renderMirror();
+      case "switch":
+        return this._renderSwitch(control, settings, targets);
+      case "text":
+        return this._renderText(control, settings, targets);
+      case "tiles":
+        return this._renderTiles(control, settings, targets);
+      case "images":
+        return this._renderImages(settings, targets, section);
+      case "fonts":
+        return this._renderFonts(settings, targets);
     }
+  }
+
+  private _renderSwitch(control: Extract<Control, { type: "switch" }>, settings: Settings, targets: Variant[]): TemplateResult {
+    const on = settings[control.key] === "on" || settings[control.key] === true;
+    return html`<button
+      class="toggle-row"
+      aria-pressed=${on ? "true" : "false"}
+      ?disabled=${!this._canEdit}
+      @click=${() => this._change(targets, { [control.key]: on ? "off" : "on" })}
+    >
+      <span class="tr-text">
+        <span class="tr-title">${control.label}</span>
+        ${control.hint ? html`<span class="hint">${control.hint}</span>` : nothing}
+      </span>
+      <span class="switch ${on ? "on" : ""}" aria-hidden="true"></span>
+    </button>`;
+  }
+
+  private _renderText(control: Extract<Control, { type: "text" }>, settings: Settings, targets: Variant[]): TemplateResult {
+    const id = `ts-${control.key}`;
+    return html`<div class="field">
+      <label class="lbl" for=${id}>${control.label}</label>
+      <input
+        id=${id}
+        class="text-input plain"
+        maxlength="255"
+        spellcheck="false"
+        .value=${String(settings[control.key] ?? "")}
+        placeholder=${control.placeholder ?? ""}
+        ?disabled=${!this._canEdit}
+        @input=${(event: Event) => this._change(targets, { [control.key]: (event.target as HTMLInputElement).value }, `${control.key}-text`)}
+      />
+      ${control.hint ? html`<p class="hint">${control.hint}</p>` : nothing}
+    </div>`;
+  }
+
+  private _renderTiles(control: Extract<Control, { type: "tiles" }>, settings: Settings, targets: Variant[]): TemplateResult {
+    const current = String(settings[control.key] ?? "");
+    const cached = this._tiles[control.key];
+    if (!cached || cached.signature !== this._tileSignature(control)) {
+      this._wantedTiles.set(control.key, control);
+    }
+    return html`<div class="tiles">
+      ${control.options.map(([value, label]) => {
+        const variables = cached?.options[value];
+        const style = variables ? styleMap(themeStyle(variables)) : nothing;
+        return html`<button
+          class="tile ${current === value ? "on" : ""}"
+          aria-pressed=${current === value ? "true" : "false"}
+          ?disabled=${!this._canEdit}
+          @click=${() => this._change(targets, { [control.key]: value })}
+        >
+          <div class="tile-art ${control.preview}" style=${style}>
+            ${control.preview === "overlay" ? nothing : html`<div class="tile-card"></div>`}
+          </div>
+          <span class="tile-label">${label}</span>
+        </button>`;
+      })}
+    </div>`;
+  }
+
+  private _renderImages(settings: Settings, targets: Variant[], section: Section): TemplateResult {
+    const enabled = settings.use_background_image === "on" || settings.use_background_image === true;
+    const url = String(settings.background_image_url ?? "");
+    const images = this._backgrounds;
+    return html`<div class="images">
+      <button
+        class="image none ${enabled ? "" : "on"}"
+        aria-pressed=${enabled ? "false" : "true"}
+        ?disabled=${!this._canEdit}
+        @click=${() => this._change(targets, { use_background_image: "off" })}
+      >
+        <span class="image-none">${icon("close", 22)}</span><span>No image</span>
+      </button>
+      ${(images ?? []).map(
+        (item) => html`<button
+          class="image ${enabled && url === item.url ? "on" : ""}"
+          aria-pressed=${enabled && url === item.url ? "true" : "false"}
+          ?disabled=${!this._canEdit}
+          @click=${() => this._change(targets, { use_background_image: "on", background_image_url: item.url })}
+        >
+          <img src=${item.url} alt="" loading="lazy" /><span>${item.file}</span>
+        </button>`,
+      )}
+      ${this._canEdit
+        ? html`<label class="image upload ${this._busy ? "busy" : ""}">
+            <span class="image-none">${icon("upload", 22)}</span><span>${this._busy ? "Uploading…" : "Upload image"}</span>
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              ?disabled=${this._busy}
+              @change=${(event: Event) => {
+                const input = event.target as HTMLInputElement;
+                const file = input.files?.[0];
+                input.value = "";
+                if (file) {
+                  void this._upload(file, section);
+                }
+              }}
+            />
+          </label>`
+        : nothing}
+    </div>
+    ${images === undefined ? html`<p class="hint">Loading images…</p>` : nothing}`;
+  }
+
+  private _renderFonts(settings: Settings, targets: Variant[]): TemplateResult {
+    const custom = settings.use_custom_font === "on" || settings.use_custom_font === true;
+    const current = String(settings.primary_font_family ?? "");
+    return html`<div class="tiles">
+      ${FONTS.map(([value, label]) => {
+        const on = !custom && current === value;
+        return html`<button
+          class="tile ${on ? "on" : ""}"
+          aria-pressed=${on ? "true" : "false"}
+          ?disabled=${!this._canEdit}
+          @click=${() => this._change(targets, { primary_font_family: value, use_custom_font: "off" })}
+        >
+          <div class="font-art" style=${styleMap({ fontFamily: `"${value}", system-ui, sans-serif` })}>
+            <span class="font-aa">Aa 21°</span><span class="font-sm">Living room</span>
+          </div>
+          <span class="tile-label">${label}</span>
+        </button>`;
+      })}
+    </div>`;
   }
 
   private _renderBase(settings: Settings): TemplateResult {
@@ -1080,7 +1350,11 @@ export class ThemeStudioPanel extends LitElement {
     `;
   }
 
-  private _renderSlider(control: Extract<Control, { type: "slider" }>, settings: Settings): TemplateResult | typeof nothing {
+  private _renderSlider(
+    control: Extract<Control, { type: "slider" }>,
+    settings: Settings,
+    targets: Variant[],
+  ): TemplateResult | typeof nothing {
     const item = this._schema.get(control.key);
     if (!item) {
       return nothing;
@@ -1089,7 +1363,9 @@ export class ThemeStudioPanel extends LitElement {
     const id = `ts-${control.key}`;
     return html`
       <div class="field">
-        <div class="lbl"><label for=${id}>${control.label ?? item.label}</label><span class="val">${Math.round(value)}</span></div>
+        <div class="lbl">
+          <label for=${id}>${control.label ?? item.label}</label><span class="val">${Math.round(value)}${control.unit ? ` ${control.unit}` : ""}</span>
+        </div>
         <input
           id=${id}
           type="range"
@@ -1099,14 +1375,18 @@ export class ThemeStudioPanel extends LitElement {
           .value=${String(value)}
           ?disabled=${!this._canEdit}
           @input=${(event: Event) =>
-            this._change([this._variant], { [control.key]: Number((event.target as HTMLInputElement).value) }, `${control.key}-${this._variant}`)}
+            this._change(targets, { [control.key]: Number((event.target as HTMLInputElement).value) }, `${control.key}-${targets.join()}`)}
         />
         ${control.ends ? html`<div class="ends"><span>${control.ends[0]}</span><span>${control.ends[1]}</span></div>` : nothing}
       </div>
     `;
   }
 
-  private _renderSegmented(control: Extract<Control, { type: "segmented" }>, settings: Settings): TemplateResult | typeof nothing {
+  private _renderSegmented(
+    control: Extract<Control, { type: "segmented" }>,
+    settings: Settings,
+    targets: Variant[],
+  ): TemplateResult | typeof nothing {
     const item = this._schema.get(control.key);
     if (!item) {
       return nothing;
@@ -1123,7 +1403,7 @@ export class ThemeStudioPanel extends LitElement {
                 class=${current === value ? "on" : ""}
                 aria-pressed=${current === value ? "true" : "false"}
                 ?disabled=${!this._canEdit}
-                @click=${() => this._change([this._variant], { [control.key]: value }, undefined)}
+                @click=${() => this._change(targets, { [control.key]: value })}
               >
                 ${label}
               </button>`,
