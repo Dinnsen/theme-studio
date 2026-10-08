@@ -136,6 +136,24 @@ def test_update_moves_the_classic_dashboard_aside(tmp_path) -> None:
     assert again["retired_files"] == []
 
 
+def test_a_user_theme_named_like_the_live_theme_is_kept(tmp_path) -> None:
+    asset_manager = load_module("asset_manager")
+    hass = types.SimpleNamespace(
+        config=types.SimpleNamespace(path=lambda *parts: str(tmp_path.joinpath(*parts)))
+    )
+    built = tmp_path / "themes" / "theme_studio" / "theme_studio_dynamic.yaml"
+    built.parent.mkdir(parents=True)
+    text = "Theme Studio Dynamic:\n  modes:\n    light:\n      primary-color: red\n"
+    built.write_text(text, encoding="utf-8")
+
+    result = asset_manager.initialize_assets(hass, overwrite=True, backup=True)
+    assert result["retired_files"] == []
+    assert built.read_text(encoding="utf-8") == text
+
+    asset_manager.remove_assets(hass)
+    assert built.read_text(encoding="utf-8") == text
+
+
 def _load_retirement():
     """retirement.py with just enough of Home Assistant stubbed out."""
     for name in ("homeassistant.config_entries", "homeassistant.helpers"):

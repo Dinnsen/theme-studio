@@ -8,6 +8,7 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 
 from .asset_manager import async_initialize_assets, remove_assets
@@ -76,6 +77,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ThemeStudioConfigEntry) 
         loader = async_add_loader(hass, f"{engine.version}-{await async_bundle_tag(hass, LOADER_FILE)}")
         entry.async_on_unload(lambda: async_remove_loader(hass, loader))
 
+    retired = install.get("retired_files", [])
+    await async_retire(hass, entry, retired)
+    if retired and hass.services.has_service("frontend", "reload_themes"):
+        # Drops Theme Studio Dynamic if configuration.yaml loaded it. Done
+        # before the registry starts, so the registry can add Theme Studio's
+        # themes again and restore the saved default theme.
+        try:
+            await hass.services.async_call("frontend", "reload_themes", blocking=True)
+        except HomeAssistantError as err:
+            _LOGGER.warning("Theme Studio could not reload themes after the update: %s", err)
+
     if options.get(CONF_REGISTER_THEMES, True):
         registry = ThemeRegistry(hass, engine.config_dir)
         if await registry.async_start():
@@ -86,13 +98,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ThemeStudioConfigEntry) 
                 hass.data.pop(DATA_REGISTRY, None)
 
             entry.async_on_unload(_stop_registry)
-
-    retired = install.get("retired_files", [])
-    await async_retire(hass, entry, retired)
-    if retired and hass.services.has_service("frontend", "reload_themes"):
-        # Drops Theme Studio Dynamic if configuration.yaml loaded it; the
-        # registry adds Theme Studio's own themes again afterwards.
-        await hass.services.async_call("frontend", "reload_themes", blocking=True)
 
     return True
 

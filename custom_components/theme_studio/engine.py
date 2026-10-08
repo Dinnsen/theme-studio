@@ -139,13 +139,6 @@ class ThemeEngine:
             payload=json.dumps(payload, ensure_ascii=False),
         )
 
-    def delete_user_theme(self, name: str) -> dict[str, Any]:
-        return self._run(
-            self.cli.cmd_delete_preset,
-            preset_dir=str(self.preset_dir),
-            name=name,
-        )
-
     def build_theme(self, name: str) -> dict[str, Any]:
         return self._run(
             self.cli.cmd_build_theme,

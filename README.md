@@ -197,7 +197,7 @@ The panel does not need these; they are for your own automations and scripts.
 | `theme_studio.theme_from_image` | Creates a new user theme with a light and a dark variant from an image in `/config/www/background` and checks its contrast. |
 | `theme_studio.export_user_theme` | Writes a user theme to `/config/www/theme_studio/exports/` and returns it as JSON and as a share code. A notification links to the file. Files in `/config/www/` can be opened without logging in by anyone who knows the address, so delete an export when you no longer need it. The panel's *Share* writes nothing. |
 | `theme_studio.import_user_theme` | Creates a new user theme from JSON or a share code. Without data it imports every `.json`/`.txt` file in `/config/theme_studio/imports/` and renames them to `.imported`. Never overwrites a theme; a name that is taken gets a number. |
-| `theme_studio.delete_user_theme` | Deletes a user theme and its built theme file. |
+| `theme_studio.delete_user_theme` | Deletes a user theme and its built theme file, keeping a `.bak_YYYYMMDD_HHMMSS` copy of the user theme (as *Delete* in the panel does). |
 | `theme_studio.save_preset` | Creates or updates a user theme from a settings payload; with `active_variant` only that variant is written. Built-in presets are never written. |
 | `theme_studio.initialize_assets` / `theme_studio.reinstall_assets` | Installs the managed files again and returns what changed. |
 

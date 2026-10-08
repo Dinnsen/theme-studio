@@ -181,6 +181,22 @@ RETIRED_FILES = (
     ("themes", "theme_studio_dynamic.yaml"),
     ("themes", "theme_studio", "theme_studio_dynamic.yaml"),
 )
+# The live theme was written next to the user's built themes; a user theme
+# named "Theme Studio Dynamic" builds to the same file, with light/dark modes.
+RETIRED_LIVE_THEME = ("themes", "theme_studio", "theme_studio_dynamic.yaml")
+
+
+def _is_retired_file(path: Path, config_dir: Path) -> bool:
+    """True for a file of the removed dashboard, never for a built user theme."""
+    if not path.is_file() or _is_protected_target(path, config_dir):
+        return False
+    if path != config_dir.joinpath(*RETIRED_LIVE_THEME):
+        return True
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False
+    return text.startswith("Theme Studio Dynamic:") and "\n  modes:" not in text
 
 # Generated folders whose files are removed on update and uninstall: the
 # dashboard's preset previews (exports are kept).
@@ -229,6 +245,8 @@ def remove_assets(hass: HomeAssistant) -> dict[str, Any]:
 
     for parts in RETIRED_FILES + OBSOLETE_FILES:
         target = config_dir.joinpath(*parts)
+        if parts in RETIRED_FILES and target.is_file() and not _is_retired_file(target, config_dir):
+            continue  # a built user theme that happens to have the same name
         _remove(target)
         for backup_file in target.parent.glob(f"{target.name}.bak_*"):
             _remove(backup_file)
@@ -280,7 +298,7 @@ def _retire_classic_dashboard(config_dir: Path, result: AssetInstallResult) -> N
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     for parts in RETIRED_FILES:
         path = config_dir.joinpath(*parts)
-        if not path.is_file() or _is_protected_target(path, config_dir):
+        if not _is_retired_file(path, config_dir):
             continue
         backup_path = path.with_name(f"{path.name}.bak_{stamp}")
         try:
