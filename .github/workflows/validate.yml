@@ -24,11 +24,11 @@ jobs:
           test -f custom_components/theme_studio/services.yaml
           test -f custom_components/theme_studio/asset_manager.py
           test -f custom_components/theme_studio/engine.py
-          test -f custom_components/theme_studio/helpers.json
+          test -f custom_components/theme_studio/settings.json
+          test -f custom_components/theme_studio/websocket.py
+          test -f custom_components/theme_studio/frontend/theme-studio-panel.js
           test -f custom_components/theme_studio/brand/icon.png
           test -d custom_components/theme_studio/templates
-          test -d custom_components/theme_studio/templates/packages
-          test -d custom_components/theme_studio/templates/lovelace
           test -d custom_components/theme_studio/templates/themes
           test -d custom_components/theme_studio/templates/theme_studio
           test -d custom_components/theme_studio/templates/theme_studio/presets

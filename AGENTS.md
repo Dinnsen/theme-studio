@@ -11,7 +11,7 @@ These instructions apply to the entire repository unless a more specific `AGENTS
 
 # Project purpose
 
-Theme Studio is a Home Assistant theming system that installs and manages bundled assets for a visual theme generator dashboard.
+Theme Studio is a Home Assistant theming system: an integration with its own sidebar panel where users create, edit, check and apply themes. Since v1.0.0 there is no YAML dashboard, no package and no helper entities; the panel talks to the integration over WebSocket commands.
 
 Core goals:
 
@@ -47,16 +47,20 @@ custom_components/theme_studio/
   strings.json
   translations/
   brand/
+  engine.py           theme engine used by the panel (runs the bundled CLI)
+  settings.json       per-variant theme settings the panel edits
+  websocket.py        the panel's WebSocket commands
+  retirement.py       clean-up after the v1.0.0 removal of the dashboard
+  frontend/           built panel bundle and bundled fonts (committed)
   templates/
-    lovelace/
-    packages/
     theme_studio/
       presets/
-      scripts/
+      scripts/        theme_studio_cli.py (used in-process, not installed)
       user_themes/
     themes/
     www/background/
 
+frontend/             panel source (Lit + TypeScript)
 docs/assets/
 tests/
 .github/workflows/
@@ -97,14 +101,15 @@ custom_components/theme_studio/templates/
 into Home Assistant `/config` locations such as:
 
 ```text
-/config/packages/
-/config/lovelace/
 /config/themes/
 /config/theme_studio/presets/
-/config/theme_studio/scripts/
 /config/theme_studio/user_themes/
 /config/www/background/
 ```
+
+Files of the removed YAML dashboard (`RETIRED_FILES` in `asset_manager.py`)
+are renamed to `.bak_YYYYMMDD_HHMMSS` on update, never deleted outright.
+Do not reintroduce `/config/packages/` or `/config/lovelace/` assets.
 
 ---
 
@@ -196,7 +201,7 @@ Rules:
 
 - Saving Light must not overwrite Dark.
 - Saving Dark must not overwrite Light.
-- Loading a variant must populate the correct helpers.
+- Loading a theme in the panel must show each variant's own values.
 - Generated themes must preserve Light/Dark separation.
 
 ---
@@ -241,16 +246,15 @@ Rules:
 
 # Lovelace rules
 
-Common custom cards:
+Theme Studio bundles no dashboard since v1.0.0, but generated themes are used
+on users' dashboards with cards such as:
 
 - `custom:button-card`
 - `custom:bubble-card`
 - `custom:mod-card`
-- `custom:simple-swipe-card`
 - `custom:navbar-card`
-- `custom:decluttering-card`
 
-Rules:
+Rules for README examples and theme output:
 
 - Be careful with `card_mod:` nesting.
 - Be careful with:
@@ -290,63 +294,25 @@ Navbar styling should use Theme Studio variables where possible:
 
 ---
 
-# Helper/entity naming rules
+# Theme settings rules
 
-Do not rename helpers unless ALL references are updated.
+The per-variant settings a theme stores (and the panel edits) are listed in
+`custom_components/theme_studio/settings.json`: key, control (`number`,
+`text`, `switch`, `select`), label, default and limits.
 
-Since v0.6.0 the editor helpers are entities owned by the integration and
-defined in `custom_components/theme_studio/helpers.json` (platforms `number`,
-`text`, `switch`, `select`, `button`). `legacy_domain` in that file is the old
-YAML helper domain and is only used to migrate values once.
-
-Common helpers include:
-
-```text
-text.theme_studio_theme_base_color
-text.theme_studio_theme_accent_color_override
-text.theme_studio_theme_card_bg_override
-text.theme_studio_theme_bubble_bg_override
-text.theme_studio_theme_popup_bg_override
-text.theme_studio_theme_navbar_bg_override
-text.theme_studio_selected_user_theme
-text.theme_studio_theme_name
-text.theme_studio_loaded_variant
-text.theme_studio_busy_message
-
-select.theme_studio_theme_presets
-select.theme_studio_user_themes
-select.theme_studio_theme_border_type
-select.theme_studio_theme_shadow_type
-
-switch.theme_studio_theme_bubble_use_fx
-switch.theme_studio_theme_popup_use_fx
-
-sensor.theme_studio_preset_catalog
-sensor.theme_studio_user_theme_catalog
-sensor.theme_studio_background_image_catalog
-sensor.theme_studio_active_preset
-```
-
-The live preview arguments are mapped to entities in
-`LIVE_ARGUMENT_ENTITIES` in `const.py`; keep it equal to
-`LIVE_ARGUMENT_KEYS` in `theme_studio_cli.py`.
-
-Automations in the package that use `platform: state` must start with the
-reload guard condition (`trigger.platform != 'state' or ...`), because the
-integration's entities are removed and re-added when it reloads.
+Since v1.0.0 Theme Studio has no entities. The former editor helpers
+(`text.theme_studio_*`, `number.theme_studio_*`, ...) and sensors are removed
+from the registries on update by `retirement.py`. Do not add entities back.
 
 Rules:
 
-- When adding a helper:
-  - add it to `helpers.json`
-  - update scripts
-  - automations
-  - templates
-  - dashboards
-  - docs
-  - tests
-- When deleting a helper:
-  - verify nothing still references it.
+- When adding a setting:
+  - add it to `settings.json`
+  - make sure `theme_studio_cli.py` understands it (`SETTING_KEYS`)
+  - add it to the panel (`frontend/src/editor-config.ts`) and rebuild the bundle
+  - update docs and tests
+- When removing a setting:
+  - verify nothing still references it; existing user themes may still contain it and must keep loading.
 
 ---
 
@@ -418,7 +384,8 @@ Be extra careful when modifying:
 - preset sync logic
 - generated theme builder logic
 - Light/Dark save/load flows
-- dashboard YAML
+- the panel (`frontend/`) and its WebSocket commands
+- the dashboard retirement (`retirement.py`, `RETIRED_FILES`)
 - card-mod root styling
 - Bubble Card border/shadow CSS
 - HACS metadata/versioning

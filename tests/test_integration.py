@@ -1,4 +1,4 @@
-"""Tests for the v0.6 integration modules that do not need Home Assistant."""
+"""Tests for the integration modules that do not need Home Assistant."""
 
 from __future__ import annotations
 
@@ -12,23 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 COMPONENT = ROOT / "custom_components" / "theme_studio"
 TEMPLATES = COMPONENT / "templates"
-PACKAGE_PATH = TEMPLATES / "packages" / "theme_studio_dynamic.yaml"
-DASHBOARD_PATH = TEMPLATES / "lovelace" / "theme_studio_dashboard.yaml"
 PKG = "theme_studio_under_test"
-
-HELPER_DOMAINS = ("number", "text", "switch", "select", "button")
-SENSORS = {
-    "sensor.theme_studio_preset_catalog",
-    "sensor.theme_studio_user_theme_catalog",
-    "sensor.theme_studio_background_image_catalog",
-    "sensor.theme_studio_active_preset",
-    "sensor.theme_studio_contrast",
-    "button.theme_studio_undo",
-    # Template sensors defined in the package itself.
-    "sensor.theme_studio_theme_summary",
-    "sensor.theme_studio_picker_hex",
-}
-
 
 def load_module(name: str):
     """Import one integration module without running __init__.py."""
@@ -58,73 +42,6 @@ def load_module(name: str):
     return module
 
 
-def referenced_entities(text: str) -> set[str]:
-    domains = "|".join(HELPER_DOMAINS + ("sensor",))
-    return set(re.findall(rf"\b(?:{domains})\.theme_studio_[a-z0-9_]+", text))
-
-
-def test_helper_definitions_load_and_are_unique() -> None:
-    definitions = load_module("definitions").load_definitions()
-    keys = [definition.key for definition in definitions]
-    assert len(keys) == len(set(keys))
-    assert {definition.platform for definition in definitions} == set(HELPER_DOMAINS)
-    for definition in definitions:
-        if definition.platform == "number":
-            assert definition.min <= definition.default <= definition.max, definition.key
-        if definition.platform == "select":
-            assert str(definition.default) in definition.options, definition.key
-
-
-def test_every_referenced_entity_is_provided_by_the_integration() -> None:
-    definitions = load_module("definitions").load_definitions()
-    provided = {definition.entity_id for definition in definitions} | SENSORS
-    for path in (PACKAGE_PATH, DASHBOARD_PATH):
-        missing = referenced_entities(path.read_text(encoding="utf-8")) - provided
-        assert not missing, f"{path.name}: {sorted(missing)}"
-
-
-def test_no_legacy_helper_or_sensor_references_remain() -> None:
-    for path in (PACKAGE_PATH, DASHBOARD_PATH):
-        text = path.read_text(encoding="utf-8")
-        assert not re.search(r"input_(number|text|boolean|select|button)\.", text), path.name
-        for old in ("_preset_index", "_user_theme_index", "_background_image_index", "selected_preset"):
-            assert f"sensor.theme_studio{old}" not in text, (path.name, old)
-
-
-def test_live_arguments_match_the_cli() -> None:
-    const = load_module("const")
-    engine = load_module("engine")
-    cli = engine._load_cli()
-    definitions = load_module("definitions").load_definitions()
-    provided = {definition.entity_id for definition in definitions}
-
-    assert set(const.LIVE_ARGUMENT_ENTITIES) == set(cli.LIVE_ARGUMENT_KEYS) - {"output"}
-    assert set(const.LIVE_ARGUMENT_ENTITIES.values()) <= provided
-
-
-def test_generate_live_only_rewrites_changed_theme(tmp_path) -> None:
-    engine_module = load_module("engine")
-    const = load_module("const")
-    definitions = load_module("definitions").load_definitions()
-    defaults = {definition.entity_id: definition.default for definition in definitions}
-    arguments = {}
-    for argument, entity_id in const.LIVE_ARGUMENT_ENTITIES.items():
-        value = defaults[entity_id]
-        if isinstance(value, bool):
-            value = "on" if value else "off"
-        arguments[argument] = str(value)
-
-    engine = engine_module.ThemeEngine.create(str(tmp_path))
-    first = engine.generate_live(arguments)
-    second = engine.generate_live(arguments)
-    output = tmp_path.joinpath(*const.LIVE_THEME_FILE)
-
-    assert first["changed"] is True
-    assert second["changed"] is False
-    assert output.read_text(encoding="utf-8").startswith(f"{const.LIVE_THEME_NAME}:\n")
-    assert "  primary-color:" in output.read_text(encoding="utf-8")
-
-
 def test_remove_assets_keeps_user_owned_files(tmp_path) -> None:
     asset_manager = load_module("asset_manager")
     hass = types.SimpleNamespace(
@@ -138,19 +55,184 @@ def test_remove_assets_keeps_user_owned_files(tmp_path) -> None:
     built = tmp_path / "themes" / "theme_studio" / "mine.yaml"
     built.parent.mkdir(parents=True, exist_ok=True)
     built.write_text("Mine:\n  primary-color: red\n", encoding="utf-8")
+    # A backup of the old dashboard package, left by the v1.0.0 update.
     package = tmp_path / "packages" / "theme_studio_dynamic.yaml"
+    package.parent.mkdir()
     backup = package.with_name(package.name + ".bak_20260101_000000")
     backup.write_text("old", encoding="utf-8")
+    standard = tmp_path / "themes" / "theme_studio_standard.yaml"
+    assert standard.exists()
 
     result = asset_manager.remove_assets(hass)
 
     assert result["success"], result
     assert user_theme.exists()
     assert built.exists()
-    assert not package.exists()
     assert not backup.exists()
-    assert not (tmp_path / "lovelace" / "theme_studio_dashboard.yaml").exists()
+    assert not standard.exists()
     assert not (tmp_path / "theme_studio" / "presets").exists()
+
+
+def test_fresh_install_has_no_dashboard_files(tmp_path) -> None:
+    asset_manager = load_module("asset_manager")
+    hass = types.SimpleNamespace(
+        config=types.SimpleNamespace(path=lambda *parts: str(tmp_path.joinpath(*parts)))
+    )
+
+    result = asset_manager.initialize_assets(hass, overwrite=True, backup=True)
+
+    assert result["success"], result
+    assert result["retired_files"] == []
+    assert not (tmp_path / "packages").exists()
+    assert not (tmp_path / "lovelace").exists()
+    assert not (tmp_path / "themes" / "theme_studio_dynamic.yaml").exists()
+    assert (tmp_path / "themes" / "theme_studio_standard.yaml").exists()
+    assert (tmp_path / "theme_studio" / "presets" / "default.json").exists()
+
+
+def test_update_moves_the_classic_dashboard_aside(tmp_path) -> None:
+    asset_manager = load_module("asset_manager")
+    hass = types.SimpleNamespace(
+        config=types.SimpleNamespace(path=lambda *parts: str(tmp_path.joinpath(*parts)))
+    )
+    old_files = {
+        tmp_path / "packages" / "theme_studio_dynamic.yaml": "script: {}\n",
+        tmp_path / "lovelace" / "theme_studio_dashboard.yaml": "views: []\n",
+        tmp_path / "themes" / "theme_studio_dynamic.yaml": "Theme Studio Dynamic:\n  a: b\n",
+        tmp_path / "themes" / "theme_studio" / "theme_studio_dynamic.yaml": "Theme Studio Dynamic:\n  c: d\n",
+    }
+    for path, text in old_files.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    other_package = tmp_path / "packages" / "mine.yaml"
+    other_package.write_text("input_boolean: {}\n", encoding="utf-8")
+    user_theme = tmp_path / "theme_studio" / "user_themes" / "mine.json"
+    user_theme.parent.mkdir(parents=True)
+    user_theme.write_text('{"name": "Mine"}', encoding="utf-8")
+    index = user_theme.with_name("index.json")
+    index.write_text("{}", encoding="utf-8")
+    previews = tmp_path / "www" / "theme_studio" / "previews"
+    previews.mkdir(parents=True)
+    (previews / "glass_light.svg").write_text("<svg/>", encoding="utf-8")
+
+    result = asset_manager.initialize_assets(hass, overwrite=True, backup=True)
+
+    assert result["success"], result
+    assert sorted(result["retired_files"]) == sorted(str(path) for path in old_files)
+    for path, text in old_files.items():
+        assert not path.exists()
+        backups = list(path.parent.glob(f"{path.name}.bak_*"))
+        assert len(backups) == 1
+        assert backups[0].read_text(encoding="utf-8") == text
+        # The backups are not picked up as YAML by Home Assistant.
+        assert not backups[0].name.endswith(".yaml")
+    # Other files, user themes and their index are never touched.
+    assert other_package.read_text(encoding="utf-8") == "input_boolean: {}\n"
+    assert user_theme.read_text(encoding="utf-8") == '{"name": "Mine"}'
+    assert index.exists()
+    assert not previews.exists()
+    # Nothing is moved twice.
+    again = asset_manager.initialize_assets(hass, overwrite=True, backup=True)
+    assert again["retired_files"] == []
+
+
+def test_a_user_theme_named_like_the_live_theme_is_kept(tmp_path) -> None:
+    asset_manager = load_module("asset_manager")
+    hass = types.SimpleNamespace(
+        config=types.SimpleNamespace(path=lambda *parts: str(tmp_path.joinpath(*parts)))
+    )
+    built = tmp_path / "themes" / "theme_studio" / "theme_studio_dynamic.yaml"
+    built.parent.mkdir(parents=True)
+    text = "Theme Studio Dynamic:\n  modes:\n    light:\n      primary-color: red\n"
+    built.write_text(text, encoding="utf-8")
+
+    result = asset_manager.initialize_assets(hass, overwrite=True, backup=True)
+    assert result["retired_files"] == []
+    assert built.read_text(encoding="utf-8") == text
+
+    asset_manager.remove_assets(hass)
+    assert built.read_text(encoding="utf-8") == text
+
+
+def _load_retirement():
+    """retirement.py with just enough of Home Assistant stubbed out."""
+    for name in ("homeassistant.config_entries", "homeassistant.helpers"):
+        sys.modules.setdefault(name, types.ModuleType(name))
+    sys.modules["homeassistant.config_entries"].ConfigEntry = object
+    helpers = sys.modules["homeassistant.helpers"]
+    for name in ("device_registry", "entity_registry", "issue_registry"):
+        module = sys.modules.setdefault(f"homeassistant.helpers.{name}", types.ModuleType(name))
+        setattr(helpers, name, module)
+    issues = sys.modules["homeassistant.helpers.issue_registry"]
+    issues.IssueSeverity = types.SimpleNamespace(WARNING="warning")
+    return load_module("retirement")
+
+
+def test_retirement_removes_entities_and_raises_repairs(tmp_path) -> None:
+    import asyncio
+
+    retirement = _load_retirement()
+    er = sys.modules["homeassistant.helpers.entity_registry"]
+    dr = sys.modules["homeassistant.helpers.device_registry"]
+    ir = sys.modules["homeassistant.helpers.issue_registry"]
+    removed_entities, removed_devices, issues = [], [], {}
+    entity_registry = types.SimpleNamespace(async_remove=removed_entities.append)
+    device_registry = types.SimpleNamespace(async_remove_device=removed_devices.append)
+    er.async_get = lambda hass: entity_registry
+    er.async_entries_for_config_entry = lambda registry, entry_id: [
+        types.SimpleNamespace(entity_id="text.theme_studio_theme_base_color"),
+        types.SimpleNamespace(entity_id="sensor.theme_studio_contrast"),
+    ]
+    dr.async_get = lambda hass: device_registry
+    dr.async_entries_for_config_entry = lambda registry, entry_id: [types.SimpleNamespace(id="device1")]
+    ir.async_create_issue = lambda hass, domain, issue_id, **kwargs: issues.__setitem__(issue_id, kwargs)
+    ir.async_delete_issue = lambda hass, domain, issue_id: issues.pop(issue_id, None)
+
+    async def executor(func, *args):
+        return func(*args)
+
+    hass = types.SimpleNamespace(
+        config=types.SimpleNamespace(path=lambda *parts: str(tmp_path.joinpath(*parts))),
+        async_add_executor_job=executor,
+    )
+    entry = types.SimpleNamespace(entry_id="abc")
+    (tmp_path / "configuration.yaml").write_text(
+        "lovelace:\n  dashboards:\n    theme-studio:\n      mode: yaml\n"
+        "      filename: /config/lovelace/theme_studio_dashboard.yaml\n",
+        encoding="utf-8",
+    )
+
+    asyncio.run(retirement.async_retire(hass, entry, ["/config/packages/theme_studio_dynamic.yaml"]))
+
+    assert removed_entities == ["text.theme_studio_theme_base_color", "sensor.theme_studio_contrast"]
+    assert removed_devices == ["device1"]
+    assert issues[retirement.ISSUE_RESTART]["is_persistent"] is False
+    assert retirement.ISSUE_DASHBOARD_CONFIG in issues
+
+    # Once the block is gone (or only commented out) the repair goes away by itself.
+    (tmp_path / "configuration.yaml").write_text(
+        "#      filename: /config/lovelace/theme_studio_dashboard.yaml\n", encoding="utf-8"
+    )
+    issues.clear()
+    asyncio.run(retirement.async_retire(hass, entry, []))
+    assert issues == {}
+
+
+def test_settings_are_complete_and_valid() -> None:
+    settings = load_module("settings").load_settings()
+    engine_module = load_module("engine")
+    cli = engine_module._load_cli()
+    keys = [setting.key for setting in settings]
+    assert len(keys) == len(set(keys))
+    assert set(keys) <= set(engine_module._variant_setting_keys(cli))
+    assert "color_model" in keys
+    for setting in settings:
+        assert setting.control in ("number", "text", "switch", "select"), setting.key
+        assert setting.label[:1].isupper(), setting.key
+        if setting.control == "number":
+            assert setting.min <= setting.default <= setting.max, setting.key
+        if setting.control == "select":
+            assert str(setting.default) in setting.options, setting.key
 
 
 def test_strings_cover_every_service() -> None:
@@ -161,75 +243,9 @@ def test_strings_cover_every_service() -> None:
 
     assert set(strings["services"]) == declared
     assert strings == translations
-
-
-def test_state_triggered_automations_ignore_entity_reloads() -> None:
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-    automations = re.split(r"(?m)^(?=- id: )", package.split("\nautomation:\n", 1)[1])
-    for automation in automations:
-        if "platform: state" not in automation.split("\n  action:\n", 1)[0]:
-            continue
-        conditions = automation.split("\n  condition:\n", 1)[1]
-        assert conditions.startswith("  - condition: template\n    value_template: \"{{ trigger.platform != 'state'"), (
-            automation.splitlines()[0]
-        )
-
-
-def test_orphaned_legacy_helpers_are_found_but_live_ones_kept() -> None:
-    migration = load_module("migration")
-    definitions = load_module("definitions").load_definitions()
-    by_key = {definition.key: definition for definition in definitions}
-    orphan = by_key["theme_studio_theme_base_color"]
-    live = by_key["theme_studio_theme_contrast"]
-    foreign = by_key["theme_studio_delete_theme"]
-    missing = by_key["theme_studio_theme_name"]
-
-    entry = types.SimpleNamespace
-    registry = {
-        orphan.legacy_entity_id: entry(platform="input_text", unique_id=orphan.key),
-        live.legacy_entity_id: entry(platform="input_number", unique_id=live.key),
-        # Same entity id, but owned by another integration: never touched.
-        foreign.legacy_entity_id: entry(platform="template", unique_id="something"),
-        missing.legacy_entity_id: entry(platform="input_text", unique_id=missing.key),
-    }
-    states = {
-        orphan.legacy_entity_id: types.SimpleNamespace(state="unavailable", attributes={"restored": True}),
-        live.legacy_entity_id: types.SimpleNamespace(state="50.0", attributes={}),
-        foreign.legacy_entity_id: types.SimpleNamespace(state="unavailable", attributes={"restored": True}),
-    }
-
-    orphaned = migration.find_orphaned_legacy_entities(definitions, registry.get, states.get)
-
-    assert sorted(orphaned) == sorted([orphan.legacy_entity_id, missing.legacy_entity_id])
-
-
-def test_entity_names_do_not_repeat_the_device_name() -> None:
-    definitions = load_module("definitions").load_definitions()
-    names = [definition.name for definition in definitions]
-    assert len(names) == len(set(names))
-    for name in names:
-        assert not re.match(r"theme[ _]studio", name, re.I), name
-        assert name[:1].isupper(), name
-
-
-def test_generate_live_reports_contrast(tmp_path) -> None:
-    engine_module = load_module("engine")
-    const = load_module("const")
-    definitions = load_module("definitions").load_definitions()
-    defaults = {definition.entity_id: definition.default for definition in definitions}
-    arguments = {}
-    for argument, entity_id in const.LIVE_ARGUMENT_ENTITIES.items():
-        value = defaults[entity_id]
-        if isinstance(value, bool):
-            value = "on" if value else "off"
-        arguments[argument] = str(value)
-
-    result = engine_module.ThemeEngine.create(str(tmp_path)).generate_live(arguments)
-
-    keys = [pair["key"] for pair in result["contrast"]]
-    assert keys == list(const.CONTRAST_LABELS)
-    for pair in result["contrast"]:
-        assert pair["ok"] == (pair["ratio"] >= pair["minimum"])
+    retirement_source = (COMPONENT / "retirement.py").read_text(encoding="utf-8")
+    for issue in re.findall(r'^ISSUE_[A-Z_]+ = "([a-z_]+)"', retirement_source, re.M):
+        assert {"title", "description"} <= set(strings["issues"][issue]), issue
 
 
 def test_copy_variant_mirrors_lightness_and_resets_variant_colours() -> None:
@@ -296,7 +312,7 @@ def engine_for(tmp_path):
 
 def test_export_and_import_round_trip_never_overwrites(tmp_path) -> None:
     engine, _ = engine_for(tmp_path)
-    copied = engine.copy_preset("Glass", "My Glass")
+    copied = engine.new_theme("glass", "My Glass")
     assert copied["ok"], copied
     original = (tmp_path / "theme_studio" / "user_themes" / "my_glass.json").read_text(encoding="utf-8")
 
@@ -368,63 +384,16 @@ def test_import_folder_marks_files_as_imported(tmp_path) -> None:
     assert (folder / "broken.txt").exists()
 
 
-def test_undo_history_steps_back_and_ignores_restores() -> None:
-    history = load_module("history").EditorHistory(max_steps=3)
-    assert history.undo() is None
-    for value in ("a", "b", "b", "c"):
-        history.record({"text.x": value})
-    assert len(history) == 3
-    assert history.undo() == {"text.x": "b"}
-    history.restoring = True
-    assert history.record({"text.x": "b2"}) is False
-    history.restoring = False
-    assert history.undo() == {"text.x": "a"}
-    assert history.undo() is None
-
-
 def test_palette_from_bundled_image(tmp_path) -> None:
     engine, _ = engine_for(tmp_path)
-    result = engine.palette_from_image("orange-fade.jpg")
+    result = engine._image_palette("orange-fade.jpg")
     assert result["ok"]
     assert re.fullmatch(r"#[0-9A-F]{6}", result["suggested_base_color"])
     assert re.fullmatch(r"#[0-9A-F]{6}", result["suggested_accent_color"])
     assert 10 <= result["suggested_background_contrast"] <= 100
     assert abs(sum(colour["share"] for colour in result["colours"]) - 1) < 0.01
     # Only names inside /config/www/background are accepted.
-    assert engine.palette_from_image("../../secrets.yaml")["ok"] is False
-
-
-def test_preset_previews_are_written_and_removed_on_uninstall(tmp_path) -> None:
-    import xml.etree.ElementTree as ElementTree
-
-    engine, hass = engine_for(tmp_path)
-    written = engine.write_previews()
-    folder = tmp_path / "www" / "theme_studio" / "previews"
-    files = sorted(folder.glob("*.svg"))
-    assert len(files) == 22
-    assert len(written) == 22
-    assert engine.write_previews() == []  # unchanged files are not rewritten
-    for path in files:
-        ElementTree.parse(path)
-
-    load_module("asset_manager").remove_assets(hass)
-    assert not folder.exists()
-
-
-def test_user_theme_previews_follow_the_user_themes(tmp_path) -> None:
-    engine, _ = engine_for(tmp_path)
-    folder = tmp_path / "www" / "theme_studio" / "previews"
-    assert engine.copy_preset("Purple", "Evening")["ok"]
-    engine.write_user_theme_index()
-    assert (folder / "user_evening_light.svg").exists()
-    assert (folder / "user_evening_dark.svg").exists()
-
-    assert engine.delete_user_theme("Evening")["ok"]
-    engine.write_user_theme_index()
-    assert not (folder / "user_evening_light.svg").exists()
-    # Built-in previews are not touched by the user theme clean-up.
-    engine.write_previews()
-    assert (folder / "purple_light.svg").exists()
+    assert engine._image_palette("../../secrets.yaml")["ok"] is False
 
 
 def test_theme_from_image_creates_a_readable_new_user_theme(tmp_path) -> None:
@@ -454,85 +423,6 @@ def test_theme_from_image_creates_a_readable_new_user_theme(tmp_path) -> None:
     assert engine.theme_from_image("orange-fade.jpg")["name"] == "From orange fade (2)"
 
 
-def test_save_variant_keeps_the_other_variant_and_never_writes_presets(tmp_path) -> None:
-    engine, _ = engine_for(tmp_path)
-    assert engine.copy_preset("Glass", "Mine")["ok"]
-    path = tmp_path / "theme_studio" / "user_themes" / "mine.json"
-    before = json.loads(path.read_text(encoding="utf-8"))
-    preset_path = tmp_path / "theme_studio" / "presets" / "glass.json"
-    preset_before = preset_path.read_text(encoding="utf-8")
-
-    result = engine.save_variant("Mine", "light", {"base_color": "#123456", "radius": 9.0})
-
-    assert result == {"ok": True, "name": "Mine", "variant": "light"}
-    after = json.loads(path.read_text(encoding="utf-8"))
-    assert after["light"]["base_color"] == "#123456"
-    assert after["light"]["radius"] == 9.0
-    assert after["dark"] == before["dark"]
-    assert "_path" not in after and "_user_theme" not in after
-
-    refused = engine.save_variant("Glass", "light", {"base_color": "#123456"})
-    assert refused["ok"] is False and refused["reason"] == "built_in"
-    assert preset_path.read_text(encoding="utf-8") == preset_before
-    assert engine.save_variant("Nope", "dark", {})["reason"] == "not_found"
-
-
-def test_read_theme_tells_presets_from_user_themes(tmp_path) -> None:
-    engine, _ = engine_for(tmp_path)
-    assert engine.copy_preset("Glass", "Mine")["ok"]
-    assert engine.read_theme("Glass")["_user_theme"] is False
-    assert engine.read_theme("Mine")["_user_theme"] is True
-    assert engine.read_theme("Does not exist") is None
-
-
-def test_save_as_new_takes_the_other_variant_from_the_source(tmp_path) -> None:
-    engine, _ = engine_for(tmp_path)
-    glass = engine.read_theme("Glass")
-
-    result = engine.save_as_new("Fresh", "Glass", "dark", {"base_color": "#222222"})
-
-    assert result["ok"], result
-    stored = json.loads((tmp_path / "theme_studio" / "user_themes" / "fresh.json").read_text(encoding="utf-8"))
-    assert stored["name"] == "Fresh"
-    assert stored["dark"]["base_color"] == "#222222"
-    assert stored["light"] == glass["light"]
-    # Existing user themes and built-in preset names are never taken.
-    assert engine.save_as_new("Fresh", "Glass", "dark", {})["reason"] == "exists"
-    assert engine.save_as_new("Glass", "Glass", "dark", {})["reason"] == "exists"
-    assert engine.save_as_new("  ", "Glass", "dark", {})["reason"] == "missing_name"
-
-
-def test_retired_variant_entities_are_found() -> None:
-    migration = load_module("migration")
-    entry = types.SimpleNamespace
-    entries = [
-        entry(entity_id="text.theme_studio_light_base_color", platform="theme_studio",
-              unique_id="theme_studio_light_base_color"),
-        entry(entity_id="number.theme_studio_dark_radius", platform="theme_studio",
-              unique_id="theme_studio_dark_radius"),
-        entry(entity_id="text.theme_studio_theme_base_color", platform="theme_studio",
-              unique_id="theme_studio_theme_base_color"),
-        entry(entity_id="text.theme_studio_light_other", platform="other",
-              unique_id="theme_studio_light_other"),
-    ]
-    assert migration.find_retired_entities(entries, "theme_studio") == [
-        "text.theme_studio_light_base_color",
-        "number.theme_studio_dark_radius",
-    ]
-
-
-def test_every_variant_helper_is_a_theme_setting() -> None:
-    definitions = load_module("definitions").load_definitions()
-    engine_module = load_module("engine")
-    cli = engine_module.ThemeEngine.create("/tmp/unused").cli
-    keys = set(engine_module._variant_setting_keys(cli))
-    assert not [d.key for d in definitions if d.key.startswith(("theme_studio_light_", "theme_studio_dark_"))]
-    for definition in definitions:
-        if definition.variant:
-            assert definition.setting in keys, definition.key
-    assert "color_model" in cli.SETTING_KEYS
-
-
 def test_oklch_colour_model_gives_valid_and_different_colours() -> None:
     engine_module = load_module("engine")
     cli = engine_module.ThemeEngine.create("/tmp/unused").cli
@@ -549,28 +439,9 @@ def test_oklch_colour_model_gives_valid_and_different_colours() -> None:
     assert unknown == hsl
 
 
-def test_every_live_argument_regenerates_the_preview() -> None:
-    """Changing any value the live theme is built from must rebuild it."""
-    import yaml
-
-    const = load_module("const")
-    package = yaml.safe_load(PACKAGE_PATH.read_text(encoding="utf-8"))
-    watched: set[str] = set()
-    for automation in package["automation"]:
-        if "theme_studio.generate" not in json.dumps(automation.get("action")):
-            continue
-        for trigger in automation.get("trigger", []):
-            entity_ids = trigger.get("entity_id") or []
-            watched |= {entity_ids} if isinstance(entity_ids, str) else set(entity_ids)
-    # The image URL follows the background image picker, which is watched.
-    indirect = {"text.theme_studio_theme_background_image_url"}
-    missing = set(const.LIVE_ARGUMENT_ENTITIES.values()) - watched - indirect
-    assert not missing, sorted(missing)
-
-
 def test_panel_theme_cards_list_presets_then_user_themes(tmp_path) -> None:
     engine, _ = engine_for(tmp_path)
-    assert engine.copy_preset("Glass", "Mine")["ok"]
+    assert engine.new_theme("glass", "Mine")["ok"]
 
     cards = engine.theme_cards()
 
@@ -841,7 +712,8 @@ def test_theme_registry_adds_themes_and_survives_reload(tmp_path) -> None:
     assert asyncio.run(registry.async_start())
 
     themes = hass.data["frontend_themes"]
-    assert {"Evening", "Theme Studio Standard", "Theme Studio Dynamic", "Other"} <= set(themes)
+    assert {"Evening", "Theme Studio Standard", "Other"} <= set(themes)
+    assert "Theme Studio Dynamic" not in themes
     assert set(themes["Evening"]["modes"]) == {"light", "dark"}
     assert all(isinstance(value, str) for value in themes["Evening"]["modes"]["dark"].values())
     # A saved default that Home Assistant dropped at start-up is restored.

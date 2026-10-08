@@ -91,7 +91,7 @@ export const OVERLAYS: [string, string][] = [
   ["halo", "Halo"],
 ];
 
-/** The font names the dashboard's font buttons use. */
+/** The font names the Type section offers. */
 export const FONTS: [string, string][] = [
   ["sans-serif", "Sans-serif"],
   ["system-ui", "System"],
@@ -258,7 +258,7 @@ export const SECTIONS: Section[] = [
       {
         id: "shape",
         title: "Shape",
-        hint: "Chip corners round the small pill buttons (Living room, Kitchen … in the preview). Home Assistant's own cards do not use it; the Theme Studio dashboard and your own card-mod styles can, through --theme-studio-chip-radius.",
+        hint: "Chip corners round the small pill buttons (Living room, Kitchen … in the preview). Home Assistant's own cards do not use it; your own card-mod styles can, through --theme-studio-chip-radius.",
         controls: [
           { type: "slider", key: "radius", label: "Card corners", unit: "px" },
           { type: "slider", key: "chip_radius", label: "Chip corners", unit: "px" },

@@ -55,6 +55,7 @@ class AssetInstallResult:
     skipped_files: list[str] = field(default_factory=list)
     backups: list[str] = field(default_factory=list)
     removed_files: list[str] = field(default_factory=list)
+    retired_files: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
 
     @property
@@ -72,6 +73,7 @@ class AssetInstallResult:
             "skipped_files": self.skipped_files,
             "backups": self.backups,
             "removed_files": self.removed_files,
+            "retired_files": self.retired_files,
             "errors": self.errors,
         }
 
@@ -94,8 +96,6 @@ def initialize_assets(
     config_dir = Path(hass.config.path())
 
     target_dirs = {
-        "packages": config_dir / "packages",
-        "lovelace": config_dir / "lovelace",
         "themes": config_dir / "themes",
         "theme_studio": config_dir / "theme_studio",
         "www": config_dir / "www",
@@ -121,6 +121,7 @@ def initialize_assets(
         )
 
     _remove_obsolete_files(config_dir, result)
+    _retire_classic_dashboard(config_dir, result)
 
     _LOGGER.info(
         "Theme Studio assets installed. copied=%s updated=%s skipped=%s backups=%s errors=%s",
@@ -159,8 +160,6 @@ async def async_initialize_assets(
 def _copy_jobs(config_dir: Path) -> list[tuple[Path, Path]]:
     """Return (bundled source, /config destination) pairs."""
     return [
-        (TEMPLATES_DIR / "packages", config_dir / "packages"),
-        (TEMPLATES_DIR / "lovelace", config_dir / "lovelace"),
         (TEMPLATES_DIR / "themes", config_dir / "themes"),
         (TEMPLATES_DIR / "theme_studio" / "presets", config_dir / "theme_studio" / "presets"),
         (TEMPLATES_DIR / "www" / "background", config_dir / "www" / "background"),
@@ -173,12 +172,34 @@ OBSOLETE_FILES = (
     ("theme_studio", "scripts", "theme_studio_cli.py"),
 )
 
-# Removed on uninstall in addition to the bundled files themselves.
-GENERATED_FILES = (
+# The YAML dashboard, its package and its live theme, removed in v1.0.0.
+# On update they are renamed to <file>.bak_YYYYMMDD_HHMMSS, so they can be
+# restored by hand; the .bak files are only deleted on uninstall.
+RETIRED_FILES = (
+    ("packages", "theme_studio_dynamic.yaml"),
+    ("lovelace", "theme_studio_dashboard.yaml"),
+    ("themes", "theme_studio_dynamic.yaml"),
     ("themes", "theme_studio", "theme_studio_dynamic.yaml"),
 )
+# The live theme was written next to the user's built themes; a user theme
+# named "Theme Studio Dynamic" builds to the same file, with light/dark modes.
+RETIRED_LIVE_THEME = ("themes", "theme_studio", "theme_studio_dynamic.yaml")
 
-# Generated folders whose files are removed on uninstall (exports are kept).
+
+def _is_retired_file(path: Path, config_dir: Path) -> bool:
+    """True for a file of the removed dashboard, never for a built user theme."""
+    if not path.is_file() or _is_protected_target(path, config_dir):
+        return False
+    if path != config_dir.joinpath(*RETIRED_LIVE_THEME):
+        return True
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False
+    return text.startswith("Theme Studio Dynamic:") and "\n  modes:" not in text
+
+# Generated folders whose files are removed on update and uninstall: the
+# dashboard's preset previews (exports are kept).
 GENERATED_DIRS = (
     ("www", "theme_studio", "previews"),
 )
@@ -222,8 +243,10 @@ def remove_assets(hass: HomeAssistant) -> dict[str, Any]:
             for backup_file in target.parent.glob(f"{target.name}.bak_*"):
                 _remove(backup_file)
 
-    for parts in GENERATED_FILES + OBSOLETE_FILES:
+    for parts in RETIRED_FILES + OBSOLETE_FILES:
         target = config_dir.joinpath(*parts)
+        if parts in RETIRED_FILES and target.is_file() and not _is_retired_file(target, config_dir):
+            continue  # a built user theme that happens to have the same name
         _remove(target)
         for backup_file in target.parent.glob(f"{target.name}.bak_*"):
             _remove(backup_file)
@@ -266,6 +289,39 @@ def _remove_obsolete_files(config_dir: Path, result: AssetInstallResult) -> None
         try:
             if path.parent.is_dir() and not any(path.parent.iterdir()):
                 path.parent.rmdir()
+        except OSError:
+            pass
+
+
+def _retire_classic_dashboard(config_dir: Path, result: AssetInstallResult) -> None:
+    """Move the files of the removed YAML dashboard aside, keeping a backup."""
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    for parts in RETIRED_FILES:
+        path = config_dir.joinpath(*parts)
+        if not _is_retired_file(path, config_dir):
+            continue
+        backup_path = path.with_name(f"{path.name}.bak_{stamp}")
+        try:
+            path.rename(backup_path)
+        except OSError as err:
+            result.errors.append(f"Could not move {path} aside: {err}")
+            continue
+        result.retired_files.append(_display(path))
+        result.backups.append(_display(backup_path))
+
+    for parts in GENERATED_DIRS:
+        folder = config_dir.joinpath(*parts)
+        if not folder.is_dir():
+            continue
+        for generated in folder.glob("*.svg"):
+            try:
+                generated.unlink()
+                result.removed_files.append(_display(generated))
+            except OSError as err:
+                result.errors.append(f"Could not remove {generated}: {err}")
+        try:
+            if not any(folder.iterdir()):
+                folder.rmdir()
         except OSError:
             pass
 

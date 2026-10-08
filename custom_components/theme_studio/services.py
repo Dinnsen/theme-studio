@@ -1,4 +1,8 @@
-"""Theme Studio services (replace the former shell_command entries)."""
+"""Theme Studio services, for automations and scripts.
+
+The Theme Studio panel does not use these; it talks to the integration over
+its WebSocket commands (websocket.py).
+"""
 
 from __future__ import annotations
 
@@ -6,82 +10,39 @@ import ast
 import json
 from typing import Any
 
-from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.dispatcher import async_dispatcher_send
-from homeassistant.helpers.event import async_call_later
 import voluptuous as vol
 
 from .asset_manager import async_initialize_assets
 from .const import (
     DOMAIN,
-    LIVE_ARGUMENT_ENTITIES,
     SERVICE_BUILD_THEME,
-    SERVICE_COPY_PRESET,
     SERVICE_DELETE_USER_THEME,
-    SERVICE_GENERATE,
+    SERVICE_EXPORT_USER_THEME,
+    SERVICE_IMPORT_USER_THEME,
     SERVICE_INITIALIZE_ASSETS,
-    SERVICE_REFRESH_CATALOGS,
     SERVICE_REINSTALL_ASSETS,
     SERVICE_SAVE_PRESET,
-    SERVICE_COPY_VARIANT,
-    SERVICE_EXPORT_USER_THEME,
-    SERVICE_LOAD,
-    SERVICE_SAVE,
-    SERVICE_SAVE_AS_NEW,
-    SERVICE_IMPORT_USER_THEME,
-    SERVICE_PALETTE_FROM_IMAGE,
-    SERVICE_SET_OPTIONS,
     SERVICE_THEME_FROM_IMAGE,
-    SERVICE_UNDO,
-    SIGNAL_CATALOGS_CHANGED,
-    SIGNAL_CONTRAST_UPDATED,
-    SELECT_USER_THEMES,
 )
 from .engine import ThemeEngine
-from .theme_registry import async_reload_themes
 from .sharing import ImportError_
-from . import studio
-from .variants import VARIANTS, mirror_variant, other_variant
+from .theme_registry import async_reload_themes
 
-UNDO_SETTLE_SECONDS = 2.0
 NOTIFICATION_ID = "theme_studio_share"
 
 NAME_SCHEMA = vol.Schema({vol.Required("name"): cv.string})
 
 
-def _entry(hass: HomeAssistant):
+def _engine(hass: HomeAssistant) -> ThemeEngine:
     entries = hass.config_entries.async_loaded_entries(DOMAIN)
     if not entries:
         raise ServiceValidationError(
             translation_domain=DOMAIN, translation_key="not_loaded"
         )
-    return entries[0]
-
-
-def _engine(hass: HomeAssistant) -> ThemeEngine:
-    return _entry(hass).runtime_data.engine
-
-
-async def async_generate(hass: HomeAssistant) -> dict[str, Any]:
-    """Build the live theme from the editor entities and publish its contrast."""
-    entry = _entry(hass)
-    arguments = {
-        argument: _state(hass, entity_id)
-        for argument, entity_id in LIVE_ARGUMENT_ENTITIES.items()
-    }
-    result = await hass.async_add_executor_job(entry.runtime_data.engine.generate_live, arguments)
-    entry.runtime_data.contrast = result.get("contrast", [])
-    entry.runtime_data.history.record(
-        {entity_id: _state(hass, entity_id) for entity_id in LIVE_ARGUMENT_ENTITIES.values()}
-    )
-    async_dispatcher_send(hass, SIGNAL_CONTRAST_UPDATED)
-    # Only push a theme reload to every connected screen when it changed.
-    if result.get("changed"):
-        await _reload_themes(hass)
-    return result
+    return entries[0].runtime_data.engine
 
 
 async def _async_notify(hass: HomeAssistant, title: str, message: str) -> None:
@@ -91,32 +52,6 @@ async def _async_notify(hass: HomeAssistant, title: str, message: str) -> None:
         {"title": title, "message": message, "notification_id": NOTIFICATION_ID},
         blocking=True,
     )
-
-
-async def _async_set_entity_value(hass: HomeAssistant, entity_id: str, value: str) -> None:
-    domain = entity_id.split(".", 1)[0]
-    if domain == "switch":
-        service = "turn_on" if str(value).lower() in ("on", "true", "1") else "turn_off"
-        await hass.services.async_call("switch", service, {"entity_id": entity_id}, blocking=True)
-    elif domain == "select":
-        await hass.services.async_call(
-            "select", "select_option", {"entity_id": entity_id, "option": value}, blocking=True
-        )
-    elif domain == "number":
-        await hass.services.async_call(
-            "number", "set_value", {"entity_id": entity_id, "value": float(value)}, blocking=True
-        )
-    else:
-        await hass.services.async_call(
-            "text", "set_value", {"entity_id": entity_id, "value": value}, blocking=True
-        )
-
-
-def _state(hass: HomeAssistant, entity_id: str) -> str:
-    state = hass.states.get(entity_id)
-    if state is None or state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
-        return ""
-    return state.state
 
 
 def _parse_payload(value: Any) -> dict[str, Any]:
@@ -136,10 +71,6 @@ def _parse_payload(value: Any) -> dict[str, Any]:
     )
 
 
-async def _reload_themes(hass: HomeAssistant) -> None:
-    await async_reload_themes(hass)
-
-
 def async_setup_services(hass: HomeAssistant) -> None:
     """Register Theme Studio services."""
 
@@ -155,128 +86,6 @@ def async_setup_services(hass: HomeAssistant) -> None:
             hass, overwrite=True, backup=bool(call.data.get("backup", True))
         )
 
-    async def generate(call: ServiceCall) -> ServiceResponse:
-        return await async_generate(hass)
-
-    def _definitions():
-        return _entry(hass).runtime_data.definitions
-
-    async def _refresh_catalogs(engine: ThemeEngine) -> None:
-        await hass.async_add_executor_job(engine.write_user_theme_index)
-        async_dispatcher_send(hass, SIGNAL_CATALOGS_CHANGED)
-
-    async def save(call: ServiceCall) -> ServiceResponse:
-        engine = _engine(hass)
-        loaded = studio.loaded_variant(hass)
-        variant = call.data.get("variant") or loaded
-        if variant != loaded:
-            # The editor holds the loaded variant; writing it into the other
-            # variant would overwrite Light with Dark (or the reverse).
-            await studio.async_idle(
-                hass, f"Save blocked: {loaded.capitalize()} is loaded, load {variant.capitalize()} first"
-            )
-            return {"ok": False, "reason": "variant_not_loaded", "loaded": loaded}
-        name = call.data.get("name") or studio.selected_user_theme(hass)
-        if not name:
-            await studio.async_idle(hass, "Save blocked: built-in presets cannot be overwritten")
-            return {"ok": False, "reason": "built_in"}
-        await studio.async_busy(hass, f"Saving {variant.capitalize()}: {name}")
-        settings = studio.read_editor(hass, _definitions())
-        result = await hass.async_add_executor_job(engine.save_variant, name, variant, settings)
-        if not result.get("ok"):
-            reason = "built-in presets cannot be overwritten" if result.get("reason") == "built_in" else result.get("reason")
-            await studio.async_idle(hass, f"Save blocked: {reason}")
-            return result
-        await _refresh_catalogs(engine)
-        await studio.async_idle(hass)
-        return result
-
-    async def load(call: ServiceCall) -> ServiceResponse:
-        engine = _engine(hass)
-        variant = call.data.get("variant") or studio.loaded_variant(hass)
-        name = call.data.get("name") or studio.selected_theme(hass)
-        theme = await hass.async_add_executor_job(engine.read_theme, name)
-        if theme is None:
-            await studio.async_idle(hass, f"Not found: {name}")
-            return {"ok": False, "reason": "not_found", "name": name}
-        await studio.async_busy(hass, f"Loading {variant.capitalize()}: {theme.get('name', name)}")
-        await studio.async_set(hass, studio.TEXT_LOADED_VARIANT, variant.capitalize())
-        await studio.async_set(hass, studio.TEXT_THEME_NAME, str(theme.get("name", name))[:100])
-        values = theme.get(variant) or theme.get("theme") or {}
-        # Themes saved before v0.9.0 have no colour model and were built with HSL.
-        values = {"color_model": "hsl", **values}
-        changed = await studio.async_write_editor(hass, _definitions(), values)
-        await studio.async_idle(hass)
-        return {"ok": True, "name": theme.get("name", name), "variant": variant, "changed": changed}
-
-    async def save_as_new(call: ServiceCall) -> ServiceResponse:
-        engine = _engine(hass)
-        name = (call.data.get("name") or _state(hass, studio.TEXT_THEME_NAME) or "My Theme").strip()
-        variant = studio.loaded_variant(hass)
-        source = studio.selected_theme(hass)
-        await studio.async_busy(hass, f"Saving {source} as {name}")
-        settings = studio.read_editor(hass, _definitions())
-        result = await hass.async_add_executor_job(engine.save_as_new, name, source, variant, settings)
-        if not result.get("ok"):
-            message = (
-                f"Save as new blocked: {name} already exists"
-                if result.get("reason") == "exists"
-                else "Save as new blocked: type a name first"
-            )
-            await studio.async_idle(hass, message)
-            return result
-        await _refresh_catalogs(engine)
-        state = hass.states.get(SELECT_USER_THEMES)
-        if state is not None:
-            options = list(state.attributes.get("options") or [])
-            if name not in options:
-                await hass.services.async_call(
-                    DOMAIN,
-                    SERVICE_SET_OPTIONS,
-                    {"entity_id": SELECT_USER_THEMES, "options": [*options, name]},
-                    blocking=True,
-                )
-            # Selecting the new theme loads it through the studio's autoload flow.
-            await studio.async_set(hass, SELECT_USER_THEMES, name)
-        await studio.async_idle(hass)
-        return result
-
-    async def copy_variant(call: ServiceCall) -> ServiceResponse:
-        engine = _engine(hass)
-        source = call.data["source"]
-        target = other_variant(source)
-        name = studio.selected_theme(hass)
-        theme = await hass.async_add_executor_job(engine.read_theme, name)
-        if theme is None:
-            return {"ok": False, "reason": "not_found", "name": name}
-        source_values = {key: str(value) for key, value in (theme.get(source) or {}).items()}
-        target_values = mirror_variant(source_values, target)
-        await studio.async_set(hass, studio.TEXT_LOADED_VARIANT, target.capitalize())
-        changed = await studio.async_write_editor(hass, _definitions(), target_values)
-        await studio.async_idle(hass, f"Copied {source} to {target}: press Save to keep it")
-        return {"ok": True, "source": source, "target": target, "changed": changed}
-
-    async def undo(call: ServiceCall) -> ServiceResponse:
-        history = _entry(hass).runtime_data.history
-        previous = history.undo()
-        if previous is None:
-            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="nothing_to_undo")
-        history.restoring = True
-        try:
-            for entity_id, value in previous.items():
-                state = hass.states.get(entity_id)
-                if state is None or state.state == value or value == "":
-                    continue
-                await _async_set_entity_value(hass, entity_id, value)
-        finally:
-            # The live theme is rebuilt a moment after the last change; ignore
-            # that rebuild so the restored step is not recorded twice.
-            def _done(_now) -> None:
-                history.restoring = False
-
-            async_call_later(hass, UNDO_SETTLE_SECONDS, _done)
-        return {"ok": True, "steps_left": len(history) - 1}
-
     async def export_user_theme(call: ServiceCall) -> ServiceResponse:
         engine = _engine(hass)
         name = call.data["name"]
@@ -291,7 +100,7 @@ def async_setup_services(hass: HomeAssistant) -> None:
             hass,
             f"Theme Studio: {result['name']} exported",
             f"[Download {result['url'].rsplit('/', 1)[-1]}]({result['url']})\n\n"
-            "Share string (paste it into *Import user theme*):\n\n"
+            "Share code (paste it into Import in the Theme Studio panel):\n\n"
             f"`{result['share_string']}`",
         )
         return result
@@ -315,18 +124,16 @@ def async_setup_services(hass: HomeAssistant) -> None:
                 translation_key="invalid_import",
                 translation_placeholders={"reason": str(err)},
             ) from err
-        await hass.async_add_executor_job(engine.write_user_theme_index)
-        async_dispatcher_send(hass, SIGNAL_CATALOGS_CHANGED)
         lines = [f"- {item['name']}" for item in imported] or ["Nothing imported."]
         lines += [f"- {item.get('file', item.get('name', ''))}: {item.get('reason', '')}" for item in failed]
         if not data:
-            lines.append("\nPut .json or share-string .txt files in `/config/theme_studio/imports/`.")
+            lines.append("\nPut .json or share-code .txt files in `/config/theme_studio/imports/`.")
         await _async_notify(hass, "Theme Studio import", "\n".join(lines))
         return result
 
     async def theme_from_image(call: ServiceCall) -> ServiceResponse:
         engine = _engine(hass)
-        image = call.data.get("image") or _state(hass, "select.theme_studio_theme_background_image_select")
+        image = call.data["image"]
         try:
             result = await hass.async_add_executor_job(
                 engine.theme_from_image, image, call.data.get("name")
@@ -343,84 +150,25 @@ def async_setup_services(hass: HomeAssistant) -> None:
                 translation_key="image_not_readable",
                 translation_placeholders={"image": str(image), "error": result.get("reason", "")},
             )
-        await hass.async_add_executor_job(engine.write_user_theme_index)
-        async_dispatcher_send(hass, SIGNAL_CATALOGS_CHANGED)
-        # Make the new theme selectable and open it in the studio.
-        state = hass.states.get(SELECT_USER_THEMES)
-        if state is not None:
-            options = list(state.attributes.get("options") or [])
-            if result["name"] not in options:
-                await hass.services.async_call(
-                    DOMAIN,
-                    SERVICE_SET_OPTIONS,
-                    {"entity_id": SELECT_USER_THEMES, "options": [*options, result["name"]]},
-                    blocking=True,
-                )
-            await hass.services.async_call(
-                "select",
-                "select_option",
-                {"entity_id": SELECT_USER_THEMES, "option": result["name"]},
-                blocking=True,
-            )
-        return result
-
-    async def palette_from_image(call: ServiceCall) -> ServiceResponse:
-        engine = _engine(hass)
-        image = call.data.get("image") or _state(hass, "select.theme_studio_theme_background_image_select")
-        try:
-            result = await hass.async_add_executor_job(engine.palette_from_image, image)
-        except (OSError, ValueError) as err:
-            raise ServiceValidationError(
-                translation_domain=DOMAIN,
-                translation_key="image_not_readable",
-                translation_placeholders={"image": str(image), "error": str(err)},
-            ) from err
-        if not result.get("ok"):
-            raise ServiceValidationError(
-                translation_domain=DOMAIN,
-                translation_key="image_not_readable",
-                translation_placeholders={"image": str(image), "error": result.get("reason", "")},
-            )
-        if call.data.get("apply"):
-            # Editor values only; Undo brings the previous colours back.
-            await _async_set_entity_value(
-                hass, "text.theme_studio_theme_base_color", result["suggested_base_color"]
-            )
-            await _async_set_entity_value(
-                hass, "text.theme_studio_theme_accent_color_override", result["suggested_accent_color"]
-            )
-            await _async_set_entity_value(
-                hass,
-                "number.theme_studio_theme_background_contrast",
-                str(result["suggested_background_contrast"]),
-            )
         return result
 
     async def save_preset(call: ServiceCall) -> ServiceResponse:
         engine = _engine(hass)
         payload = _parse_payload(call.data["payload"])
-        result = await hass.async_add_executor_job(engine.save_preset, payload)
-        await hass.async_add_executor_job(engine.write_user_theme_index)
-        async_dispatcher_send(hass, SIGNAL_CATALOGS_CHANGED)
-        return result
-
-    async def copy_preset(call: ServiceCall) -> ServiceResponse:
-        engine = _engine(hass)
-        result = await hass.async_add_executor_job(
-            engine.copy_preset, call.data["source"], call.data["name"]
-        )
-        await hass.async_add_executor_job(engine.write_user_theme_index)
-        async_dispatcher_send(hass, SIGNAL_CATALOGS_CHANGED)
-        return result
+        return await hass.async_add_executor_job(engine.save_preset, payload)
 
     async def delete_user_theme(call: ServiceCall) -> ServiceResponse:
         engine = _engine(hass)
-        result = await hass.async_add_executor_job(
-            engine.delete_user_theme, call.data["name"]
-        )
-        await hass.async_add_executor_job(engine.write_user_theme_index)
-        async_dispatcher_send(hass, SIGNAL_CATALOGS_CHANGED)
-        await _reload_themes(hass)
+        # Same as Delete in the panel: a .bak copy of the user theme is kept.
+        slug = engine.cli.slugify(call.data["name"])
+        result = await hass.async_add_executor_job(engine.delete_theme, slug)
+        if not result.get("ok"):
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="user_theme_not_found",
+                translation_placeholders={"name": call.data["name"]},
+            )
+        await async_reload_themes(hass)
         return result
 
     async def build_theme(call: ServiceCall) -> ServiceResponse:
@@ -433,13 +181,7 @@ def async_setup_services(hass: HomeAssistant) -> None:
                 translation_key="preset_not_found",
                 translation_placeholders={"name": call.data["name"], "error": str(err)},
             ) from err
-        await _reload_themes(hass)
-        return result
-
-    async def refresh_catalogs(call: ServiceCall) -> ServiceResponse:
-        engine = _engine(hass)
-        result = await hass.async_add_executor_job(engine.write_user_theme_index)
-        async_dispatcher_send(hass, SIGNAL_CATALOGS_CHANGED)
+        await async_reload_themes(hass)
         return result
 
     asset_schema = vol.Schema(
@@ -456,47 +198,15 @@ def async_setup_services(hass: HomeAssistant) -> None:
             vol.Schema({vol.Optional("backup", default=True): cv.boolean}),
             SupportsResponse.ONLY,
         ),
-        (SERVICE_GENERATE, generate, vol.Schema({}), SupportsResponse.OPTIONAL),
         (
             SERVICE_SAVE_PRESET,
             save_preset,
             vol.Schema({vol.Required("payload"): vol.Any(dict, cv.string)}),
             SupportsResponse.OPTIONAL,
         ),
-        (
-            SERVICE_COPY_PRESET,
-            copy_preset,
-            vol.Schema({vol.Required("source"): cv.string, vol.Required("name"): cv.string}),
-            SupportsResponse.OPTIONAL,
-        ),
         (SERVICE_DELETE_USER_THEME, delete_user_theme, NAME_SCHEMA, SupportsResponse.OPTIONAL),
         (SERVICE_BUILD_THEME, build_theme, NAME_SCHEMA, SupportsResponse.OPTIONAL),
-        (SERVICE_REFRESH_CATALOGS, refresh_catalogs, vol.Schema({}), SupportsResponse.OPTIONAL),
-        (SERVICE_UNDO, undo, vol.Schema({}), SupportsResponse.OPTIONAL),
-        (
-            SERVICE_SAVE,
-            save,
-            vol.Schema({vol.Optional("variant"): vol.In(VARIANTS), vol.Optional("name"): cv.string}),
-            SupportsResponse.OPTIONAL,
-        ),
-        (
-            SERVICE_LOAD,
-            load,
-            vol.Schema({vol.Optional("variant"): vol.In(VARIANTS), vol.Optional("name"): cv.string}),
-            SupportsResponse.OPTIONAL,
-        ),
-        (
-            SERVICE_SAVE_AS_NEW,
-            save_as_new,
-            vol.Schema({vol.Optional("name"): cv.string}),
-            SupportsResponse.OPTIONAL,
-        ),
-        (
-            SERVICE_EXPORT_USER_THEME,
-            export_user_theme,
-            NAME_SCHEMA,
-            SupportsResponse.OPTIONAL,
-        ),
+        (SERVICE_EXPORT_USER_THEME, export_user_theme, NAME_SCHEMA, SupportsResponse.OPTIONAL),
         (
             SERVICE_IMPORT_USER_THEME,
             import_user_theme,
@@ -506,19 +216,7 @@ def async_setup_services(hass: HomeAssistant) -> None:
         (
             SERVICE_THEME_FROM_IMAGE,
             theme_from_image,
-            vol.Schema({vol.Optional("image"): cv.string, vol.Optional("name"): cv.string}),
-            SupportsResponse.OPTIONAL,
-        ),
-        (
-            SERVICE_PALETTE_FROM_IMAGE,
-            palette_from_image,
-            vol.Schema({vol.Optional("image"): cv.string, vol.Optional("apply", default=False): cv.boolean}),
-            SupportsResponse.OPTIONAL,
-        ),
-        (
-            SERVICE_COPY_VARIANT,
-            copy_variant,
-            vol.Schema({vol.Required("source"): vol.In(VARIANTS)}),
+            vol.Schema({vol.Required("image"): cv.string, vol.Optional("name"): cv.string}),
             SupportsResponse.OPTIONAL,
         ),
     ]

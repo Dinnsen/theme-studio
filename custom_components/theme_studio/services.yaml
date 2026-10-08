@@ -19,27 +19,12 @@ reinstall_assets:
       selector:
         boolean:
 
-generate:
-
 save_preset:
   fields:
     payload:
       required: true
       selector:
         object:
-
-copy_preset:
-  fields:
-    source:
-      required: true
-      example: Dark Blue
-      selector:
-        text:
-    name:
-      required: true
-      example: My Theme
-      selector:
-        text:
 
 delete_user_theme:
   fields:
@@ -56,61 +41,6 @@ build_theme:
       example: My Theme
       selector:
         text:
-
-refresh_catalogs:
-
-copy_variant:
-  fields:
-    source:
-      required: true
-      example: dark
-      selector:
-        select:
-          options:
-            - light
-            - dark
-
-save:
-  fields:
-    variant:
-      required: false
-      example: dark
-      selector:
-        select:
-          options:
-            - light
-            - dark
-    name:
-      required: false
-      example: My Theme
-      selector:
-        text:
-
-load:
-  fields:
-    variant:
-      required: false
-      example: light
-      selector:
-        select:
-          options:
-            - light
-            - dark
-    name:
-      required: false
-      example: Glass
-      selector:
-        text:
-
-save_as_new:
-  fields:
-    name:
-      required: false
-      example: My Theme
-      selector:
-        text:
-
-undo:
 
 export_user_theme:
   fields:
@@ -137,7 +67,7 @@ import_user_theme:
 theme_from_image:
   fields:
     image:
-      required: false
+      required: true
       example: orange-fade.jpg
       selector:
         text:
@@ -146,28 +76,3 @@ theme_from_image:
       example: Autumn
       selector:
         text:
-
-palette_from_image:
-  fields:
-    image:
-      required: false
-      example: orange-fade.jpg
-      selector:
-        text:
-    apply:
-      required: false
-      default: false
-      selector:
-        boolean:
-
-set_options:
-  target:
-    entity:
-      integration: theme_studio
-      domain: select
-  fields:
-    options:
-      required: true
-      example: '["None", "My Theme"]'
-      selector:
-        object:

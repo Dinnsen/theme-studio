@@ -13,9 +13,8 @@ import voluptuous as vol
 
 from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.dispatcher import async_dispatcher_send
 
-from .const import DOMAIN, SIGNAL_CATALOGS_CHANGED
+from .const import DOMAIN
 from .engine import ThemeEngine
 from .sharing import ImportError_
 from .theme_registry import async_reload_themes
@@ -183,12 +182,6 @@ async def ws_preview_options(
     connection.send_result(msg["id"], {"options": options})
 
 
-async def _async_catalogs_changed(hass: HomeAssistant, engine: ThemeEngine) -> None:
-    """Keep the dashboard's lists and the theme previews in step."""
-    await hass.async_add_executor_job(engine.write_user_theme_index)
-    async_dispatcher_send(hass, SIGNAL_CATALOGS_CHANGED)
-
-
 def _send_outcome(
     connection: websocket_api.ActiveConnection, msg: dict[str, Any], result: dict[str, Any]
 ) -> bool:
@@ -220,8 +213,7 @@ async def ws_save(
         return
     variants = {variant: msg[variant] for variant in ("light", "dark") if variant in msg}
     result = await hass.async_add_executor_job(engine.save_theme, msg["slug"], msg.get("name"), variants)
-    if _send_outcome(connection, msg, result):
-        await _async_catalogs_changed(hass, engine)
+    _send_outcome(connection, msg, result)
 
 
 @websocket_api.websocket_command(
@@ -249,8 +241,7 @@ async def ws_new(
         result = await hass.async_add_executor_job(
             engine.new_theme, msg.get("source"), msg.get("name"), msg.get("base_color")
         )
-    if _send_outcome(connection, msg, result):
-        await _async_catalogs_changed(hass, engine)
+    _send_outcome(connection, msg, result)
 
 
 @websocket_api.websocket_command({vol.Required("type"): WS_DELETE, vol.Required("slug"): SLUG})
@@ -266,7 +257,6 @@ async def ws_delete(
         return
     result = await hass.async_add_executor_job(engine.delete_theme, msg["slug"])
     if _send_outcome(connection, msg, result):
-        await _async_catalogs_changed(hass, engine)
         if result.get("removed_theme_files"):
             await async_reload_themes(hass)
 
@@ -368,8 +358,7 @@ async def ws_import(
     except ImportError_ as err:
         connection.send_error(msg["id"], str(err), "This is not a Theme Studio theme")
         return
-    if _send_outcome(connection, msg, result):
-        await _async_catalogs_changed(hass, engine)
+    _send_outcome(connection, msg, result)
 
 
 COMMANDS = (

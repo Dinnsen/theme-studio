@@ -1,0 +1,682 @@
+{
+  "version": 1,
+  "settings": [
+    {
+      "key": "contrast",
+      "control": "number",
+      "label": "Contrast",
+      "default": 50.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "hue_shift",
+      "control": "number",
+      "label": "Hue shift",
+      "default": 0.0,
+      "min": -180,
+      "max": 180,
+      "step": 1
+    },
+    {
+      "key": "saturation",
+      "control": "number",
+      "label": "Saturation",
+      "default": 0.0,
+      "min": -50,
+      "max": 50,
+      "step": 1
+    },
+    {
+      "key": "tone",
+      "control": "number",
+      "label": "Tone",
+      "default": 0.0,
+      "min": -25,
+      "max": 25,
+      "step": 1
+    },
+    {
+      "key": "accent_strength",
+      "control": "number",
+      "label": "Accent strength",
+      "default": 50.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "neutrality",
+      "control": "number",
+      "label": "Neutrality",
+      "default": 50.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "card_opacity",
+      "control": "number",
+      "label": "Card opacity",
+      "default": 88.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "blur_strength",
+      "control": "number",
+      "label": "Blur strength",
+      "default": 17.0,
+      "min": 0,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "key": "radius",
+      "control": "number",
+      "label": "Radius",
+      "default": 28.0,
+      "min": 0,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "key": "chip_radius",
+      "control": "number",
+      "label": "Chip radius",
+      "default": 20.0,
+      "min": 0,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "key": "overlay_contrast",
+      "control": "number",
+      "label": "Overlay contrast",
+      "default": 22.0,
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "background_contrast",
+      "control": "number",
+      "label": "Background contrast",
+      "default": 0.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "header_blend_height",
+      "control": "number",
+      "label": "Header blend height",
+      "default": 170.0,
+      "min": 80,
+      "max": 320,
+      "step": 1
+    },
+    {
+      "key": "overlay_offset_y",
+      "control": "number",
+      "label": "Overlay start from top",
+      "default": 29.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "overlay_scale",
+      "control": "number",
+      "label": "Overlay size",
+      "default": 100.0,
+      "min": 50,
+      "max": 200,
+      "step": 1
+    },
+    {
+      "key": "overlay_spread",
+      "control": "number",
+      "label": "Overlay spread",
+      "default": 100.0,
+      "min": 50,
+      "max": 200,
+      "step": 1
+    },
+    {
+      "key": "accent_contrast",
+      "control": "number",
+      "label": "Accent contrast",
+      "default": 0.0,
+      "min": -100,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "card_bg_contrast",
+      "control": "number",
+      "label": "Card background contrast",
+      "default": 0.0,
+      "min": -100,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "bubble_bg_contrast",
+      "control": "number",
+      "label": "Bubble background contrast",
+      "default": 0.0,
+      "min": -100,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "popup_bg_contrast",
+      "control": "number",
+      "label": "Popup background contrast",
+      "default": 0.0,
+      "min": -100,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "surface_lift",
+      "control": "number",
+      "label": "Surface lift",
+      "default": 0.0,
+      "min": -30,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "key": "accent_hue_shift",
+      "control": "number",
+      "label": "Accent hue shift",
+      "default": 0.0,
+      "min": -180,
+      "max": 180,
+      "step": 1
+    },
+    {
+      "key": "accent_saturation",
+      "control": "number",
+      "label": "Accent saturation",
+      "default": 0.0,
+      "min": -50,
+      "max": 50,
+      "step": 1
+    },
+    {
+      "key": "card_bg_hue_shift",
+      "control": "number",
+      "label": "Card bg hue shift",
+      "default": 0.0,
+      "min": -180,
+      "max": 180,
+      "step": 1
+    },
+    {
+      "key": "card_bg_saturation",
+      "control": "number",
+      "label": "Card bg saturation",
+      "default": 0.0,
+      "min": -50,
+      "max": 50,
+      "step": 1
+    },
+    {
+      "key": "bubble_bg_hue_shift",
+      "control": "number",
+      "label": "Bubble bg hue shift",
+      "default": 0.0,
+      "min": -180,
+      "max": 180,
+      "step": 1
+    },
+    {
+      "key": "bubble_bg_saturation",
+      "control": "number",
+      "label": "Bubble bg saturation",
+      "default": 0.0,
+      "min": -50,
+      "max": 50,
+      "step": 1
+    },
+    {
+      "key": "popup_bg_hue_shift",
+      "control": "number",
+      "label": "Popup bg hue shift",
+      "default": 0.0,
+      "min": -180,
+      "max": 180,
+      "step": 1
+    },
+    {
+      "key": "popup_bg_saturation",
+      "control": "number",
+      "label": "Popup bg saturation",
+      "default": 0.0,
+      "min": -50,
+      "max": 50,
+      "step": 1
+    },
+    {
+      "key": "bubble_bg_opacity",
+      "control": "number",
+      "label": "Bubble bg opacity",
+      "default": 92.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "popup_bg_opacity",
+      "control": "number",
+      "label": "Popup bg opacity",
+      "default": 92.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "navbar_bg_opacity",
+      "control": "number",
+      "label": "Navbar bg opacity",
+      "default": 85.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "border_contrast",
+      "control": "number",
+      "label": "Border contrast",
+      "default": 0.0,
+      "min": -100,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "border_hue_shift",
+      "control": "number",
+      "label": "Border hue shift",
+      "default": 0.0,
+      "min": -180,
+      "max": 180,
+      "step": 1
+    },
+    {
+      "key": "border_saturation",
+      "control": "number",
+      "label": "Border saturation",
+      "default": 0.0,
+      "min": -50,
+      "max": 50,
+      "step": 1
+    },
+    {
+      "key": "border_opacity",
+      "control": "number",
+      "label": "Border opacity",
+      "default": 28.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "border_size",
+      "control": "number",
+      "label": "Border size",
+      "default": 4.0,
+      "min": 0,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "key": "shadow_contrast",
+      "control": "number",
+      "label": "Shadow contrast",
+      "default": 0.0,
+      "min": -100,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "shadow_hue_shift",
+      "control": "number",
+      "label": "Shadow hue shift",
+      "default": 0.0,
+      "min": -180,
+      "max": 180,
+      "step": 1
+    },
+    {
+      "key": "shadow_saturation",
+      "control": "number",
+      "label": "Shadow saturation",
+      "default": 0.0,
+      "min": -50,
+      "max": 50,
+      "step": 1
+    },
+    {
+      "key": "shadow_opacity",
+      "control": "number",
+      "label": "Shadow opacity",
+      "default": 42.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "shadow_size",
+      "control": "number",
+      "label": "Shadow size",
+      "default": 40.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "bubble_slider_contrast",
+      "control": "number",
+      "label": "Bubble slider contrast",
+      "default": 0.0,
+      "min": -100,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "bubble_slider_hue_shift",
+      "control": "number",
+      "label": "Bubble slider hue shift",
+      "default": 0.0,
+      "min": -180,
+      "max": 180,
+      "step": 1
+    },
+    {
+      "key": "bubble_slider_saturation",
+      "control": "number",
+      "label": "Bubble slider saturation",
+      "default": 0.0,
+      "min": -50,
+      "max": 50,
+      "step": 1
+    },
+    {
+      "key": "bubble_slider_opacity",
+      "control": "number",
+      "label": "Bubble slider opacity",
+      "default": 100.0,
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "key": "base_color",
+      "control": "text",
+      "label": "Base color",
+      "default": "#344334",
+      "max": 9
+    },
+    {
+      "key": "custom_background_color",
+      "control": "text",
+      "label": "Custom background color",
+      "default": "#344334",
+      "max": 9
+    },
+    {
+      "key": "background_image_url",
+      "control": "text",
+      "label": "Background image url",
+      "default": "/local/background/CloudWhite.png",
+      "max": 255
+    },
+    {
+      "key": "custom_text_color",
+      "control": "text",
+      "label": "Custom text color",
+      "default": "#ffffff",
+      "max": 9
+    },
+    {
+      "key": "custom_icon_color",
+      "control": "text",
+      "label": "Custom icon color",
+      "default": "#ffffff",
+      "max": 9
+    },
+    {
+      "key": "custom_navbar_icon_color",
+      "control": "text",
+      "label": "Custom navbar icon color",
+      "default": "#ffffff",
+      "max": 9
+    },
+    {
+      "key": "navbar_bg_override",
+      "control": "text",
+      "label": "Navbar background override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "bubble_slider_color_override",
+      "control": "text",
+      "label": "Bubble slider color override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "accent_color_override",
+      "control": "text",
+      "label": "Accent color override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "card_bg_override",
+      "control": "text",
+      "label": "Card background override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "bubble_bg_override",
+      "control": "text",
+      "label": "Bubble background override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "popup_bg_override",
+      "control": "text",
+      "label": "Popup background override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "secondary_background_color_override",
+      "control": "text",
+      "label": "Secondary background color override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "secondary_text_color_override",
+      "control": "text",
+      "label": "Secondary text color override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "disabled_text_color_override",
+      "control": "text",
+      "label": "Disabled text color override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "app_header_background_color_override",
+      "control": "text",
+      "label": "App header background color override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "app_header_text_color_override",
+      "control": "text",
+      "label": "App header text color override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "divider_color_override",
+      "control": "text",
+      "label": "Divider color override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "sidebar_icon_color_override",
+      "control": "text",
+      "label": "Sidebar icon color override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "state_icon_color_override",
+      "control": "text",
+      "label": "State icon color override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "state_icon_active_color_override",
+      "control": "text",
+      "label": "State icon active color override",
+      "default": "auto",
+      "max": 16
+    },
+    {
+      "key": "primary_font_family",
+      "control": "text",
+      "label": "Primary font family",
+      "default": "sans-serif",
+      "max": 100
+    },
+    {
+      "key": "custom_font_family",
+      "control": "text",
+      "label": "Custom font family",
+      "default": "CustomFont",
+      "max": 100
+    },
+    {
+      "key": "custom_font_path",
+      "control": "text",
+      "label": "Custom font path",
+      "default": "/local/fonts/custom-font.woff2",
+      "max": 255
+    },
+    {
+      "key": "use_custom_background_color",
+      "control": "switch",
+      "label": "Use custom background color",
+      "default": false
+    },
+    {
+      "key": "use_background_image",
+      "control": "switch",
+      "label": "Use background image",
+      "default": true
+    },
+    {
+      "key": "enable_header_blend",
+      "control": "switch",
+      "label": "Enable header blend",
+      "default": true
+    },
+    {
+      "key": "use_custom_text_color",
+      "control": "switch",
+      "label": "Use custom text color",
+      "default": false
+    },
+    {
+      "key": "use_custom_icon_color",
+      "control": "switch",
+      "label": "Use custom icon color",
+      "default": false
+    },
+    {
+      "key": "use_custom_navbar_icon_color",
+      "control": "switch",
+      "label": "Use custom navbar icon color",
+      "default": false
+    },
+    {
+      "key": "preview_toggle",
+      "control": "switch",
+      "label": "Preview toggle",
+      "default": true
+    },
+    {
+      "key": "use_custom_font",
+      "control": "switch",
+      "label": "Use custom font",
+      "default": false
+    },
+    {
+      "key": "bubble_use_fx",
+      "control": "switch",
+      "label": "Bubble use surface fx",
+      "default": true
+    },
+    {
+      "key": "popup_use_fx",
+      "control": "switch",
+      "label": "Popup use surface fx",
+      "default": true
+    },
+    {
+      "key": "background_overlay",
+      "control": "select",
+      "label": "Background overlay",
+      "default": "diagonal_fade",
+      "options": ["none", "soft_veil", "mesh_glow", "vignette", "aurora", "aurora_vertical", "spotlight", "diagonal_fade", "topographic", "mist", "frost", "dual_orb", "soft_stripes", "cinematic", "halo"]
+    },
+    {
+      "key": "preview_mode",
+      "control": "select",
+      "label": "Preview mode",
+      "default": "Relaxed",
+      "options": ["Relaxed", "Focused", "Vibrant"]
+    },
+    {
+      "key": "border_type",
+      "control": "select",
+      "label": "Border type",
+      "default": "soft_hairline",
+      "options": ["none", "soft_hairline", "glass_edge", "etched", "inner_glow", "accent_line", "double_line", "bevel_edge", "glow_line"]
+    },
+    {
+      "key": "shadow_type",
+      "control": "select",
+      "label": "Shadow effect",
+      "default": "glass_glow",
+      "options": ["none", "soft_depth", "glass_glow", "ambient_lift", "neon_glow", "studio_depth", "drop_shadow", "soft_float", "cinematic_depth"]
+    },
+    {
+      "key": "color_model",
+      "control": "select",
+      "label": "Colour model",
+      "default": "hsl",
+      "options": ["hsl", "oklch"]
+    }
+  ]
+}
