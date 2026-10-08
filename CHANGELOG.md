@@ -2,6 +2,14 @@
 
 All notable changes to Theme Studio. Versions follow [semantic versioning](https://semver.org/); the version is the one in `custom_components/theme_studio/manifest.json`.
 
+## [1.2.2] - 2026-10-08
+
+### Added
+- *New theme → From an image* has an *Upload* tile: upload a photo (PNG, JPEG, WebP or GIF, up to 15 MB) and it is picked straight away, so the new theme takes its colours from it. It is saved in `/config/www/background` like an upload under *Background*, never over another file.
+
+### Fixed
+- A new theme left without a name gets the suggested name shown in the field, in the panel's language (for example "Fra foto" in Danish). Before, it was named in English ("From foto").
+
 ## [1.2.1] - 2026-10-08
 
 ### Fixed

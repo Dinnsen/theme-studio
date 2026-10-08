@@ -913,10 +913,12 @@ export class ThemeStudioPanel extends LitElement {
     if (!this.hass) {
       return;
     }
-    const message: { type: string; [key: string]: unknown } = { type: "theme_studio/theme/new" };
-    if (this._newName.trim()) {
-      message.name = this._newName.trim();
-    }
+    // An empty name takes the suggestion shown in the field, in the panel's
+    // language (the integration would otherwise name it in English).
+    const message: { type: string; [key: string]: unknown } = {
+      type: "theme_studio/theme/new",
+      name: this._newName.trim() || this._newPlaceholder(),
+    };
     if (this._newMode === "image") {
       if (!this._newImage) {
         return;
@@ -1008,10 +1010,11 @@ export class ThemeStudioPanel extends LitElement {
     }
   }
 
-  private async _upload(file: File, section: Section): Promise<void> {
+  /** Saves an image in /config/www/background (never over another file) and reloads the list. */
+  private async _uploadImage(file: File, announce: boolean): Promise<{ url: string; file: string } | undefined> {
     if (!this.hass?.fetchWithAuth) {
       this._showToast(t("toast.upload_unsupported"));
-      return;
+      return undefined;
     }
     const body = new FormData();
     body.append("file", file, file.name);
@@ -1025,12 +1028,30 @@ export class ThemeStudioPanel extends LitElement {
       }
       this._backgrounds = undefined;
       await this._loadBackgrounds();
-      this._change(this._targets(section), { use_background_image: "on", background_image_url: result.url });
-      this._showToast(t("toast.uploaded", { file: result.file ?? "" }));
+      if (announce) {
+        this._showToast(t("toast.uploaded", { file: result.file ?? "" }));
+      }
+      return { url: result.url, file: result.file ?? result.url.split("/").pop() ?? "" };
     } catch (error) {
       this._showToast(t("toast.upload_failed", { error: errorText(error) }));
+      return undefined;
     } finally {
       this._busy = false;
+    }
+  }
+
+  private async _upload(file: File, section: Section): Promise<void> {
+    const result = await this._uploadImage(file, true);
+    if (result) {
+      this._change(this._targets(section), { use_background_image: "on", background_image_url: result.url });
+    }
+  }
+
+  /** An image uploaded in New theme → From an image is picked straight away (the tile shows it). */
+  private async _uploadForNew(file: File): Promise<void> {
+    const result = await this._uploadImage(file, false);
+    if (result) {
+      this._newImage = result.file;
     }
   }
 
@@ -1398,6 +1419,25 @@ export class ThemeStudioPanel extends LitElement {
         </div>
       </div>
     `;
+  }
+
+  private _uploadTile(onFile: (file: File) => void): TemplateResult {
+    return html`<label class="image upload ${this._busy ? "busy" : ""}">
+      <span class="image-none">${icon("upload", 22)}</span><span>${this._busy ? t("images.uploading") : t("images.upload")}</span>
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        ?disabled=${this._busy}
+        @change=${(event: Event) => {
+          const input = event.target as HTMLInputElement;
+          const file = input.files?.[0];
+          input.value = "";
+          if (file) {
+            onFile(file);
+          }
+        }}
+      />
+    </label>`;
   }
 
   /** Reload: in the top bar, and on a phone next to ? to leave room for the name. */
@@ -1855,24 +1895,7 @@ export class ThemeStudioPanel extends LitElement {
           <img src=${item.url} alt="" loading="lazy" /><span>${item.file}</span>
         </button>`,
       )}
-      ${this._canEdit
-        ? html`<label class="image upload ${this._busy ? "busy" : ""}">
-            <span class="image-none">${icon("upload", 22)}</span><span>${this._busy ? t("images.uploading") : t("images.upload")}</span>
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif"
-              ?disabled=${this._busy}
-              @change=${(event: Event) => {
-                const input = event.target as HTMLInputElement;
-                const file = input.files?.[0];
-                input.value = "";
-                if (file) {
-                  void this._upload(file, section);
-                }
-              }}
-            />
-          </label>`
-        : nothing}
+      ${this._canEdit ? this._uploadTile((file) => void this._upload(file, section)) : nothing}
     </div>
     ${images === undefined ? html`<p class="hint">${t("images.loading")}</p>` : nothing}`;
   }
@@ -2190,16 +2213,22 @@ export class ThemeStudioPanel extends LitElement {
     }
   };
 
+  /** The name a new theme gets when the name field is left empty. */
+  private _newPlaceholder(): string {
+    const sourceName = this._themes?.find((theme) => theme.slug === this._newSource)?.name;
+    if (this._newMode === "preset" && sourceName) {
+      return t("new.placeholder_preset", { name: sourceName });
+    }
+    if (this._newMode === "image" && this._newImage) {
+      const stem = this._newImage.replace(/\.[a-z0-9]+$/i, "").replace(/[-_]+/g, " ").trim();
+      return t("new.placeholder_image", { name: stem });
+    }
+    return t("new.placeholder");
+  }
+
   private _renderNewDialog(): TemplateResult {
     const themes = this._themes ?? [];
-    const sourceName = themes.find((theme) => theme.slug === this._newSource)?.name;
-    const image = this._backgrounds?.find((item) => item.file === this._newImage);
-    const placeholder =
-      this._newMode === "preset" && sourceName
-        ? t("new.placeholder_preset", { name: sourceName })
-        : this._newMode === "image" && image
-          ? t("new.placeholder_image", { name: image.file.replace(/\.[a-z0-9]+$/i, "") })
-          : t("new.placeholder");
+    const placeholder = this._newPlaceholder();
     const option = (mode: NewMode, title: string, text: string, glyph: "grid" | "palette" | "image") => html`<button
       class="opt ${this._newMode === mode ? "on" : ""}"
       aria-pressed=${this._newMode === mode ? "true" : "false"}
@@ -2266,8 +2295,7 @@ export class ThemeStudioPanel extends LitElement {
           ${this._newMode === "image"
             ? this._backgrounds === undefined
               ? html`<div class="loading">${t("images.loading")}</div>`
-              : this._backgrounds.length
-                ? html`<div class="images">
+              : html`<div class="images">
                     ${this._backgrounds.map(
                       (item) => html`<button
                         class="image ${item.file === this._newImage ? "on" : ""}"
@@ -2277,8 +2305,9 @@ export class ThemeStudioPanel extends LitElement {
                         <img src=${item.url} alt="" loading="lazy" /><span>${item.file}</span>
                       </button>`,
                     )}
-                  </div>`
-                : html`<p class="hint">${t("new.no_images")}</p>`
+                    ${this._uploadTile((file) => void this._uploadForNew(file))}
+                  </div>
+                  ${this._backgrounds.length ? nothing : html`<p class="hint">${t("new.no_images")}</p>`}`
             : nothing}
           <div class="field">
             <label class="lbl" for="ts-newname">${t("new.name")}</label>
