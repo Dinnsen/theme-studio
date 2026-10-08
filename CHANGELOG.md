@@ -2,6 +2,11 @@
 
 All notable changes to Theme Studio. Versions follow [semantic versioning](https://semver.org/); the version is the one in `custom_components/theme_studio/manifest.json`.
 
+## [1.0.3] - 2026-10-08
+
+### Fixed
+- After *Reload themes*, Theme Studio reads its theme files again, so a theme whose file was removed by hand leaves the theme list instead of coming back.
+
 ## [1.0.2] - 2026-10-08
 
 ### Fixed
@@ -102,6 +107,7 @@ Theme Studio is now the panel in the sidebar. Installing it is HACS, restart, ad
 
 Earlier versions (0.1–0.4, April–May 2026) built the original YAML dashboard and theme generator.
 
+[1.0.3]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.3
 [1.0.2]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.2
 [1.0.1]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.0

@@ -99,6 +99,7 @@ class ThemeRegistry:
         self._themes: dict[str, dict[str, Any]] = {}
         self._added: set[str] = set()
         self._unsub = None
+        self._rereading = False
 
     @property
     def supported(self) -> bool:
@@ -156,9 +157,22 @@ class ThemeRegistry:
 
     @callback
     def _handle_themes_updated(self, event: Event) -> None:
-        """Reload themes replaces the list with the YAML themes; add ours again."""
+        """Reload themes replaces the list with the YAML themes; add ours again.
+
+        The themes are added back straight away from what was read last, then
+        the files are read again, so a theme whose file is gone leaves the list.
+        """
         if self._apply():
             self.hass.bus.async_fire(EVENT_THEMES_UPDATED)
+        if self.active and not self._rereading:
+            self._rereading = True
+            self.hass.async_create_task(self._async_reread())
+
+    async def _async_reread(self) -> None:
+        try:
+            await self.async_refresh()
+        finally:
+            self._rereading = False
 
     async def _async_restore_defaults(self) -> bool:
         store = self.hass.data.get(FRONTEND_STORE)
