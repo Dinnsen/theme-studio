@@ -151,6 +151,7 @@ Each user can also hide or move the panel with Home Assistant's own *Edit sideba
 
 - **Managed files are updated on start.** The built-in presets and *Theme Studio Standard* are refreshed every time the integration starts. A changed file is backed up first as `<file>.bak_YYYYMMDD_HHMMSS`. User themes in `/config/theme_studio/user_themes/` are never touched.
 - **Your default theme is left alone** until you press *Use theme → Everyone*.
+- **Theme files stay current.** When Theme Studio starts, the themes you use (files in `/config/themes/theme_studio/`) are rebuilt if a newer Theme Studio would build them differently. Themes you never used are not built.
 - **Readable colours by default.** Automatic text, icon, navbar and header colours are picked by real (WCAG) contrast against the page, the cards and Bubble cards, and an automatic accent is darkened or lightened until it reaches 3:1. Text on the accent colour (badges, chips) follows the accent. Colours you set yourself are never changed; the panel shows the contrast instead.
 - **No global layout CSS.** Themes do not hide the header, change view padding, blur every card or limit the width of sidebar views. Use [Kiosk Mode](https://github.com/NemesisRE/kiosk-mode) or your own card-mod if you want that.
 - **No entities, no shell commands.** Theme Studio adds no entities and starts no subprocess.

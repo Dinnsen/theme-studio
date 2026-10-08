@@ -1531,8 +1531,6 @@ def build(args):
         'md-sys-color-inverse-surface': hsl(accent_h, surface_s, clamp(94 - surface_l * 0.15, 86, 98)),
         'md-sys-color-inverse-on-surface': background,
         'md-sys-color-inverse-primary': 'var(--accent-color)',
-        'icon-primary-color': 'var(--state-icon-color)',
-        'icon-secondary-color': 'var(--state-icon-active-color)',
         'theme-studio-border-type': border_type,
         'theme-studio-shadow-type': shadow_type,
         'theme-studio-border-css': border_css,

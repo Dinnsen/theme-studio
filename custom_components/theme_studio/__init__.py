@@ -68,6 +68,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ThemeStudioConfigEntry) 
 
     engine = await hass.async_add_executor_job(ThemeEngine.create, hass.config.path())
     entry.runtime_data = ThemeStudioData(engine, install)
+    try:
+        rebuilt = await hass.async_add_executor_job(engine.refresh_built_themes)
+    except (OSError, ValueError) as err:
+        _LOGGER.warning("Theme Studio could not rebuild its theme files: %s", err)
+    else:
+        if rebuilt:
+            _LOGGER.info("Theme Studio rebuilt %s theme files: %s", len(rebuilt), ", ".join(rebuilt))
 
     await async_register_static(hass)
     if await async_register_panel(hass, options):
