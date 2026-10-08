@@ -913,10 +913,12 @@ export class ThemeStudioPanel extends LitElement {
     if (!this.hass) {
       return;
     }
-    const message: { type: string; [key: string]: unknown } = { type: "theme_studio/theme/new" };
-    if (this._newName.trim()) {
-      message.name = this._newName.trim();
-    }
+    // An empty name takes the suggestion shown in the field, in the panel's
+    // language (the integration would otherwise name it in English).
+    const message: { type: string; [key: string]: unknown } = {
+      type: "theme_studio/theme/new",
+      name: this._newName.trim() || this._newPlaceholder(),
+    };
     if (this._newMode === "image") {
       if (!this._newImage) {
         return;
@@ -2211,16 +2213,22 @@ export class ThemeStudioPanel extends LitElement {
     }
   };
 
+  /** The name a new theme gets when the name field is left empty. */
+  private _newPlaceholder(): string {
+    const sourceName = this._themes?.find((theme) => theme.slug === this._newSource)?.name;
+    if (this._newMode === "preset" && sourceName) {
+      return t("new.placeholder_preset", { name: sourceName });
+    }
+    if (this._newMode === "image" && this._newImage) {
+      const stem = this._newImage.replace(/\.[a-z0-9]+$/i, "").replace(/[-_]+/g, " ").trim();
+      return t("new.placeholder_image", { name: stem });
+    }
+    return t("new.placeholder");
+  }
+
   private _renderNewDialog(): TemplateResult {
     const themes = this._themes ?? [];
-    const sourceName = themes.find((theme) => theme.slug === this._newSource)?.name;
-    const image = this._backgrounds?.find((item) => item.file === this._newImage);
-    const placeholder =
-      this._newMode === "preset" && sourceName
-        ? t("new.placeholder_preset", { name: sourceName })
-        : this._newMode === "image" && image
-          ? t("new.placeholder_image", { name: image.file.replace(/\.[a-z0-9]+$/i, "") })
-          : t("new.placeholder");
+    const placeholder = this._newPlaceholder();
     const option = (mode: NewMode, title: string, text: string, glyph: "grid" | "palette" | "image") => html`<button
       class="opt ${this._newMode === mode ? "on" : ""}"
       aria-pressed=${this._newMode === mode ? "true" : "false"}
