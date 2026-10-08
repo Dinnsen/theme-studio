@@ -688,9 +688,19 @@ class _FakeHass:
     def __init__(self, data) -> None:
         self.data = data
         self.bus = _FakeBus()
+        self.tasks = []
 
     async def async_add_executor_job(self, func, *args):
         return func(*args)
+
+    def async_create_task(self, coro):
+        self.tasks.append(coro)
+
+    def run_tasks(self) -> None:
+        import asyncio
+
+        while self.tasks:
+            asyncio.run(self.tasks.pop(0))
 
 
 def test_theme_registry_adds_themes_and_survives_reload(tmp_path) -> None:
@@ -725,9 +735,24 @@ def test_theme_registry_adds_themes_and_survives_reload(tmp_path) -> None:
     registry._handle_themes_updated(None)
     assert "Evening" in hass.data["frontend_themes"]
     assert hass.bus.fired == ["themes_updated", "themes_updated"]
+    hass.run_tasks()  # the files are read again: nothing changed
+    assert len(hass.bus.fired) == 2
     # Its own event changes nothing more, so there is no loop.
     registry._handle_themes_updated(None)
+    hass.run_tasks()
     assert len(hass.bus.fired) == 2
+
+    # A theme file removed by hand leaves the list at the next "Reload themes".
+    built = engine.config_dir / "themes" / "theme_studio" / "evening.yaml"
+    saved = built.read_text(encoding="utf-8")
+    built.unlink()
+    hass.data["frontend_themes"] = {"Other": {"primary-color": "red"}, "Evening": {}}
+    registry._handle_themes_updated(None)
+    hass.run_tasks()
+    assert "Evening" not in hass.data["frontend_themes"]
+    built.write_text(saved, encoding="utf-8")
+    asyncio.run(registry.async_refresh())
+    assert "Evening" in hass.data["frontend_themes"]
 
     # A deleted theme leaves the list again; themes from YAML stay.
     engine.delete_theme("evening")
