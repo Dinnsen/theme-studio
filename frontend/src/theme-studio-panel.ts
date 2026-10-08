@@ -676,15 +676,21 @@ export class ThemeStudioPanel extends LitElement {
         slug: this._edit.slug,
         scope,
       });
-      if (scope === "device") {
-        // The same event the profile page's theme picker sends.
-        this.dispatchEvent(new CustomEvent("settheme", { detail: { theme: result.theme }, bubbles: true, composed: true }));
-      }
+      // The same event the profile page's theme picker sends. For everyone,
+      // this device switches to "use the default theme", so the new default is
+      // visible here too (a theme picked in a profile would otherwise win).
+      this.dispatchEvent(
+        new CustomEvent("settheme", {
+          detail: { theme: scope === "everyone" ? "" : result.theme },
+          bubbles: true,
+          composed: true,
+        }),
+      );
       this._dialog = undefined;
       this._libraryStale = true;
       this._inUse =
         scope === "everyone"
-          ? { ...this._inUse, everyone: [result.theme] }
+          ? { everyone: [result.theme], device: "" }
           : { ...this._inUse, device: result.theme };
       this._showToast(
         scope === "everyone"
@@ -1859,7 +1865,7 @@ export class ThemeStudioPanel extends LitElement {
           </div>
           <div class="opts two">
             ${option("device", "phone", "This device", "Only the browser or app you are using now.")}
-            ${option("everyone", "home", "Everyone", "The default theme for all users and devices.")}
+            ${option("everyone", "home", "Everyone", "The default theme, also on this device. People who picked their own theme in their profile keep it.")}
           </div>
           <p class="hint">After more changes, use the theme again to update it everywhere it is used.</p>
           <div class="field">
