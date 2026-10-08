@@ -719,4 +719,22 @@ export const editorStyles = css`
       bottom: 16px;
     }
   }
+  /* The same phone layout for the dialogs, which sit outside .shell and so
+     outside the container query above (the panel sets .narrow). */
+  .scrim.narrow {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .scrim.narrow .dialog {
+    border-radius: 22px 22px 0 0;
+    width: 100%;
+    max-height: 88vh;
+  }
+  .scrim.narrow .opts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .scrim.narrow .images,
+  .scrim.narrow .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 `;

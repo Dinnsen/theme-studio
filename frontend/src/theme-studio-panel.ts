@@ -217,6 +217,7 @@ export class ThemeStudioPanel extends LitElement {
     _tour: { state: true },
     _tourRect: { state: true },
     _hintRect: { state: true },
+    _tourBox: { state: true },
     _size: { state: true },
     _hint: { state: true },
   };
@@ -263,6 +264,7 @@ export class ThemeStudioPanel extends LitElement {
   declare _tour?: TourState;
   declare _tourRect?: Rect;
   declare _hintRect?: Rect;
+  declare _tourBox?: Rect;
   declare _size: { width: number; height: number };
   declare _hint: boolean;
 
@@ -329,6 +331,10 @@ export class ThemeStudioPanel extends LitElement {
   override connectedCallback(): void {
     super.connectedCallback();
     window.addEventListener("keydown", this._tourKey);
+    // The page or a column scrolls under the guide: follow the highlighted part.
+    window.addEventListener("scroll", this._tourMoved, { capture: true, passive: true });
+    window.addEventListener("resize", this._tourMoved, { passive: true });
+    this.renderRoot.addEventListener("scroll", this._tourMoved, { capture: true, passive: true });
     if (typeof ResizeObserver !== "undefined") {
       this._resizer = new ResizeObserver(() => {
         this._size = { width: this.clientWidth, height: this.clientHeight };
@@ -340,6 +346,9 @@ export class ThemeStudioPanel extends LitElement {
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     window.removeEventListener("keydown", this._tourKey);
+    window.removeEventListener("scroll", this._tourMoved, { capture: true });
+    window.removeEventListener("resize", this._tourMoved);
+    this.renderRoot.removeEventListener("scroll", this._tourMoved, { capture: true });
     this._resizer?.disconnect();
     this._resizer = undefined;
     if (this._tourFrame !== undefined) {
@@ -352,6 +361,11 @@ export class ThemeStudioPanel extends LitElement {
   private get _slug(): string | undefined {
     const match = THEME_ROUTE.exec(this.route?.path ?? "");
     return match ? decodeURIComponent(match[1]) : undefined;
+  }
+
+  /** Phone width. Dialogs sit outside the .shell container, so they cannot use its container queries. */
+  private get _narrow(): boolean {
+    return this._size.width > 0 && this._size.width < 720;
   }
 
   private get _canEdit(): boolean {
@@ -1216,28 +1230,60 @@ export class ThemeStudioPanel extends LitElement {
     }
   };
 
+  private _tourMoved = (): void => {
+    if ((this._tour && this._tour.kind !== "welcome") || this._hint) {
+      if (this._tourFrame === undefined) {
+        this._tourFrame = window.requestAnimationFrame(this._measureTour);
+      }
+    }
+  };
+
+  /**
+   * The part of the panel that is on screen. The guide is laid over it with
+   * fixed positioning: in the Home Assistant app on a phone the panel can be
+   * taller than the screen and scroll with the page, and the guide must stay
+   * where you can see it.
+   */
+  private _visibleBox(): Rect {
+    const host = this.getBoundingClientRect();
+    const viewWidth = window.innerWidth || document.documentElement.clientWidth;
+    const viewHeight = window.visualViewport?.height ?? (window.innerHeight || document.documentElement.clientHeight);
+    const left = Math.max(0, host.left);
+    const top = Math.max(0, host.top);
+    const right = Math.min(viewWidth, host.right);
+    const bottom = Math.min(viewHeight, host.bottom);
+    return { x: Math.round(left), y: Math.round(top), w: Math.round(Math.max(0, right - left)), h: Math.round(Math.max(0, bottom - top)) };
+  }
+
   /** Finds the highlighted element after each render; only stores a new box when it moved. */
   private _measureTour = (): void => {
     this._tourFrame = undefined;
-    const origin = this.getBoundingClientRect();
     const tour = this._tour;
     if (tour && tour.kind !== "welcome") {
       const step = TOURS[tour.kind][tour.step];
       const key = `${tour.kind}:${tour.step}`;
-      // The editor may still be loading; the target is scrolled into view the
-      // first time it exists.
       if (step.targets.length && this._revealed !== key && revealTarget(this.renderRoot, step)) {
         this._revealed = key;
       }
+    }
+    if (this._hint && !this._hintRevealed && revealTarget(this.renderRoot, HELP_STEP)) {
+      this._hintRevealed = true;
+    }
+    const box = this._visibleBox();
+    if (!sameRect(box, this._tourBox)) {
+      this._tourBox = box;
+    }
+    const origin = new DOMRect(box.x, box.y, box.w, box.h);
+    if (tour && tour.kind !== "welcome") {
+      const step = TOURS[tour.kind][tour.step];
+      // The editor may still be loading; the target was scrolled into view
+      // above the first time it existed.
       const rect = step.targets.length ? measureTargets(this.renderRoot, origin, step) : undefined;
       if (!sameRect(rect, this._tourRect)) {
         this._tourRect = rect;
       }
     }
     if (this._hint) {
-      if (!this._hintRevealed && revealTarget(this.renderRoot, HELP_STEP)) {
-        this._hintRevealed = true;
-      }
       const rect = measureTargets(this.renderRoot, origin, HELP_STEP);
       if (!sameRect(rect, this._hintRect)) {
         this._hintRect = rect;
@@ -1257,14 +1303,14 @@ export class ThemeStudioPanel extends LitElement {
 
   private _renderWelcome(): TemplateResult {
     const current = this._language();
-    const narrow = this._size.width > 0 && this._size.width < 720;
+    const narrow = this._narrow;
     const choice = (kind: TourKind, main: boolean) => html`<button class="tour-choice ${main ? "main" : ""}" @click=${() => void this._showStep(kind, 0)}>
       <span class="tour-meta">${t(`tour.${kind}.meta`, { count: TOURS[kind].length })}</span>
       <strong>${icon(kind === "quick" ? "wand" : "grid", 18)}${t(`tour.${kind}`)}</strong>
       <span class="hint">${t(`tour.${kind}.desc`)}</span>
     </button>`;
     return html`
-      <div class="scrim tour-scrim ${narrow ? "sheet" : ""}">
+      <div class="scrim ${narrow ? "narrow" : ""}">
         <div class="dialog tour-welcome" role="dialog" aria-modal="true" aria-labelledby="ts-welcome" tabindex="-1">
           <div class="dhead">
             <div>
@@ -1303,12 +1349,11 @@ export class ThemeStudioPanel extends LitElement {
     const steps = TOURS[kind];
     const step = steps[index];
     const rect = this._tourRect;
-    const width = this._size.width || this.clientWidth;
-    const height = this._size.height || this.clientHeight;
-    const place = placePopover(rect, rect ? step.side : "center", width, height);
+    const box = this._tourBox ?? this._visibleBox();
+    const place = placePopover(rect, rect ? step.side : "center", box.w, box.h);
     const last = index === steps.length - 1;
     return html`
-      <div class="tour-layer" @click=${(event: Event) => event.stopPropagation()}>
+      <div class="tour-layer" style=${styleMap(this._boxStyle(box))} @click=${(event: Event) => event.stopPropagation()}>
         ${rect
           ? html`<div class="tour-spot" style=${styleMap({ left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px` })}></div>`
           : html`<div class="tour-dim"></div>`}
@@ -1337,20 +1382,33 @@ export class ThemeStudioPanel extends LitElement {
 
   private _renderHint(): TemplateResult | typeof nothing {
     const rect = this._hintRect;
-    if (!rect) {
+    const box = this._tourBox;
+    if (!rect || !box) {
       return nothing;
     }
-    const width = this._size.width || this.clientWidth;
-    const left = Math.max(8, Math.min(width - 288, rect.x + rect.w - 280));
+    const left = Math.max(8, Math.min(box.w - 288, rect.x + rect.w - 280));
     return html`
-      <div class="tour-ring" style=${styleMap({ left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px` })}></div>
-      <div class="tour-hint tour-pop" role="status" style=${styleMap({ left: `${left}px`, top: `${rect.y + rect.h + 10}px` })}>
-        <div class="tour-inner">
-          <p class="tour-body">${t("tour.hint")}</p>
-          <div class="tour-foot"><span class="grow"></span><button class="btn sm primary" @click=${this._dismissHint}>${t("tour.got_it")}</button></div>
+      <div class="tour-hint-layer" style=${styleMap(this._boxStyle(box))}>
+        <div class="tour-ring" style=${styleMap({ left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px` })}></div>
+        <div class="tour-hint tour-pop" role="status" style=${styleMap({ left: `${left}px`, top: `${rect.y + rect.h + 10}px` })}>
+          <div class="tour-inner">
+            <p class="tour-body">${t("tour.hint")}</p>
+            <div class="tour-foot"><span class="grow"></span><button class="btn sm primary" @click=${this._dismissHint}>${t("tour.got_it")}</button></div>
+          </div>
         </div>
       </div>
     `;
+  }
+
+  /** Reload: in the top bar, and on a phone next to ? to leave room for the name. */
+  private _reloadButton(where: "hide-p" | "only-p"): TemplateResult {
+    return html`<button class="btn icon ${where}" data-tour="reload" @click=${this._refresh} aria-label=${t("lib.reload")} title=${t("lib.reload")}>
+      ${icon("refresh")}
+    </button>`;
+  }
+
+  private _boxStyle(box: Rect): Record<string, string> {
+    return { left: `${box.x}px`, top: `${box.y}px`, width: `${box.w}px`, height: `${box.h}px` };
   }
 
   private _helpButton(where: "bar" | "phone"): TemplateResult {
@@ -1405,12 +1463,10 @@ export class ThemeStudioPanel extends LitElement {
             <div class="status">${themes.length ? t("lib.themes_count", { count: themes.length }) : t("lib.tagline")}</div>
           </div>
           ${this._helpButton("bar")}
-          <button class="btn icon" data-tour="reload" @click=${this._refresh} aria-label=${t("lib.reload")} title=${t("lib.reload")}>
-            ${icon("refresh")}
-          </button>
+          ${this._reloadButton("hide-p")}
           ${this._canEdit
-            ? html`<button class="btn" data-tour="import" aria-label=${t("lib.import_label")} @click=${() => (this._dialog = "import")}>
-                ${icon("download", 18)}<span class="hide-p">${t("lib.import")}</span>
+            ? html`<button class="btn hide-p" data-tour="import" aria-label=${t("lib.import_label")} @click=${() => (this._dialog = "import")}>
+                ${icon("download", 18)}<span>${t("lib.import")}</span>
               </button>`
             : nothing}
           ${this._canEdit
@@ -1438,7 +1494,7 @@ export class ThemeStudioPanel extends LitElement {
                 ${this._filterButton("all", t("lib.all"))} ${this._filterButton("mine", t("lib.mine"))}
                 ${this._filterButton("builtin", t("lib.builtin"))}
               </div>
-              ${this._helpButton("phone")}
+              ${this._reloadButton("only-p")}${this._helpButton("phone")}
             </div>
           </div>
           ${this._error
@@ -2152,7 +2208,7 @@ export class ThemeStudioPanel extends LitElement {
       ${icon(glyph, 22)}<span class="ot">${title}</span><span class="hint">${text}</span>
     </button>`;
     return html`
-      <div class="scrim" @click=${this._closeDialog}>
+      <div class="scrim ${this._narrow ? "narrow" : ""}" @click=${this._closeDialog}>
         <div class="dialog" role="dialog" aria-modal="true" aria-label=${t("new.title")} @click=${(event: Event) => event.stopPropagation()}>
           <div class="dhead">
             <div>
@@ -2166,6 +2222,13 @@ export class ThemeStudioPanel extends LitElement {
             ${option("colour", t("new.colour"), t("new.colour_hint"), "palette")}
             ${option("image", t("new.image"), t("new.image_hint"), "image")}
           </div>
+          ${this._narrow && this._canEdit
+            ? html`<div class="opts one">
+                <button class="opt" @click=${() => (this._dialog = "import")}>
+                  ${icon("download", 22)}<span class="ot">${t("lib.import_label")}</span><span class="hint">${t("new.import_hint")}</span>
+                </button>
+              </div>`
+            : nothing}
           ${this._newMode === "preset"
             ? html`<div class="field">
                 <label class="lbl" for="ts-source">${t("new.start_from")}</label>
@@ -2249,7 +2312,7 @@ export class ThemeStudioPanel extends LitElement {
       ${icon(glyph, 22)}<span class="ot">${title}</span><span class="hint">${text}</span>
     </button>`;
     return html`
-      <div class="scrim" @click=${this._closeDialog}>
+      <div class="scrim ${this._narrow ? "narrow" : ""}" @click=${this._closeDialog}>
         <div class="dialog" role="dialog" aria-modal="true" aria-label=${t("editor.use")} @click=${(event: Event) => event.stopPropagation()}>
           <div class="dhead">
             <div>
@@ -2284,7 +2347,7 @@ export class ThemeStudioPanel extends LitElement {
 
   private _renderImportDialog(): TemplateResult {
     return html`
-      <div class="scrim" @click=${this._closeDialog}>
+      <div class="scrim ${this._narrow ? "narrow" : ""}" @click=${this._closeDialog}>
         <div class="dialog" role="dialog" aria-modal="true" aria-label=${t("import.title")} @click=${(event: Event) => event.stopPropagation()}>
           <div class="dhead">
             <div>
@@ -2334,7 +2397,7 @@ export class ThemeStudioPanel extends LitElement {
   private _renderDeleteDialog(): TemplateResult {
     const name = this._edit?.name ?? "";
     return html`
-      <div class="scrim" @click=${this._closeDialog}>
+      <div class="scrim ${this._narrow ? "narrow" : ""}" @click=${this._closeDialog}>
         <div class="dialog" role="alertdialog" aria-modal="true" aria-label=${t("editor.delete")} @click=${(event: Event) => event.stopPropagation()}>
           <div class="dhead">
             <div>

@@ -285,6 +285,7 @@
   "new.colour_hint": "Vælg en grundfarve; resten regnes ud.",
   "new.image": "Fra et billede",
   "new.image_hint": "Farverne kommer fra et baggrundsbillede.",
+  "new.import_hint": "Indsæt en delingskode, eller vælg en temafil.",
   "new.start_from": "Start fra",
   "new.mine_option": "{name} (mit)",
   "new.base": "Grundfarve",

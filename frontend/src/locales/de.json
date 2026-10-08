@@ -285,6 +285,7 @@
   "new.colour_hint": "Wähle eine Grundfarbe; der Rest wird berechnet.",
   "new.image": "Aus einem Bild",
   "new.image_hint": "Die Farben kommen aus einem Hintergrundbild.",
+  "new.import_hint": "Füge einen Teilen-Code ein oder wähle eine Theme-Datei.",
   "new.start_from": "Ausgangspunkt",
   "new.mine_option": "{name} (meins)",
   "new.base": "Grundfarbe",

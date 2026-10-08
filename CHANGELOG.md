@@ -2,6 +2,15 @@
 
 All notable changes to Theme Studio. Versions follow [semantic versioning](https://semver.org/); the version is the one in `custom_components/theme_studio/manifest.json`.
 
+## [1.2.1] - 2026-10-08
+
+### Fixed
+- On a phone the guide's explanation could end up at the bottom of the page, out of sight of the part it highlights. It now always stays on the screen and follows the highlighted part when the page scrolls.
+- On a phone the windows (*New theme*, *Use theme*, *Import*, *Delete*) slide up from the bottom with their choices under each other, as intended. Before, the choices were squeezed into narrow columns.
+
+### Changed
+- On a phone the start page's top bar has room for the logo and name: *Import* is in the *New theme* window (under +), and *Reload* sits next to ? above the theme list.
+
 ## [1.2.0] - 2026-10-08
 
 ### Added
