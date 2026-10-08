@@ -1,4 +1,5 @@
 import { css, html, type TemplateResult } from "lit";
+import { t } from "./i18n";
 import { icon, playIcon } from "./icons";
 
 /**
@@ -12,36 +13,36 @@ export function renderMock(scrolls = false): TemplateResult {
       <div class="m-scroll">
         <div class="m-head">
           <div class="m-headtext">
-            <div class="m-title">Home</div>
-            <div class="m-sub">Wednesday · 14° outside</div>
+            <div class="m-title">${t("mock.home")}</div>
+            <div class="m-sub">${t("mock.sub")}</div>
           </div>
           <div class="m-avatar">C</div>
         </div>
         <div class="m-chips">
-          <span class="m-chip on">Living room</span>
-          <span class="m-chip">Kitchen</span>
-          <span class="m-chip">Bedroom</span>
-          <span class="m-chip">Garden</span>
+          <span class="m-chip on">${t("mock.living_room")}</span>
+          <span class="m-chip">${t("mock.kitchen")}</span>
+          <span class="m-chip">${t("mock.bedroom")}</span>
+          <span class="m-chip">${t("mock.garden")}</span>
         </div>
         <div class="m-grid">
           <div class="m-col">
             <div class="m-tiles">
               <div class="m-card">
                 <div class="m-ic on">${icon("bulb", 19)}</div>
-                <div class="m-name">Ceiling</div>
-                <div class="m-state">On · 70 %</div>
+                <div class="m-name">${t("mock.ceiling")}</div>
+                <div class="m-state">${t("mock.on_percent")}</div>
               </div>
               <div class="m-card">
                 <div class="m-ic">${icon("bulb", 19)}</div>
-                <div class="m-name">Floor lamp</div>
-                <div class="m-state">Off</div>
+                <div class="m-name">${t("mock.floor_lamp")}</div>
+                <div class="m-state">${t("mock.off")}</div>
               </div>
             </div>
             <div class="m-bubble">
               <div class="m-fill"></div>
               <div class="m-bic">${icon("sun", 18)}</div>
               <div class="m-btext">
-                <div class="m-name">Dining table</div>
+                <div class="m-name">${t("mock.dining_table")}</div>
                 <div class="m-state">60 %</div>
               </div>
             </div>
@@ -50,31 +51,31 @@ export function renderMock(scrolls = false): TemplateResult {
             <div class="m-card">
               <div class="m-row">
                 <div class="m-ic on">${icon("thermo", 19)}</div>
-                <div class="m-state">Living room</div>
+                <div class="m-state">${t("mock.living_room")}</div>
               </div>
               <div class="m-temp">21.5°</div>
-              <div class="m-state">Heating to 22°</div>
+              <div class="m-state">${t("mock.heating_to")}</div>
               <div class="m-track"><div class="m-tfill"></div></div>
             </div>
             <div class="m-card m-media">
               <div class="m-art"></div>
               <div class="m-btext">
-                <div class="m-name">Evening playlist</div>
-                <div class="m-state">Kitchen speaker</div>
+                <div class="m-name">${t("mock.playlist")}</div>
+                <div class="m-state">${t("mock.speaker")}</div>
               </div>
               <div class="m-play">${playIcon()}</div>
             </div>
           </div>
           <div class="m-col m-col3">
             <div class="m-pop">
-              <div class="m-name">Front door</div>
-              <div class="m-state">Locked · 2 min ago</div>
+              <div class="m-name">${t("mock.front_door")}</div>
+              <div class="m-state">${t("mock.locked")}</div>
               <div class="m-track"><div class="m-tfill"></div></div>
             </div>
             <div class="m-card">
               <div class="m-ic">${icon("home", 19)}</div>
-              <div class="m-name">Away mode</div>
-              <div class="m-state">Off</div>
+              <div class="m-name">${t("mock.away")}</div>
+              <div class="m-state">${t("mock.off")}</div>
             </div>
           </div>
         </div>

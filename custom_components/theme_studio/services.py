@@ -28,6 +28,7 @@ from .const import (
     SERVICE_THEME_FROM_IMAGE,
 )
 from .engine import ThemeEngine
+from .messages import async_messages
 from .sharing import ImportError_
 from .theme_registry import async_reload_themes
 
@@ -96,11 +97,13 @@ def async_setup_services(hass: HomeAssistant) -> None:
                 translation_key="user_theme_not_found",
                 translation_placeholders={"name": name},
             )
+        text = await async_messages(hass)
+        file_name = result["url"].rsplit("/", 1)[-1]
         await _async_notify(
             hass,
-            f"Theme Studio: {result['name']} exported",
-            f"[Download {result['url'].rsplit('/', 1)[-1]}]({result['url']})\n\n"
-            "Share code (paste it into Import in the Theme Studio panel):\n\n"
+            text["export_title"].format(name=result["name"]),
+            f"[{text['export_download'].format(file=file_name)}]({result['url']})\n\n"
+            f"{text['export_share']}\n\n"
             f"`{result['share_string']}`",
         )
         return result
@@ -124,11 +127,12 @@ def async_setup_services(hass: HomeAssistant) -> None:
                 translation_key="invalid_import",
                 translation_placeholders={"reason": str(err)},
             ) from err
-        lines = [f"- {item['name']}" for item in imported] or ["Nothing imported."]
+        text = await async_messages(hass)
+        lines = [f"- {item['name']}" for item in imported] or [text["import_nothing"]]
         lines += [f"- {item.get('file', item.get('name', ''))}: {item.get('reason', '')}" for item in failed]
         if not data:
-            lines.append("\nPut .json or share-code .txt files in `/config/theme_studio/imports/`.")
-        await _async_notify(hass, "Theme Studio import", "\n".join(lines))
+            lines.append(f"\n{text['import_folder_hint']}")
+        await _async_notify(hass, text["import_title"], "\n".join(lines))
         return result
 
     async def theme_from_image(call: ServiceCall) -> ServiceResponse:

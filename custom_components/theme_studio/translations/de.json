@@ -1,0 +1,183 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Theme Studio",
+        "description": "Theme Studio fügt der Seitenleiste eine eigene Seite hinzu, auf der du Themes erstellst, bearbeitest und anwendest. Sonst musst du nichts einrichten.",
+        "data": {
+          "overwrite": "Vorhandene verwaltete Dateien überschreiben",
+          "backup": "Vor dem Überschreiben Sicherungen erstellen",
+          "language": "Sprache"
+        },
+        "data_description": {
+          "language": "Die Sprache des Theme Studio-Panels, seines Rundgangs und seiner Benachrichtigungen. Automatisch folgt der Home Assistant-Sprache jeder Person; jeder kann im Rundgang des Panels trotzdem eine andere wählen."
+        }
+      }
+    },
+    "error": {
+      "single_instance_allowed": "Es ist nur eine Theme Studio-Instanz erlaubt."
+    },
+    "abort": {
+      "single_instance_allowed": "Theme Studio ist bereits eingerichtet.",
+      "already_configured": "Theme Studio ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Theme Studio-Optionen",
+        "description": "Lege fest, wie Theme Studio seine mitgelieferten Vorlagen und Themes aktualisiert, ob sein Panel angezeigt wird und wie Themes und Schriften zu Home Assistant gelangen.",
+        "data": {
+          "overwrite": "Vorhandene verwaltete Dateien überschreiben",
+          "backup": "Vor dem Überschreiben Sicherungen erstellen",
+          "show_panel": "Theme Studio-Panel in der Seitenleiste anzeigen",
+          "panel_admin_only": "Nur Administratoren können das Panel öffnen",
+          "register_themes": "Themes von Theme Studio zu Home Assistant hinzufügen (kein YAML nötig)",
+          "load_fonts": "Die mit Theme Studio gelieferten Schriften laden",
+          "language": "Sprache"
+        },
+        "data_description": {
+          "language": "Die Sprache des Theme Studio-Panels, seines Rundgangs und seiner Benachrichtigungen. Automatisch folgt der Home Assistant-Sprache jeder Person; jeder kann im Rundgang des Panels trotzdem eine andere wählen."
+        }
+      }
+    }
+  },
+  "services": {
+    "initialize_assets": {
+      "name": "Dateien einrichten",
+      "description": "Installiert oder aktualisiert die mitgelieferten Theme Studio-Dateien in /config. Benutzer-Themes werden nie überschrieben.",
+      "fields": {
+        "overwrite": {
+          "name": "Verwaltete Dateien überschreiben",
+          "description": "Mitgelieferte Dateien aktualisieren, die bereits vorhanden sind."
+        },
+        "backup": {
+          "name": "Vorhandene Dateien sichern",
+          "description": "Vor dem Überschreiben .bak-Dateien mit Zeitstempel erstellen."
+        }
+      }
+    },
+    "reinstall_assets": {
+      "name": "Dateien neu installieren",
+      "description": "Erzwingt eine Neuinstallation der mitgelieferten Theme Studio-Dateien. Benutzer-Themes werden nie überschrieben.",
+      "fields": {
+        "backup": {
+          "name": "Vorhandene Dateien sichern",
+          "description": "Vor dem Überschreiben .bak-Dateien mit Zeitstempel erstellen."
+        }
+      }
+    },
+    "save_preset": {
+      "name": "Benutzer-Theme speichern",
+      "description": "Speichert die Werte des Editors als Benutzer-Theme.",
+      "fields": {
+        "payload": {
+          "name": "Nutzdaten",
+          "description": "Theme-Name, aktive Variante und die Einstellungen für Hell und Dunkel."
+        }
+      }
+    },
+    "delete_user_theme": {
+      "name": "Benutzer-Theme löschen",
+      "description": "Löscht ein Benutzer-Theme und seine erstellte Theme-Datei. Wie im Panel bleibt eine Kopie des Benutzer-Themes mit der Endung .bak erhalten.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "Das zu löschende Benutzer-Theme."
+        }
+      }
+    },
+    "build_theme": {
+      "name": "Theme erstellen",
+      "description": "Exportiert eine Vorlage oder ein Benutzer-Theme als Home Assistant-Theme mit hellem und dunklem Modus.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "Die zu erstellende Vorlage oder das zu erstellende Benutzer-Theme."
+        }
+      }
+    },
+    "export_user_theme": {
+      "name": "Benutzer-Theme exportieren",
+      "description": "Schreibt ein Benutzer-Theme nach /config/www/theme_studio/exports und gibt es als JSON und als Teilen-Code zurück. Eine Benachrichtigung verlinkt auf die Datei.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "Das zu exportierende Benutzer-Theme."
+        }
+      }
+    },
+    "import_user_theme": {
+      "name": "Benutzer-Theme importieren",
+      "description": "Erstellt ein neues Benutzer-Theme aus JSON oder einem Teilen-Code. Ohne Daten wird jede .json/.txt-Datei in /config/theme_studio/imports importiert. Vorhandene Benutzer-Themes werden nie überschrieben; ein bereits vergebener Name bekommt eine Nummer.",
+      "fields": {
+        "data": {
+          "name": "Daten",
+          "description": "Exportiertes JSON oder ein Teilen-Code, der mit TS1: beginnt."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Name für das neue Benutzer-Theme. Standardmäßig der Name aus den Daten."
+        }
+      }
+    },
+    "theme_from_image": {
+      "name": "Theme aus Bild",
+      "description": "Erstellt aus den Farben eines Hintergrundbilds ein neues Benutzer-Theme mit einer hellen und einer dunklen Variante und prüft seinen Kontrast. Nichts Vorhandenes wird geändert.",
+      "fields": {
+        "image": {
+          "name": "Bild",
+          "description": "Dateiname in /config/www/background."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Name des neuen Benutzer-Themes. Standardmäßig „Aus“ gefolgt vom Bildnamen."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "not_loaded": {
+      "message": "Theme Studio ist nicht eingerichtet."
+    },
+    "invalid_payload": {
+      "message": "Die Nutzdaten müssen ein Objekt mit den Theme-Einstellungen sein."
+    },
+    "preset_not_found": {
+      "message": "Vorlage oder Benutzer-Theme {name} wurde nicht gefunden ({error})."
+    },
+    "user_theme_not_found": {
+      "message": "Benutzer-Theme {name} wurde nicht gefunden."
+    },
+    "invalid_import": {
+      "message": "Das ist kein Theme von Theme Studio ({reason})."
+    },
+    "image_not_readable": {
+      "message": "Bild {image} konnte nicht gelesen werden: {error}"
+    }
+  },
+  "issues": {
+    "classic_dashboard_removed": {
+      "title": "Theme Studio: Neu starten, um das Entfernen des alten Dashboards abzuschließen",
+      "description": "Theme Studio 1.0 hat kein YAML-Dashboard, kein Paket und kein Theme „Theme Studio Dynamic“ mehr; alles geschieht im Theme Studio-Panel in der Seitenleiste. Diese Dateien wurden mit der Endung .bak_ und dem Datum umbenannt, damit sie nicht mehr geladen werden: {files}.\n\nStarte Home Assistant neu, um die alten Skripte, Automatisierungen und Template-Sensoren zu entladen. Wenn ein Dashboard oder dein Profil das Theme „Theme Studio Dynamic“ verwendet hat, wähle ein anderes Theme, zum Beispiel „Theme Studio Standard“. Deine Benutzer-Themes wurden nicht geändert."
+    },
+    "classic_dashboard_configured": {
+      "title": "Theme Studio: Altes Dashboard aus configuration.yaml entfernen",
+      "description": "`configuration.yaml` bindet noch das Theme Studio-Dashboard (`theme_studio_dashboard.yaml`) ein, das in Theme Studio 1.0 entfernt wurde. Lösche den Block `theme-studio` unter `lovelace: dashboards:` und starte Home Assistant neu. Diese Meldung verschwindet danach von selbst."
+    }
+  },
+  "selector": {
+    "language": {
+      "options": {
+        "auto": "Automatisch (Home Assistant folgen)",
+        "da": "Dansk",
+        "de": "Deutsch",
+        "en": "English",
+        "es": "Español",
+        "fr": "Français",
+        "nb": "Norsk (bokmål)",
+        "sv": "Svenska"
+      }
+    }
+  }
+}

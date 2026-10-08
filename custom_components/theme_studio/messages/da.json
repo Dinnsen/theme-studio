@@ -1,0 +1,8 @@
+{
+  "export_title": "Theme Studio: {name} er eksporteret",
+  "export_download": "Hent {file}",
+  "export_share": "Delingskode (indsæt den under Importér i Theme Studio-panelet):",
+  "import_title": "Theme Studio-import",
+  "import_nothing": "Intet blev importeret.",
+  "import_folder_hint": "Læg .json-filer eller .txt-filer med delingskoder i `/config/theme_studio/imports/`."
+}

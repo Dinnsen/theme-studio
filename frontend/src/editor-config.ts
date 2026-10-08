@@ -19,6 +19,7 @@ export type TilePreview = "border" | "shadow" | "overlay";
 
 export type Control =
   | { type: "base" }
+  /** Labels are English fallbacks; the panel shows the translation (see i18n.ts). `ends` are text keys. */
   | { type: "slider"; key: string; label?: string; ends?: [string, string]; unit?: string }
   | { type: "segmented"; key: string; label: string; options: [string, string][]; hint?: string }
   | { type: "roles"; roles: RoleDef[] }
@@ -181,12 +182,12 @@ export const SECTIONS: Section[] = [
         id: "adjust",
         title: "Adjust",
         controls: [
-          { type: "slider", key: "contrast", label: "Contrast", ends: ["Soft", "Strong"] },
-          { type: "slider", key: "saturation", label: "Saturation", ends: ["Muted", "Vivid"] },
-          { type: "slider", key: "tone", label: "Tone", ends: ["Darker", "Lighter"] },
+          { type: "slider", key: "contrast", label: "Contrast", ends: ["end.soft", "end.strong"] },
+          { type: "slider", key: "saturation", label: "Saturation", ends: ["end.muted", "end.vivid"] },
+          { type: "slider", key: "tone", label: "Tone", ends: ["end.darker", "end.lighter"] },
           { type: "slider", key: "hue_shift", label: "Hue shift" },
           { type: "slider", key: "accent_strength", label: "Accent strength" },
-          { type: "slider", key: "neutrality", label: "Neutral surfaces", ends: ["Tinted", "Neutral"] },
+          { type: "slider", key: "neutrality", label: "Neutral surfaces", ends: ["end.tinted", "end.neutral"] },
           {
             type: "segmented",
             key: "preview_mode",
@@ -337,7 +338,7 @@ export const SECTIONS: Section[] = [
         id: "image",
         title: "Image",
         controls: [
-          { type: "slider", key: "background_contrast", label: "Image visibility", ends: ["Page colour", "Full image"] },
+          { type: "slider", key: "background_contrast", label: "Image visibility", ends: ["end.page_colour", "end.full_image"] },
           { type: "images" },
           {
             type: "segmented",

@@ -1,0 +1,8 @@
+{
+  "export_title": "Theme Studio: {name} exporterat",
+  "export_download": "Ladda ner {file}",
+  "export_share": "Delningskod (klistra in den under Importera i Theme Studio-panelen):",
+  "import_title": "Theme Studio-import",
+  "import_nothing": "Inget importerades.",
+  "import_folder_hint": "Lägg .json-filer eller .txt-filer med delningskod i `/config/theme_studio/imports/`."
+}

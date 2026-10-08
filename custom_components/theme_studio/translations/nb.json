@@ -1,0 +1,183 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Theme Studio",
+        "description": "Theme Studio legger til en egen side i sidepanelet, der du oppretter, redigerer og bruker temaer. Ingenting annet trenger å settes opp.",
+        "data": {
+          "overwrite": "Overskriv eksisterende administrerte filer",
+          "backup": "Lag sikkerhetskopier før overskriving",
+          "language": "Språk"
+        },
+        "data_description": {
+          "language": "Språket i Theme Studio-panelet, guiden og varslene. Automatisk følger hver persons språk i Home Assistant; alle kan likevel velge et annet i panelets guide."
+        }
+      }
+    },
+    "error": {
+      "single_instance_allowed": "Bare én forekomst av Theme Studio er tillatt."
+    },
+    "abort": {
+      "single_instance_allowed": "Theme Studio er allerede konfigurert.",
+      "already_configured": "Theme Studio er allerede konfigurert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Alternativer for Theme Studio",
+        "description": "Styr hvordan Theme Studio oppdaterer de medfølgende forhåndsvalgene og temaene, om panelet vises, og hvordan temaer og skrifter kommer inn i Home Assistant.",
+        "data": {
+          "overwrite": "Overskriv eksisterende administrerte filer",
+          "backup": "Lag sikkerhetskopier før overskriving",
+          "show_panel": "Vis Theme Studio-panelet i sidepanelet",
+          "panel_admin_only": "Bare administratorer kan åpne panelet",
+          "register_themes": "Legg Theme Studios temaer til i Home Assistant (ingen YAML nødvendig)",
+          "load_fonts": "Last inn skriftene som følger med Theme Studio",
+          "language": "Språk"
+        },
+        "data_description": {
+          "language": "Språket i Theme Studio-panelet, guiden og varslene. Automatisk følger hver persons språk i Home Assistant; alle kan likevel velge et annet i panelets guide."
+        }
+      }
+    }
+  },
+  "services": {
+    "initialize_assets": {
+      "name": "Initialiser ressurser",
+      "description": "Installer eller oppdater de medfølgende Theme Studio-filene i /config. Brukertemaer overskrives aldri.",
+      "fields": {
+        "overwrite": {
+          "name": "Overskriv administrerte filer",
+          "description": "Oppdater medfølgende filer som allerede finnes."
+        },
+        "backup": {
+          "name": "Sikkerhetskopier eksisterende filer",
+          "description": "Lag .bak-filer med tidsstempel før overskriving."
+        }
+      }
+    },
+    "reinstall_assets": {
+      "name": "Installer ressurser på nytt",
+      "description": "Tving ny installasjon av de medfølgende Theme Studio-filene. Brukertemaer overskrives aldri.",
+      "fields": {
+        "backup": {
+          "name": "Sikkerhetskopier eksisterende filer",
+          "description": "Lag .bak-filer med tidsstempel før overskriving."
+        }
+      }
+    },
+    "save_preset": {
+      "name": "Lagre brukertema",
+      "description": "Lagre verdiene fra redigeringsverktøyet som et brukertema.",
+      "fields": {
+        "payload": {
+          "name": "Nyttelast",
+          "description": "Temanavn, aktiv variant og innstillingene for lys/mørk."
+        }
+      }
+    },
+    "delete_user_theme": {
+      "name": "Slett brukertema",
+      "description": "Slett et brukertema og den bygde temafilen. En kopi av brukertemaet beholdes med endelsen .bak, som i panelet.",
+      "fields": {
+        "name": {
+          "name": "Navn",
+          "description": "Brukertema som skal slettes."
+        }
+      }
+    },
+    "build_theme": {
+      "name": "Bygg tema",
+      "description": "Eksporter et forhåndsvalg eller brukertema som et Home Assistant-tema med lys og mørk modus.",
+      "fields": {
+        "name": {
+          "name": "Navn",
+          "description": "Forhåndsvalg eller brukertema som skal bygges."
+        }
+      }
+    },
+    "export_user_theme": {
+      "name": "Eksporter brukertema",
+      "description": "Skriv et brukertema til /config/www/theme_studio/exports og returner det som JSON og som delingsstreng. Et varsel lenker til filen.",
+      "fields": {
+        "name": {
+          "name": "Navn",
+          "description": "Brukertema som skal eksporteres."
+        }
+      }
+    },
+    "import_user_theme": {
+      "name": "Importer brukertema",
+      "description": "Opprett et nytt brukertema fra JSON eller en delingskode. Uten data importeres alle .json/.txt-filer i /config/theme_studio/imports. Eksisterende brukertemaer overskrives aldri; et navn som er tatt, får et nummer.",
+      "fields": {
+        "data": {
+          "name": "Data",
+          "description": "Eksportert JSON eller en delingsstreng som starter med TS1:."
+        },
+        "name": {
+          "name": "Navn",
+          "description": "Navn på det nye brukertemaet. Standard er navnet i dataene."
+        }
+      }
+    },
+    "theme_from_image": {
+      "name": "Tema fra bilde",
+      "description": "Opprett et nytt brukertema med en lys og en mørk variant fra fargene i et bakgrunnsbilde, og sjekk kontrasten. Ingenting eksisterende endres.",
+      "fields": {
+        "image": {
+          "name": "Bilde",
+          "description": "Filnavn i /config/www/background."
+        },
+        "name": {
+          "name": "Navn",
+          "description": "Navn på det nye brukertemaet. Standard er «Fra» etterfulgt av bildenavnet."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "not_loaded": {
+      "message": "Theme Studio er ikke satt opp."
+    },
+    "invalid_payload": {
+      "message": "Nyttelasten må være et objekt med temainnstillingene."
+    },
+    "preset_not_found": {
+      "message": "Fant ikke forhåndsvalget eller brukertemaet {name} ({error})."
+    },
+    "user_theme_not_found": {
+      "message": "Fant ikke brukertemaet {name}."
+    },
+    "invalid_import": {
+      "message": "Dette er ikke et Theme Studio-tema ({reason})."
+    },
+    "image_not_readable": {
+      "message": "Kunne ikke lese bildet {image}: {error}"
+    }
+  },
+  "issues": {
+    "classic_dashboard_removed": {
+      "title": "Theme Studio: start på nytt for å fullføre fjerningen av det gamle dashbordet",
+      "description": "Theme Studio 1.0 har ikke lenger YAML-dashbordet, pakken eller temaet Theme Studio Dynamic; alt gjøres i Theme Studio-panelet i sidepanelet. Disse filene har fått nytt navn med endelsen .bak_ og datoen, så de lastes ikke lenger: {files}.\n\nStart Home Assistant på nytt for å laste ut de gamle skriptene, automasjonene og malsensorene. Hvis et dashbord eller profilen din brukte temaet Theme Studio Dynamic, velger du et annet tema, for eksempel Theme Studio Standard. Brukertemaene dine ble ikke endret."
+    },
+    "classic_dashboard_configured": {
+      "title": "Theme Studio: fjern det gamle dashbordet fra configuration.yaml",
+      "description": "`configuration.yaml` legger fortsatt til Theme Studio-dashbordet (`theme_studio_dashboard.yaml`), som ble fjernet i Theme Studio 1.0. Slett blokken `theme-studio` under `lovelace: dashboards:` og start Home Assistant på nytt. Denne meldingen forsvinner av seg selv etterpå."
+    }
+  },
+  "selector": {
+    "language": {
+      "options": {
+        "auto": "Automatisk (følg Home Assistant)",
+        "da": "Dansk",
+        "de": "Deutsch",
+        "en": "English",
+        "es": "Español",
+        "fr": "Français",
+        "nb": "Norsk (bokmål)",
+        "sv": "Svenska"
+      }
+    }
+  }
+}

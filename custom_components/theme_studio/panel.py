@@ -25,6 +25,7 @@ from .const import (
     PANEL_TITLE,
     PANEL_URL_PATH,
 )
+from .messages import panel_language
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,7 +74,7 @@ async def async_register_panel(hass: HomeAssistant, options: dict) -> bool:
             sidebar_icon=PANEL_ICON,
             module_url=f"{PANEL_STATIC_URL}/{PANEL_MODULE}?v={tag}",
             require_admin=bool(options.get(CONF_PANEL_ADMIN_ONLY, True)),
-            config={"domain": DOMAIN},
+            config={"domain": DOMAIN, "language": panel_language(options)},
         )
     except ValueError as err:
         # Another panel already uses the path; keep the integration running.
