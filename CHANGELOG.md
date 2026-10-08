@@ -2,6 +2,11 @@
 
 All notable changes to Theme Studio. Versions follow [semantic versioning](https://semver.org/); the version is the one in `custom_components/theme_studio/manifest.json`.
 
+## [1.2.1] - 2026-10-08
+
+### Fixed
+- On a phone the guide's explanation could end up at the bottom of the page, out of sight of the part it highlights. It now always stays on the screen and follows the highlighted part when the page scrolls.
+
 ## [1.2.0] - 2026-10-08
 
 ### Added

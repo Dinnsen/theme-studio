@@ -478,11 +478,18 @@ export const tourStyles = css`
   [data-tour] {
     scroll-margin: 14px;
   }
-  .tour-layer {
-    position: absolute;
-    inset: 0;
+  .tour-layer,
+  .tour-hint-layer {
+    position: fixed;
     z-index: 20;
     overflow: hidden;
+  }
+  .tour-hint-layer {
+    z-index: 21;
+    pointer-events: none;
+  }
+  .tour-hint-layer .tour-hint {
+    pointer-events: auto;
   }
   .tour-spot {
     position: absolute;

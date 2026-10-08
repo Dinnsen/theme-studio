@@ -217,6 +217,7 @@ export class ThemeStudioPanel extends LitElement {
     _tour: { state: true },
     _tourRect: { state: true },
     _hintRect: { state: true },
+    _tourBox: { state: true },
     _size: { state: true },
     _hint: { state: true },
   };
@@ -263,6 +264,7 @@ export class ThemeStudioPanel extends LitElement {
   declare _tour?: TourState;
   declare _tourRect?: Rect;
   declare _hintRect?: Rect;
+  declare _tourBox?: Rect;
   declare _size: { width: number; height: number };
   declare _hint: boolean;
 
@@ -329,6 +331,10 @@ export class ThemeStudioPanel extends LitElement {
   override connectedCallback(): void {
     super.connectedCallback();
     window.addEventListener("keydown", this._tourKey);
+    // The page or a column scrolls under the guide: follow the highlighted part.
+    window.addEventListener("scroll", this._tourMoved, { capture: true, passive: true });
+    window.addEventListener("resize", this._tourMoved, { passive: true });
+    this.renderRoot.addEventListener("scroll", this._tourMoved, { capture: true, passive: true });
     if (typeof ResizeObserver !== "undefined") {
       this._resizer = new ResizeObserver(() => {
         this._size = { width: this.clientWidth, height: this.clientHeight };
@@ -340,6 +346,9 @@ export class ThemeStudioPanel extends LitElement {
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     window.removeEventListener("keydown", this._tourKey);
+    window.removeEventListener("scroll", this._tourMoved, { capture: true });
+    window.removeEventListener("resize", this._tourMoved);
+    this.renderRoot.removeEventListener("scroll", this._tourMoved, { capture: true });
     this._resizer?.disconnect();
     this._resizer = undefined;
     if (this._tourFrame !== undefined) {
@@ -1216,28 +1225,60 @@ export class ThemeStudioPanel extends LitElement {
     }
   };
 
+  private _tourMoved = (): void => {
+    if ((this._tour && this._tour.kind !== "welcome") || this._hint) {
+      if (this._tourFrame === undefined) {
+        this._tourFrame = window.requestAnimationFrame(this._measureTour);
+      }
+    }
+  };
+
+  /**
+   * The part of the panel that is on screen. The guide is laid over it with
+   * fixed positioning: in the Home Assistant app on a phone the panel can be
+   * taller than the screen and scroll with the page, and the guide must stay
+   * where you can see it.
+   */
+  private _visibleBox(): Rect {
+    const host = this.getBoundingClientRect();
+    const viewWidth = window.innerWidth || document.documentElement.clientWidth;
+    const viewHeight = window.visualViewport?.height ?? (window.innerHeight || document.documentElement.clientHeight);
+    const left = Math.max(0, host.left);
+    const top = Math.max(0, host.top);
+    const right = Math.min(viewWidth, host.right);
+    const bottom = Math.min(viewHeight, host.bottom);
+    return { x: Math.round(left), y: Math.round(top), w: Math.round(Math.max(0, right - left)), h: Math.round(Math.max(0, bottom - top)) };
+  }
+
   /** Finds the highlighted element after each render; only stores a new box when it moved. */
   private _measureTour = (): void => {
     this._tourFrame = undefined;
-    const origin = this.getBoundingClientRect();
     const tour = this._tour;
     if (tour && tour.kind !== "welcome") {
       const step = TOURS[tour.kind][tour.step];
       const key = `${tour.kind}:${tour.step}`;
-      // The editor may still be loading; the target is scrolled into view the
-      // first time it exists.
       if (step.targets.length && this._revealed !== key && revealTarget(this.renderRoot, step)) {
         this._revealed = key;
       }
+    }
+    if (this._hint && !this._hintRevealed && revealTarget(this.renderRoot, HELP_STEP)) {
+      this._hintRevealed = true;
+    }
+    const box = this._visibleBox();
+    if (!sameRect(box, this._tourBox)) {
+      this._tourBox = box;
+    }
+    const origin = new DOMRect(box.x, box.y, box.w, box.h);
+    if (tour && tour.kind !== "welcome") {
+      const step = TOURS[tour.kind][tour.step];
+      // The editor may still be loading; the target was scrolled into view
+      // above the first time it existed.
       const rect = step.targets.length ? measureTargets(this.renderRoot, origin, step) : undefined;
       if (!sameRect(rect, this._tourRect)) {
         this._tourRect = rect;
       }
     }
     if (this._hint) {
-      if (!this._hintRevealed && revealTarget(this.renderRoot, HELP_STEP)) {
-        this._hintRevealed = true;
-      }
       const rect = measureTargets(this.renderRoot, origin, HELP_STEP);
       if (!sameRect(rect, this._hintRect)) {
         this._hintRect = rect;
@@ -1303,12 +1344,11 @@ export class ThemeStudioPanel extends LitElement {
     const steps = TOURS[kind];
     const step = steps[index];
     const rect = this._tourRect;
-    const width = this._size.width || this.clientWidth;
-    const height = this._size.height || this.clientHeight;
-    const place = placePopover(rect, rect ? step.side : "center", width, height);
+    const box = this._tourBox ?? this._visibleBox();
+    const place = placePopover(rect, rect ? step.side : "center", box.w, box.h);
     const last = index === steps.length - 1;
     return html`
-      <div class="tour-layer" @click=${(event: Event) => event.stopPropagation()}>
+      <div class="tour-layer" style=${styleMap(this._boxStyle(box))} @click=${(event: Event) => event.stopPropagation()}>
         ${rect
           ? html`<div class="tour-spot" style=${styleMap({ left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px` })}></div>`
           : html`<div class="tour-dim"></div>`}
@@ -1337,20 +1377,26 @@ export class ThemeStudioPanel extends LitElement {
 
   private _renderHint(): TemplateResult | typeof nothing {
     const rect = this._hintRect;
-    if (!rect) {
+    const box = this._tourBox;
+    if (!rect || !box) {
       return nothing;
     }
-    const width = this._size.width || this.clientWidth;
-    const left = Math.max(8, Math.min(width - 288, rect.x + rect.w - 280));
+    const left = Math.max(8, Math.min(box.w - 288, rect.x + rect.w - 280));
     return html`
-      <div class="tour-ring" style=${styleMap({ left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px` })}></div>
-      <div class="tour-hint tour-pop" role="status" style=${styleMap({ left: `${left}px`, top: `${rect.y + rect.h + 10}px` })}>
-        <div class="tour-inner">
-          <p class="tour-body">${t("tour.hint")}</p>
-          <div class="tour-foot"><span class="grow"></span><button class="btn sm primary" @click=${this._dismissHint}>${t("tour.got_it")}</button></div>
+      <div class="tour-hint-layer" style=${styleMap(this._boxStyle(box))}>
+        <div class="tour-ring" style=${styleMap({ left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px` })}></div>
+        <div class="tour-hint tour-pop" role="status" style=${styleMap({ left: `${left}px`, top: `${rect.y + rect.h + 10}px` })}>
+          <div class="tour-inner">
+            <p class="tour-body">${t("tour.hint")}</p>
+            <div class="tour-foot"><span class="grow"></span><button class="btn sm primary" @click=${this._dismissHint}>${t("tour.got_it")}</button></div>
+          </div>
         </div>
       </div>
     `;
+  }
+
+  private _boxStyle(box: Rect): Record<string, string> {
+    return { left: `${box.x}px`, top: `${box.y}px`, width: `${box.w}px`, height: `${box.h}px` };
   }
 
   private _helpButton(where: "bar" | "phone"): TemplateResult {
