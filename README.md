@@ -52,7 +52,8 @@
 ## Requirements
 
 - Home Assistant **2026.3** or newer.
-- These custom cards (used by the Theme Studio dashboard – not by the generated themes):
+- Nothing else for the Theme Studio panel.
+- Only for the optional Theme Studio dashboard, these custom cards (the generated themes do not need them):
   - [button-card](https://github.com/custom-cards/button-card)
   - [Bubble Card](https://github.com/Clooos/Bubble-Card) 3.x
   - [card-mod](https://github.com/thomasloven/lovelace-card-mod) 4.2 or newer (also provides `mod-card`)
@@ -68,15 +69,16 @@
 
 1. Install via **HACS (Integration)**.
 2. Restart Home Assistant.
-3. Add **Theme Studio** from Settings -> Devices & Services. Assets install automatically into the standard `/config` folders.
-4. Update `configuration.yaml`.
+3. Add **Theme Studio** from Settings → Devices & services.
+4. Open **Theme Studio** in the sidebar.
+
+That is all. Theme Studio adds its themes to Home Assistant and loads its fonts itself; no `configuration.yaml` changes and no dashboard resources are needed.
+
+**The Theme Studio dashboard (optional).** The older YAML dashboard still works next to the panel. It needs the custom cards listed under [Requirements](#requirements) and this in `configuration.yaml`:
 
 ```yaml
 homeassistant:
   packages: !include_dir_named packages
-
-frontend:
-  themes: !include_dir_merge_named themes
 
 lovelace:
   dashboards:
@@ -90,10 +92,7 @@ lovelace:
 
 The dashboard path **must** be `theme-studio`; the navigation bar links to `/theme-studio/...`.
 
-5. Add [Fonts](#fonts) as **Resources**.
-6. Restart Home Assistant again.
-7. Open the Theme Studio dashboard. Every view uses the **Theme Studio Dynamic** theme, so the live preview works without changing your profile.
-8. For the rest of Home Assistant, pick **Theme Studio Standard** (or one of your own built themes) in your profile or as the default theme. It has a light and a dark mode and is not affected while you experiment in the studio.
+**Themes from YAML (optional).** If you prefer, `frontend: themes: !include_dir_merge_named themes` keeps working. Turn off *Add Theme Studio's themes to Home Assistant* in the integration options to rely on it only.
 
 ### Which theme is which
 
@@ -129,7 +128,8 @@ Theme Studio adds its own page to the sidebar: **Theme Studio** with a palette i
 - **Same for Light and Dark:** in Surfaces, Background and Type one switch applies a change to both variants. It is off by default and remembered per theme in the browser.
 - **Check:** all 14 text and icon pairs. *Use Auto* switches the manual colours of a pair that is hard to read back to automatic.
 - **Saving is automatic.** Built-in presets are never changed: the first change makes your own copy. Undo and Redo work for everything you did since you opened the theme. The first save of a theme each time Home Assistant starts keeps a `.bak_YYYYMMDD_HHMMSS` copy next to it, and deleting a theme keeps one too.
-- **Update in HA** writes the theme file, so dashboards and profiles that use the theme get your changes.
+- **Use theme** writes the theme file and uses it on this device or as the default theme for everyone. After more changes, use it again to update it.
+- **Share:** copy a share code or download a theme file. **Import** on the start page takes a share code or a file and makes a new theme; nothing is overwritten. Nothing is written to `/config/www` when you share from the panel.
 - Light and Dark are separate: changing one never changes the other. *Make Dark from Light* copies one into the other on purpose, with the lightness turned around.
 - Works on phones, tablets and computers, also in the Home Assistant app, and follows Home Assistant's dark mode. Only administrators can change themes.
 
@@ -141,6 +141,8 @@ Settings → Devices & services → Theme Studio → *Configure*:
 | --- | --- | --- |
 | Show the Theme Studio panel in the sidebar | on | Turn off to remove the panel. |
 | Only administrators can open the panel | on | Turn off to let every user open it. |
+| Add Theme Studio's themes to Home Assistant (no YAML needed) | on | Theme Studio puts its themes into Home Assistant's theme list and adds them again after *Reload themes*. It uses Home Assistant's internal theme list; if a future version changes it, Theme Studio logs a warning and you can use the YAML line instead. |
+| Load the fonts that come with Theme Studio | on | Turn off if you load fonts yourself. |
 
 Each user can also hide or move the panel with Home Assistant's own *Edit sidebar*.
 
@@ -193,19 +195,13 @@ Theme Studio automatically installs the following folders:
 
 ## Fonts
 
-[![Open Home Assistant resources](https://my.home-assistant.io/badges/lovelace_resources.svg)](https://my.home-assistant.io/redirect/lovelace_resources/)
+Theme Studio ships Inter, Quicksand, Josefin Sans, Orbitron and Iosevka Charon Mono (Latin characters, including æ, ø and å) and loads them on every Home Assistant page itself. They are served by your own Home Assistant: no request goes to Google, nothing has to be added as a dashboard resource, and they work without internet. Roboto, system-ui and sans-serif come with Home Assistant and your devices. Orbitron has no ø/Ø of its own; the browser draws those two letters in a fallback font.
 
-Add these in Dashboard -> menu -> Resources -> Add resource -> Type: Stylesheet.
+Font resources you added for earlier versions can be removed. To use Google Fonts instead, turn off *Load the fonts that come with Theme Studio* in the integration options.
 
-```text
-https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700
-https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700
-https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700
-https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono:wght@400;500;700
-https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;500;700
-```
+**Your own font:** put the file (`.woff2`, `.woff`, `.ttf` or `.otf`) in `/config/www/fonts/`, then in the panel under Type → *Your own font* switch it on and enter the family name and `/local/fonts/<file>`. Theme Studio loads it for you.
 
-**Custom font:** Theme Studio sets the font family name, but it does not load the font file. Put the file in `/config/www/fonts/` and add a stylesheet resource with an `@font-face` rule that points to `/local/fonts/<file>`.
+The fonts are licensed under the SIL Open Font License; the licences are in `custom_components/theme_studio/frontend/fonts/`. `scripts/build_fonts.py` rebuilds them from the Google Fonts repository.
 
 ## Theme variables for your own dashboards
 

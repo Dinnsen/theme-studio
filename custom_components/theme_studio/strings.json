@@ -22,12 +22,14 @@
     "step": {
       "init": {
         "title": "Theme Studio options",
-        "description": "Control how Theme Studio reinstalls managed assets and whether its panel is shown in the sidebar.",
+        "description": "Control how Theme Studio reinstalls managed assets, whether its panel is shown, and how themes and fonts reach Home Assistant.",
         "data": {
           "overwrite": "Overwrite existing managed files",
           "backup": "Create backups before overwriting",
           "show_panel": "Show the Theme Studio panel in the sidebar",
-          "panel_admin_only": "Only administrators can open the panel"
+          "panel_admin_only": "Only administrators can open the panel",
+          "register_themes": "Add Theme Studio's themes to Home Assistant (no YAML needed)",
+          "load_fonts": "Load the fonts that come with Theme Studio"
         }
       }
     }

@@ -22,7 +22,7 @@ from types import ModuleType
 from typing import Any
 
 from . import palette as palette_module, previews as previews_module, sharing
-from . import variants as variants_module
+from . import fonts as fonts_module, variants as variants_module
 from .definitions import load_definitions
 from .const import (
     BACKGROUND_DIR,
@@ -622,6 +622,41 @@ class ThemeEngine:
             number += 1
         (target_dir / name).write_bytes(data)
         return {"ok": True, "file": name, "url": f"/local/background/{name}"}
+
+    def custom_fonts(self) -> list[tuple[str, str]]:
+        """(family, path) of every custom font switched on in a preset or user theme."""
+        found: set[tuple[str, str]] = set()
+        for path, _builtin in self._theme_files():
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            if not isinstance(data, dict):
+                continue
+            for variant in sharing.VARIANTS:
+                settings = data.get(variant)
+                if isinstance(settings, dict) and (font := fonts_module.custom_font(settings)):
+                    found.add(font)
+        return sorted(found)
+
+    def export_theme(self, slug: str) -> dict[str, Any]:
+        """A theme as a portable document and share code; nothing is written."""
+        for path, _builtin in self._theme_files():
+            if path.stem != slug:
+                continue
+            try:
+                theme = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                break
+            document = sharing.export_document(theme, self.setting_keys, self.version)
+            return {
+                "ok": True,
+                "name": document["name"],
+                "file_name": f"{slug}.json",
+                "document": document,
+                "share_string": sharing.to_share_string(document),
+            }
+        return {"ok": False, "reason": "not_found", "slug": slug}
 
     # Panel (editing) -------------------------------------------------------
 

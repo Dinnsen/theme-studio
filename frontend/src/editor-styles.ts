@@ -586,14 +586,20 @@ export const editorStyles = css`
     overflow: hidden;
   }
   .font-aa {
-    font-size: 22px;
-    line-height: 1.1;
+    font-size: 20px;
+    line-height: 1.15;
     font-weight: 600;
   }
   .font-sm {
     font-size: 11.5px;
     color: var(--ts-muted);
     font-weight: 400;
+  }
+  .font-aa,
+  .font-sm {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .image.none,
   .image.upload {
@@ -617,6 +623,31 @@ export const editorStyles = css`
   }
   .image.upload.busy {
     opacity: 0.6;
+  }
+  .opts.two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .share-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .text-input.area {
+    height: auto;
+    padding: 10px 12px;
+    resize: vertical;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  .file-btn {
+    position: relative;
+    align-self: flex-start;
+  }
+  .file-btn input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
   }
   .toast {
     position: fixed;

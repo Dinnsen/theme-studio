@@ -13,13 +13,16 @@ from homeassistant.helpers import config_validation as cv, entity_registry as er
 from homeassistant.helpers.start import async_at_started
 
 from .asset_manager import async_initialize_assets, remove_assets
-from .const import DOMAIN, PLATFORMS
+from .const import CONF_LOAD_FONTS, CONF_REGISTER_THEMES, DOMAIN, PLATFORMS
 from .definitions import HelperDefinition, load_definitions
 from .engine import ThemeEngine
 from .history import EditorHistory
 from .migration import find_orphaned_legacy_entities, find_retired_entities
-from .panel import async_register_panel, async_unregister_panel
+from .fonts import LOADER_FILE
+from .fonts_view import async_add_loader, async_register_fonts_view, async_remove_loader
+from .panel import async_bundle_tag, async_register_panel, async_register_static, async_unregister_panel
 from .services import async_generate, async_setup_services
+from .theme_registry import DATA_REGISTRY, ThemeRegistry
 from .upload import async_register_upload
 from .websocket import async_register_commands
 
@@ -47,6 +50,7 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     async_setup_services(hass)
     async_register_commands(hass)
     async_register_upload(hass)
+    async_register_fonts_view(hass)
     return True
 
 
@@ -74,8 +78,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ThemeStudioConfigEntry) 
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    await async_register_static(hass)
     if await async_register_panel(hass, options):
         entry.async_on_unload(lambda: async_unregister_panel(hass))
+
+    if options.get(CONF_LOAD_FONTS, True):
+        loader = async_add_loader(hass, f"{engine.version}-{await async_bundle_tag(hass, LOADER_FILE)}")
+        entry.async_on_unload(lambda: async_remove_loader(hass, loader))
+
+    if options.get(CONF_REGISTER_THEMES, True):
+        registry = ThemeRegistry(hass, engine.config_dir)
+        if await registry.async_start():
+            hass.data[DATA_REGISTRY] = registry
+
+            def _stop_registry() -> None:
+                registry.async_stop()
+                hass.data.pop(DATA_REGISTRY, None)
+
+            entry.async_on_unload(_stop_registry)
 
     @callback
     def _async_remove_legacy_helpers(hass: HomeAssistant) -> None:

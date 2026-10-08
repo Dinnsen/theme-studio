@@ -40,6 +40,20 @@ def _bundle_tag(path: Path) -> str:
         return "missing"
 
 
+async def async_register_static(hass: HomeAssistant) -> None:
+    """Serve frontend/ (panel, fonts). Static paths cannot be removed, so once per run."""
+    if hass.data.get(DATA_STATIC_REGISTERED):
+        return
+    await hass.http.async_register_static_paths(
+        [StaticPathConfig(PANEL_STATIC_URL, str(FRONTEND_DIR), cache_headers=False)]
+    )
+    hass.data[DATA_STATIC_REGISTERED] = True
+
+
+async def async_bundle_tag(hass: HomeAssistant, name: str) -> str:
+    return await hass.async_add_executor_job(_bundle_tag, FRONTEND_DIR / name)
+
+
 async def async_register_panel(hass: HomeAssistant, options: dict) -> bool:
     """Add the panel to the sidebar unless it is switched off."""
     if not options.get(CONF_SHOW_PANEL, True):
@@ -48,12 +62,7 @@ async def async_register_panel(hass: HomeAssistant, options: dict) -> bool:
     if not bundle.is_file():
         _LOGGER.warning("Theme Studio panel files are missing: %s", bundle)
         return False
-    if not hass.data.get(DATA_STATIC_REGISTERED):
-        # Static paths cannot be removed again, so register them once per run.
-        await hass.http.async_register_static_paths(
-            [StaticPathConfig(PANEL_STATIC_URL, str(FRONTEND_DIR), cache_headers=False)]
-        )
-        hass.data[DATA_STATIC_REGISTERED] = True
+    await async_register_static(hass)
     tag = await hass.async_add_executor_job(_bundle_tag, bundle)
     try:
         await panel_custom.async_register_panel(
