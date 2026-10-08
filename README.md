@@ -125,7 +125,7 @@ Theme Studio adds its own page to the sidebar: **Theme Studio** with a palette i
 - **Same for Light and Dark:** in Surfaces, Background and Type one switch applies a change to both variants. It is off by default and remembered per theme in the browser.
 - **Check:** all 14 text and icon pairs. *Use Auto* switches the manual colours of a pair that is hard to read back to automatic.
 - **Saving is automatic.** Built-in presets are never changed: the first change makes your own copy. Undo and Redo work for everything you did since you opened the theme. The first save of a theme each time Home Assistant starts keeps a `.bak_YYYYMMDD_HHMMSS` copy next to it, and deleting a theme keeps one too.
-- **Use theme** writes the theme file and uses it on this device or as the default theme for everyone. After more changes, use it again to update it.
+- **Use theme** writes the theme file and uses it on this device, or makes it the default theme for everyone (this device then follows the default too; people who picked their own theme in their profile keep it). After more changes, use it again to update it.
 - **Share:** copy a share code or download a theme file. **Import** on the start page takes a share code or a file and makes a new theme; nothing is overwritten.
 - *Make Dark from Light* copies one variant into the other on purpose, with the lightness turned around.
 - Works on phones, tablets and computers, also in the Home Assistant app, and follows Home Assistant's dark mode. Only administrators can change themes.

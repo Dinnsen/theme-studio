@@ -2,6 +2,12 @@
 
 All notable changes to Theme Studio. Versions follow [semantic versioning](https://semver.org/); the version is the one in `custom_components/theme_studio/manifest.json`.
 
+## [1.0.2] - 2026-10-08
+
+### Fixed
+- *Use theme → Everyone* now also switches the device you are on to the default theme. Before, a theme picked in your own profile kept winning, so nothing seemed to happen. People who picked their own theme in their profile keep it.
+- The release workflow no longer fails when a release was published by hand.
+
 ## [1.0.1] - 2026-10-08
 
 ### Fixed
@@ -96,6 +102,7 @@ Theme Studio is now the panel in the sidebar. Installing it is HACS, restart, ad
 
 Earlier versions (0.1–0.4, April–May 2026) built the original YAML dashboard and theme generator.
 
+[1.0.2]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.2
 [1.0.1]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.0
 [0.13.0]: https://github.com/Dinnsen/theme-studio/pull/43

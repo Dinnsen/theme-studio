@@ -17,7 +17,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Release made by hand already
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists; nothing to do."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Tag matches the manifest version
+        if: steps.existing.outputs.exists != 'true'
         run: |
           tag="${GITHUB_REF_NAME#v}"
           version="$(python3 -c 'import json; print(json.load(open("custom_components/theme_studio/manifest.json"))["version"])')"
@@ -27,6 +40,7 @@ jobs:
           fi
 
       - name: Release notes from the changelog
+        if: steps.existing.outputs.exists != 'true'
         run: |
           python3 - <<'PY'
           import os, re, sys
@@ -39,6 +53,7 @@ jobs:
           PY
 
       - name: Publish the GitHub release
+        if: steps.existing.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
