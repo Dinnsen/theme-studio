@@ -285,6 +285,7 @@ export class ThemeStudioPanel extends LitElement {
   private _userDataLoading = false;
   private _tourFrame?: number;
   private _revealed?: string;
+  private _hintRevealed = false;
   private _resizer?: ResizeObserver;
 
   constructor() {
@@ -1182,6 +1183,7 @@ export class ThemeStudioPanel extends LitElement {
     this._revealed = undefined;
     void this._saveUserData({ tour: "done" });
     if (first) {
+      this._hintRevealed = false;
       this._hint = true;
     }
   }
@@ -1223,9 +1225,8 @@ export class ThemeStudioPanel extends LitElement {
       const key = `${tour.kind}:${tour.step}`;
       // The editor may still be loading; the target is scrolled into view the
       // first time it exists.
-      if (step.targets.length && this._revealed !== key && measureTargets(this.renderRoot, origin, { ...step, targets: [step.targets[0]] })) {
+      if (step.targets.length && this._revealed !== key && revealTarget(this.renderRoot, step)) {
         this._revealed = key;
-        revealTarget(this.renderRoot, step);
       }
       const rect = step.targets.length ? measureTargets(this.renderRoot, origin, step) : undefined;
       if (!sameRect(rect, this._tourRect)) {
@@ -1233,6 +1234,9 @@ export class ThemeStudioPanel extends LitElement {
       }
     }
     if (this._hint) {
+      if (!this._hintRevealed && revealTarget(this.renderRoot, HELP_STEP)) {
+        this._hintRevealed = true;
+      }
       const rect = measureTargets(this.renderRoot, origin, HELP_STEP);
       if (!sameRect(rect, this._hintRect)) {
         this._hintRect = rect;

@@ -136,12 +136,20 @@ export function measureTargets(root: ParentNode, origin: DOMRect, step: TourStep
   return { x: left - origin.left - 6, y: top - origin.top - 6, w: right - left + 12, h: bottom - top + 12 };
 }
 
-/** The first element of a step, scrolled into view inside its scrolling column. */
-export function revealTarget(root: ParentNode, step: TourStep): void {
+/**
+ * Scrolls the first element of a step to the top of its scrolling column, so
+ * the rest of the step's elements follow below it. Elements in the top bar
+ * stay where they are. False while the element is not rendered yet.
+ */
+export function revealTarget(root: ParentNode, step: TourStep): boolean {
   const element = [...root.querySelectorAll<HTMLElement>(`[data-tour="${step.targets[0]}"]`)].find(
     (candidate) => candidate.getBoundingClientRect().width > 0,
   );
-  element?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  if (!element) {
+    return false;
+  }
+  element.scrollIntoView({ block: element.closest("header") ? "nearest" : "start", inline: "nearest" });
+  return true;
 }
 
 export interface Placement {
@@ -180,6 +188,15 @@ export function placePopover(rect: Rect | undefined, side: Side, width: number, 
     effective = rect.x + rect.w + 14 <= maxX ? "right" : "below";
   }
   if (effective === "below" && rect.y + rect.h + 12 > maxY) {
+    // No room anywhere: beside the target on its wider side, covering as
+    // little of it as possible (the preview on a tablet).
+    const roomLeft = rect.x;
+    const roomRight = width - rect.x - rect.w;
+    const top = `${clamp(cy - 70, 16, maxY)}px`;
+    if (Math.max(roomLeft, roomRight) >= 200) {
+      const x = roomLeft >= roomRight ? 16 : maxX;
+      return { style: { left: `${x}px`, top, width: `${popWidth}px` }, arrow: undefined, sheet: false };
+    }
     const x = clamp(cx - popWidth / 2, 16, maxX);
     return { style: { left: `${x}px`, top: `${maxY}px`, width: `${popWidth}px` }, arrow: undefined, sheet: false };
   }
@@ -457,6 +474,9 @@ export function renderClip(step: TourStep, context: ClipContext): TemplateResult
 export const tourStyles = css`
   :host {
     position: relative;
+  }
+  [data-tour] {
+    scroll-margin: 14px;
   }
   .tour-layer {
     position: absolute;
