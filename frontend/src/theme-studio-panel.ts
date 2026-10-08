@@ -1395,6 +1395,13 @@ export class ThemeStudioPanel extends LitElement {
     `;
   }
 
+  /** Reload: in the top bar, and on a phone next to ? to leave room for the name. */
+  private _reloadButton(where: "hide-p" | "only-p"): TemplateResult {
+    return html`<button class="btn icon ${where}" data-tour="reload" @click=${this._refresh} aria-label=${t("lib.reload")} title=${t("lib.reload")}>
+      ${icon("refresh")}
+    </button>`;
+  }
+
   private _boxStyle(box: Rect): Record<string, string> {
     return { left: `${box.x}px`, top: `${box.y}px`, width: `${box.w}px`, height: `${box.h}px` };
   }
@@ -1451,12 +1458,10 @@ export class ThemeStudioPanel extends LitElement {
             <div class="status">${themes.length ? t("lib.themes_count", { count: themes.length }) : t("lib.tagline")}</div>
           </div>
           ${this._helpButton("bar")}
-          <button class="btn icon" data-tour="reload" @click=${this._refresh} aria-label=${t("lib.reload")} title=${t("lib.reload")}>
-            ${icon("refresh")}
-          </button>
+          ${this._reloadButton("hide-p")}
           ${this._canEdit
-            ? html`<button class="btn" data-tour="import" aria-label=${t("lib.import_label")} @click=${() => (this._dialog = "import")}>
-                ${icon("download", 18)}<span class="hide-p">${t("lib.import")}</span>
+            ? html`<button class="btn hide-p" data-tour="import" aria-label=${t("lib.import_label")} @click=${() => (this._dialog = "import")}>
+                ${icon("download", 18)}<span>${t("lib.import")}</span>
               </button>`
             : nothing}
           ${this._canEdit
@@ -1484,7 +1489,7 @@ export class ThemeStudioPanel extends LitElement {
                 ${this._filterButton("all", t("lib.all"))} ${this._filterButton("mine", t("lib.mine"))}
                 ${this._filterButton("builtin", t("lib.builtin"))}
               </div>
-              ${this._helpButton("phone")}
+              ${this._reloadButton("only-p")}${this._helpButton("phone")}
             </div>
           </div>
           ${this._error
@@ -2212,6 +2217,13 @@ export class ThemeStudioPanel extends LitElement {
             ${option("colour", t("new.colour"), t("new.colour_hint"), "palette")}
             ${option("image", t("new.image"), t("new.image_hint"), "image")}
           </div>
+          ${this._size.width > 0 && this._size.width < 720 && this._canEdit
+            ? html`<div class="opts one">
+                <button class="opt" @click=${() => (this._dialog = "import")}>
+                  ${icon("download", 22)}<span class="ot">${t("lib.import_label")}</span><span class="hint">${t("new.import_hint")}</span>
+                </button>
+              </div>`
+            : nothing}
           ${this._newMode === "preset"
             ? html`<div class="field">
                 <label class="lbl" for="ts-source">${t("new.start_from")}</label>

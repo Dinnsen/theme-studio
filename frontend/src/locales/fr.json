@@ -285,6 +285,7 @@
   "new.colour_hint": "Choisissez une couleur de base ; le reste est calculé.",
   "new.image": "Depuis une image",
   "new.image_hint": "Les couleurs viennent d'une image d'arrière-plan.",
+  "new.import_hint": "Collez un code de partage ou choisissez un fichier de thème.",
   "new.start_from": "Partir de",
   "new.mine_option": "{name} (le mien)",
   "new.base": "Couleur de base",

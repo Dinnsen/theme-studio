@@ -20,6 +20,8 @@ export interface TourStep {
   screen: "library" | "editor";
   section?: SectionId;
   targets: string[];
+  /** Shown instead when none of the targets is on screen (on a phone Import sits under +). */
+  fallback?: string[];
   limit?: number;
   side: Side;
   clip: ClipName;
@@ -74,7 +76,7 @@ export const TOURS: Record<TourKind, TourStep[]> = {
     { id: "f.cards", chapter: "overview", screen: "library", targets: ["card"], limit: 2, side: "right", clip: "cards" },
     { id: "f.filter", chapter: "overview", screen: "library", targets: ["filter"], side: "below", clip: "filter" },
     { id: "f.new", chapter: "overview", screen: "library", targets: ["new"], side: "below", clip: "newDialog" },
-    { id: "f.import", chapter: "overview", screen: "library", targets: ["import"], side: "below", clip: "importDialog" },
+    { id: "f.import", chapter: "overview", screen: "library", targets: ["import"], fallback: ["new"], side: "below", clip: "importDialog" },
     { id: "f.reload", chapter: "overview", screen: "library", targets: ["reload"], side: "below", clip: "reload" },
     { id: "f.name", chapter: "top", screen: "editor", section: "colours", targets: ["name"], side: "below", clip: "status" },
     { id: "f.undo", chapter: "top", screen: "editor", section: "colours", targets: ["undo"], side: "below", clip: "undo" },
@@ -111,10 +113,25 @@ export interface Rect {
   h: number;
 }
 
+function visible(root: ParentNode, name: string): HTMLElement[] {
+  return [...root.querySelectorAll<HTMLElement>(`[data-tour="${name}"]`)].filter((element) => {
+    const box = element.getBoundingClientRect();
+    return box.width > 0 && box.height > 0;
+  });
+}
+
+/** The step's targets, or its fallback when none of them is shown on this screen size. */
+function targetsOf(root: ParentNode, step: TourStep): string[] {
+  if (step.fallback && !step.targets.some((name) => visible(root, name).length)) {
+    return step.fallback;
+  }
+  return step.targets;
+}
+
 /** The union of the visible elements marked with these data-tour names, relative to `origin`. */
 export function measureTargets(root: ParentNode, origin: DOMRect, step: TourStep): Rect | undefined {
   const rects: DOMRect[] = [];
-  for (const name of step.targets) {
+  for (const name of targetsOf(root, step)) {
     const found = [...root.querySelectorAll<HTMLElement>(`[data-tour="${name}"]`)].filter((element) => {
       const box = element.getBoundingClientRect();
       return box.width > 0 && box.height > 0;
@@ -142,9 +159,7 @@ export function measureTargets(root: ParentNode, origin: DOMRect, step: TourStep
  * stay where they are. False while the element is not rendered yet.
  */
 export function revealTarget(root: ParentNode, step: TourStep): boolean {
-  const element = [...root.querySelectorAll<HTMLElement>(`[data-tour="${step.targets[0]}"]`)].find(
-    (candidate) => candidate.getBoundingClientRect().width > 0,
-  );
+  const element = visible(root, targetsOf(root, step)[0])[0];
   if (!element) {
     return false;
   }
@@ -684,6 +699,9 @@ export const tourStyles = css`
   }
   .only-p {
     display: none;
+  }
+  .opts.one {
+    grid-template-columns: minmax(0, 1fr);
   }
   .lib-tools {
     display: flex;
