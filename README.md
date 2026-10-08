@@ -1,7 +1,7 @@
 # Theme Studio
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Dinnsen/theme-studio/main/docs/assets/logo.png" width="300">
+  <img src="https://raw.githubusercontent.com/Dinnsen/theme-studio/main/docs/assets/logo.png" width="220" alt="Theme Studio">
 </p>
 
 <p align="center">
@@ -10,9 +10,15 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Dinnsen/theme-studio/releases"><img src="https://img.shields.io/github/v/release/Dinnsen/theme-studio?style=for-the-badge"></a>
-  <a href="https://github.com/hacs/integration"><img src="https://img.shields.io/badge/HACS-Custom-blue.svg?style=for-the-badge"></a>
-  <a href="https://buymeacoffee.com/dinnsen"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge"></a>
+  <a href="https://github.com/Dinnsen/theme-studio/releases"><img alt="Release" src="https://img.shields.io/github/v/release/Dinnsen/theme-studio?style=for-the-badge"></a>
+  <a href="https://github.com/hacs/integration"><img alt="HACS" src="https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge"></a>
+  <img alt="Home Assistant 2026.3+" src="https://img.shields.io/badge/Home%20Assistant-2026.3%2B-18BCF2?style=for-the-badge&logo=homeassistant&logoColor=white">
+  <a href="https://github.com/Dinnsen/theme-studio/actions/workflows/tests.yml"><img alt="Tests" src="https://img.shields.io/github/actions/workflow/status/Dinnsen/theme-studio/tests.yml?branch=main&label=tests&style=for-the-badge"></a>
+  <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/github/license/Dinnsen/theme-studio?style=for-the-badge"></a>
+</p>
+
+<p align="center">
+  <img src="docs/assets/hero.png" alt="The Theme Studio panel: the editor with a light and dark preview on a computer, and the theme library on a phone" width="100%">
 </p>
 
 ---
@@ -32,6 +38,7 @@
 
 ## Contents
 
+- [Screenshots](#screenshots)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Updating from 0.x](#updating-from-0x)
@@ -42,7 +49,21 @@
 - [Fonts](#fonts)
 - [Theme variables for your own dashboards](#theme-variables-for-your-own-dashboards)
 - [Services](#services)
+- [FAQ](#faq)
 - [Uninstall](#uninstall)
+- [Contributing](#contributing)
+
+## Screenshots
+
+| Your themes | Check |
+| --- | --- |
+| <img src="docs/assets/screenshots/library.png" alt="Theme library with light and dark previews"> | <img src="docs/assets/screenshots/check.png" alt="Contrast check of all 14 text and icon pairs"> |
+| **Surfaces** | **Dark mode** |
+| <img src="docs/assets/screenshots/surfaces.png" alt="Border styles as tiles"> | <img src="docs/assets/screenshots/editor-dark.png" alt="The editor in Home Assistant's dark mode"> |
+
+| Phone | Tablet |
+| --- | --- |
+| <img src="docs/assets/screenshots/phone-editor.png" alt="The editor on a phone" width="300"> | <img src="docs/assets/screenshots/tablet.png" alt="The theme library on a tablet" width="460"> |
 
 ## Requirements
 
@@ -201,14 +222,40 @@ The panel does not need these; they are for your own automations and scripts.
 | `theme_studio.save_preset` | Creates or updates a user theme from a settings payload; with `active_variant` only that variant is written. Built-in presets are never written. |
 | `theme_studio.initialize_assets` / `theme_studio.reinstall_assets` | Installs the managed files again and returns what changed. |
 
+## FAQ
+
+**Do I need card-mod, Bubble Card or any other custom card?**
+No. The panel and the generated themes work without them. If you use Bubble Card, the themes style it too.
+
+**Does Theme Studio change my dashboards?**
+No. It only adds themes. A theme is used when you pick it in your profile, set it on a dashboard view, or press *Use theme*.
+
+**Can I edit a built-in preset?**
+Yes: open it and change anything. Theme Studio makes your own copy on the first change; the preset itself stays as it is.
+
+**Why does my theme look different on another device?**
+*Use theme → This device* only changes the browser or app you are using. *Everyone* sets the default theme for all users; a user who picked another theme in their profile keeps it.
+
+**Where are my themes stored, and how do I back them up?**
+In `/config/theme_studio/user_themes/` as JSON files. They are part of every Home Assistant backup. To move one to another installation, use *Share* and *Import*.
+
+**I updated from 0.x and still see the old dashboard.**
+Restart Home Assistant once more and remove the `theme-studio` block from `configuration.yaml`; see [Updating from 0.x](#updating-from-0x).
+
 ## Uninstall
 
 1. Remove the integration in Settings → Devices & services. Theme Studio deletes its managed files (presets, *Theme Studio Standard* and their `.bak_*` backups, and the backups of the old dashboard files). Your user themes in `/config/theme_studio/user_themes/`, themes in `/config/themes/theme_studio/` and images in `/config/www/background/` are kept.
 2. Uninstall it in HACS.
 3. Restart Home Assistant.
 
+## Contributing
+
+Bug reports and ideas are welcome as [issues](https://github.com/Dinnsen/theme-studio/issues/new/choose). See [CONTRIBUTING.md](CONTRIBUTING.md) for how to build the panel and run the tests, and [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
+
 ## Support
 
-If you like this project:
+If you like Theme Studio, you can [buy me a coffee](https://buymeacoffee.com/dinnsen).
 
-https://buymeacoffee.com/dinnsen
+## Licence
+
+[MIT](LICENSE)

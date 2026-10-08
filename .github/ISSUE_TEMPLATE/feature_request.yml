@@ -1,0 +1,26 @@
+name: Feature request
+description: An idea that would make Theme Studio better.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do?
+      description: Describe what you are trying to achieve, not only the solution you have in mind.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How could Theme Studio help?
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What do you do today instead?
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Examples or screenshots
+      description: A dashboard, a theme or a sketch. Drag images here.
