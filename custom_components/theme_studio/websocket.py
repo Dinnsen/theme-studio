@@ -1,7 +1,8 @@
 """WebSocket commands used by the Theme Studio panel.
 
-All commands in v0.10 only read: they list themes, return one theme with its
-CSS variables and build a preview from settings. Nothing is written to disk.
+Reading commands list themes, return one theme with its CSS variables and
+settings, and build previews. Commands that write (save, new, delete, build)
+need an administrator and never touch the built-in presets.
 """
 
 from __future__ import annotations
@@ -12,15 +13,26 @@ import voluptuous as vol
 
 from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 
-from .const import DOMAIN
+from .const import DOMAIN, SIGNAL_CATALOGS_CHANGED
 from .engine import ThemeEngine
 
 WS_THEMES = f"{DOMAIN}/themes"
 WS_THEME = f"{DOMAIN}/theme"
 WS_PREVIEW = f"{DOMAIN}/preview"
+WS_SCHEMA = f"{DOMAIN}/schema"
+WS_BACKGROUNDS = f"{DOMAIN}/backgrounds"
+WS_MIRROR = f"{DOMAIN}/mirror"
+WS_SAVE = f"{DOMAIN}/theme/save"
+WS_NEW = f"{DOMAIN}/theme/new"
+WS_DELETE = f"{DOMAIN}/theme/delete"
+WS_BUILD = f"{DOMAIN}/theme/build"
 
 SETTING_VALUE = vol.Any(str, int, float, bool)
+SETTINGS = vol.All({vol.All(str, vol.Length(max=80)): SETTING_VALUE}, vol.Length(max=300))
+SLUG = vol.All(str, vol.Length(min=1, max=120))
+NAME = vol.All(str, vol.Length(max=60))
 
 
 def _engine(hass: HomeAssistant) -> ThemeEngine | None:
@@ -68,9 +80,7 @@ async def ws_theme(
 @websocket_api.websocket_command(
     {
         vol.Required("type"): WS_PREVIEW,
-        vol.Required("settings"): vol.All(
-            {vol.All(str, vol.Length(max=80)): SETTING_VALUE}, vol.Length(max=300)
-        ),
+        vol.Required("settings"): SETTINGS,
     }
 )
 @websocket_api.async_response
@@ -90,8 +100,183 @@ async def ws_preview(
     connection.send_result(msg["id"], result)
 
 
+@websocket_api.websocket_command({vol.Required("type"): WS_SCHEMA})
+@websocket_api.async_response
+async def ws_schema(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The settings the editor can change, with their limits and defaults."""
+    engine = _engine(hass)
+    if engine is None:
+        _not_loaded(connection, msg)
+        return
+    settings = await hass.async_add_executor_job(engine.schema)
+    connection.send_result(msg["id"], {"settings": settings})
+
+
+@websocket_api.websocket_command({vol.Required("type"): WS_BACKGROUNDS})
+@websocket_api.async_response
+async def ws_backgrounds(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Background images in /config/www/background."""
+    engine = _engine(hass)
+    if engine is None:
+        _not_loaded(connection, msg)
+        return
+    catalog = await hass.async_add_executor_job(engine.background_image_catalog)
+    images = [{"file": name, "url": f"/local/background/{name}"} for name in catalog["options"]]
+    connection.send_result(msg["id"], {"images": images})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): WS_MIRROR,
+        vol.Required("settings"): SETTINGS,
+        vol.Required("target"): vol.In(["light", "dark"]),
+    }
+)
+@websocket_api.async_response
+async def ws_mirror(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Settings for one variant made from the other one; nothing is written."""
+    engine = _engine(hass)
+    if engine is None:
+        _not_loaded(connection, msg)
+        return
+    settings = await hass.async_add_executor_job(engine.mirror, msg["settings"], msg["target"])
+    connection.send_result(msg["id"], {"settings": settings})
+
+
+async def _async_catalogs_changed(hass: HomeAssistant, engine: ThemeEngine) -> None:
+    """Keep the dashboard's lists and the theme previews in step."""
+    await hass.async_add_executor_job(engine.write_user_theme_index)
+    async_dispatcher_send(hass, SIGNAL_CATALOGS_CHANGED)
+
+
+def _send_outcome(
+    connection: websocket_api.ActiveConnection, msg: dict[str, Any], result: dict[str, Any]
+) -> bool:
+    if result.get("ok"):
+        connection.send_result(msg["id"], result)
+        return True
+    connection.send_error(msg["id"], str(result.get("reason", "failed")), str(result))
+    return False
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): WS_SAVE,
+        vol.Required("slug"): SLUG,
+        vol.Optional("name"): NAME,
+        vol.Optional("light"): SETTINGS,
+        vol.Optional("dark"): SETTINGS,
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_save(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Save editor changes into a user theme."""
+    engine = _engine(hass)
+    if engine is None:
+        _not_loaded(connection, msg)
+        return
+    variants = {variant: msg[variant] for variant in ("light", "dark") if variant in msg}
+    result = await hass.async_add_executor_job(engine.save_theme, msg["slug"], msg.get("name"), variants)
+    if _send_outcome(connection, msg, result):
+        await _async_catalogs_changed(hass, engine)
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): WS_NEW,
+        vol.Optional("source"): SLUG,
+        vol.Optional("image"): vol.All(str, vol.Length(min=1, max=200)),
+        vol.Optional("name"): NAME,
+        vol.Optional("base_color"): vol.All(str, vol.Length(max=9)),
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_new(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Create a user theme from a preset, a theme, one colour or an image."""
+    engine = _engine(hass)
+    if engine is None:
+        _not_loaded(connection, msg)
+        return
+    if "image" in msg:
+        result = await hass.async_add_executor_job(engine.theme_from_image, msg["image"], msg.get("name"))
+    else:
+        result = await hass.async_add_executor_job(
+            engine.new_theme, msg.get("source"), msg.get("name"), msg.get("base_color")
+        )
+    if _send_outcome(connection, msg, result):
+        await _async_catalogs_changed(hass, engine)
+
+
+@websocket_api.websocket_command({vol.Required("type"): WS_DELETE, vol.Required("slug"): SLUG})
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_delete(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Delete a user theme (never a built-in preset)."""
+    engine = _engine(hass)
+    if engine is None:
+        _not_loaded(connection, msg)
+        return
+    result = await hass.async_add_executor_job(engine.delete_theme, msg["slug"])
+    if _send_outcome(connection, msg, result):
+        await _async_catalogs_changed(hass, engine)
+        if result.get("removed_theme_files") and hass.services.has_service("frontend", "reload_themes"):
+            await hass.services.async_call("frontend", "reload_themes", blocking=True)
+
+
+@websocket_api.websocket_command({vol.Required("type"): WS_BUILD, vol.Required("slug"): SLUG})
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_build(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Write the theme file with light and dark mode and reload the themes."""
+    engine = _engine(hass)
+    if engine is None:
+        _not_loaded(connection, msg)
+        return
+    name = await hass.async_add_executor_job(engine.theme_name, msg["slug"])
+    if name is None:
+        connection.send_error(msg["id"], "not_found", f"No theme called {msg['slug']}")
+        return
+    result = await hass.async_add_executor_job(engine.build_theme, name)
+    if not result.get("ok", True):
+        connection.send_error(msg["id"], "build_failed", str(result))
+        return
+    if hass.services.has_service("frontend", "reload_themes"):
+        await hass.services.async_call("frontend", "reload_themes", blocking=True)
+    connection.send_result(msg["id"], {"ok": True, "name": name, **result})
+
+
+COMMANDS = (
+    ws_themes,
+    ws_theme,
+    ws_preview,
+    ws_schema,
+    ws_backgrounds,
+    ws_mirror,
+    ws_save,
+    ws_new,
+    ws_delete,
+    ws_build,
+)
+
+
 @callback
 def async_register_commands(hass: HomeAssistant) -> None:
     """Register the panel's commands once per Home Assistant run."""
-    for command in (ws_themes, ws_theme, ws_preview):
+    for command in COMMANDS:
         websocket_api.async_register_command(hass, command)

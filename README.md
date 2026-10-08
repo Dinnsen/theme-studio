@@ -26,7 +26,7 @@
 - Background images & overlays
 - Smart color system, including Home Assistant's own primary color scale (buttons, switches and sliders follow your accent)
 - Full YAML theme export that works on its own – no card-mod needed for the exported theme
-- **Theme Studio panel** in the sidebar (new in 0.10, view only for now)
+- **Theme Studio panel** in the sidebar: create, edit and check themes with a live preview
 
 ## Table of Content
 
@@ -117,14 +117,19 @@ Theme Studio copies its managed files into `/config` when the integration starts
 
 ## The Theme Studio panel
 
-From 0.10 Theme Studio adds its own page to the sidebar: **Theme Studio** with a palette icon. It needs no YAML, no dashboard and none of the custom cards.
+Theme Studio adds its own page to the sidebar: **Theme Studio** with a palette icon. It needs no YAML, no dashboard and none of the custom cards.
 
 - **Your themes:** every built-in preset and user theme as a card with a light and a dark preview.
-- **Open a theme** to see it on a phone, a tablet or a computer, in Light, Dark or both side by side. The preview uses the theme's real colours, so it looks like your dashboards will.
-- **Colours and contrast:** the main colours of each variant and all 14 text and icon pairs with their contrast.
-- Works on phones, tablets and computers, also in the Home Assistant app, and follows Home Assistant's dark mode.
+- **New theme:** from a preset or one of your themes, from one colour, or from a background image.
+- **Edit** a theme and see it straight away on a phone, a tablet or a computer, in Light, Dark or both side by side. The preview uses the theme's real colours.
+- **Colours:** one base colour, sliders for contrast, saturation, tone and more, and every colour with the same *Auto / Manual* switch and its contrast. Manual colours are never changed by Theme Studio.
+- **Check:** all 14 text and icon pairs. *Use Auto* switches the manual colours of a pair that is hard to read back to automatic.
+- **Saving is automatic.** Built-in presets are never changed: the first change makes your own copy. Undo and Redo work for everything you did since you opened the theme. The first save of a theme each time Home Assistant starts keeps a `.bak_YYYYMMDD_HHMMSS` copy next to it, and deleting a theme keeps one too.
+- **Update in HA** writes the theme file, so dashboards and profiles that use the theme get your changes.
+- Light and Dark are separate: changing one never changes the other. *Make Dark from Light* copies one into the other on purpose, with the lightness turned around.
+- Works on phones, tablets and computers, also in the Home Assistant app, and follows Home Assistant's dark mode. Only administrators can change themes.
 
-For now the panel is **view only**. Editing moves into the panel in a coming version; until then, edit in the Theme Studio dashboard. Both can be used side by side.
+Surfaces, background, fonts and the navbar are still edited in the Theme Studio dashboard; they move into the panel in the next version. The panel and the dashboard can be used side by side.
 
 Settings → Devices & services → Theme Studio → *Configure*:
 

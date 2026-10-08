@@ -612,11 +612,95 @@ def test_panel_bundle_and_registration_match() -> None:
     assert bundle.is_file(), "run npm run build in frontend/"
     text = bundle.read_text(encoding="utf-8")
     assert f'"{const.PANEL_COMPONENT}"' in text
-    for command in ("theme_studio/themes", "theme_studio/theme"):
-        assert command in text
-        assert command.split("/")[1] in (COMPONENT / "websocket.py").read_text(encoding="utf-8")
+    websocket = (COMPONENT / "websocket.py").read_text(encoding="utf-8")
+    for command in re.findall(r'"(theme_studio/[a-z/]+)"', text):
+        suffix = command.split("/", 1)[1]
+        assert f'f"{{DOMAIN}}/{suffix}"' in websocket, command
+    assert "theme_studio/theme/save" in text
     manifest = json.loads((COMPONENT / "manifest.json").read_text(encoding="utf-8"))
     assert "panel_custom" in manifest["dependencies"]
     strings = json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))
     options = strings["options"]["step"]["init"]["data"]
     assert {const.CONF_SHOW_PANEL, const.CONF_PANEL_ADMIN_ONLY} <= set(options)
+
+
+def test_panel_save_merges_one_theme_and_never_writes_presets(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    user_dir = tmp_path / "theme_studio" / "user_themes"
+    created = engine.new_theme("glass", "Mine")
+    assert created == {"ok": True, "slug": "mine", "name": "Mine"}
+    before = json.loads((user_dir / "mine.json").read_text(encoding="utf-8"))
+
+    result = engine.save_theme("mine", None, {"light": {"radius": 9, "unknown": "x"}})
+
+    assert result["ok"]
+    after = json.loads((user_dir / "mine.json").read_text(encoding="utf-8"))
+    assert after["light"]["radius"] == 9 and "unknown" not in after["light"]
+    assert after["dark"] == before["dark"]
+    # One backup per run, however often the editor saves.
+    engine.save_theme("mine", None, {"light": {"radius": 10}})
+    assert len(list(user_dir.glob("mine.json.bak_*"))) == 1
+
+    preset = tmp_path / "theme_studio" / "presets" / "glass.json"
+    preset_before = preset.read_text(encoding="utf-8")
+    assert engine.save_theme("glass", None, {"light": {"radius": 1}})["reason"] == "built_in"
+    assert engine.save_theme("../presets/glass", None, {})["reason"] == "not_found"
+    assert preset.read_text(encoding="utf-8") == preset_before
+
+
+def test_panel_rename_refuses_names_in_use(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    engine.new_theme("glass", "First")
+    engine.new_theme("glass", "Second")
+    assert engine.save_theme("second", "First", {})["reason"] == "name_taken"
+    assert engine.save_theme("second", "Glass", {})["reason"] == "name_taken"
+    assert engine.save_theme("second", "  ", {})["reason"] == "invalid_name"
+    renamed = engine.save_theme("second", "Evening", {})
+    assert renamed["name"] == "Evening"
+    # The file keeps its slug, so links and the dashboard keep working.
+    stored = json.loads((tmp_path / "theme_studio" / "user_themes" / "second.json").read_text(encoding="utf-8"))
+    assert stored["name"] == "Evening"
+    assert engine.theme_name("second") == "Evening"
+
+
+def test_panel_new_theme_gets_a_free_name_and_fits_the_colour(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    variants = load_module("variants")
+    first = engine.new_theme("glass", None)
+    second = engine.new_theme("glass", None)
+    assert first["name"] == "My Glass" and second["name"] == "My Glass (2)"
+    assert engine.new_theme("default", "Glass")["name"] == "Glass (2)"
+    coloured = engine.new_theme("default", "Ocean", "#1a6fb0")
+    stored = json.loads((tmp_path / "theme_studio" / "user_themes" / f"{coloured['slug']}.json").read_text(encoding="utf-8"))
+    assert stored["dark"]["base_color"] == variants.mirror_lightness("#1a6fb0", "dark")
+    assert stored["light"]["base_color"] == variants.mirror_lightness("#1a6fb0", "light")
+    assert engine.new_theme("nope", None)["reason"] == "source_not_found"
+
+
+def test_panel_delete_keeps_a_backup_and_refuses_presets(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    user_dir = tmp_path / "theme_studio" / "user_themes"
+    engine.new_theme("glass", "Gone")
+    built = tmp_path / "themes" / "theme_studio" / "gone.yaml"
+    built.parent.mkdir(parents=True, exist_ok=True)
+    built.write_text("gone: {}\n", encoding="utf-8")
+
+    result = engine.delete_theme("gone")
+
+    assert result["ok"] and result["removed_theme_files"] == ["gone.yaml"]
+    assert not (user_dir / "gone.json").exists()
+    assert len(list(user_dir.glob("gone.json.bak_*"))) == 1
+    assert engine.delete_theme("glass")["reason"] == "not_found"
+    assert (tmp_path / "theme_studio" / "presets" / "glass.json").exists()
+
+
+def test_panel_schema_and_mirror(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    schema = {item["key"]: item for item in engine.schema()}
+    assert set(schema) <= set(engine.setting_keys)
+    assert schema["color_model"]["options"] == ["hsl", "oklch"]
+    assert schema["radius"]["platform"] == "number" and schema["radius"]["max"] == 32
+    light = engine.theme_detail("glass")["light"]["settings"]
+    mirrored = engine.mirror(light, "dark")
+    assert isinstance(mirrored["radius"], float)
+    assert mirrored["card_bg_override"] in ("auto", light["card_bg_override"])
