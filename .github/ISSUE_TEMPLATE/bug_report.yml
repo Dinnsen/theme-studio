@@ -1,0 +1,77 @@
+name: Bug report
+description: Something in Theme Studio does not work as it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. Please check the [open issues](https://github.com/Dinnsen/theme-studio/issues) first.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Theme Studio
+        2. Open the theme "…"
+        3. …
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: Theme Studio version
+      description: HACS → Theme Studio, or Settings → Devices & services → Theme Studio.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+      description: Settings → About.
+      placeholder: "2026.10.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where does it happen?
+      multiple: true
+      options:
+        - Theme Studio panel
+        - A dashboard using a Theme Studio theme
+        - Home Assistant app (iOS)
+        - Home Assistant app (Android)
+        - Installation or update
+        - Services / automations
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: "Safari on iPad, Chrome on Windows, …"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Settings → System → Logs, search for "theme_studio". Remove anything private.
+      render: text
+  - type: textarea
+    id: theme
+    attributes:
+      label: Theme share code
+      description: If it is about one theme, open it in the panel, press *Use theme* → *Copy share code* and paste it here.
+      render: text
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Drag images here.

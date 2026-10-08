@@ -56,5 +56,3 @@ jobs:
         uses: hacs/action@main
         with:
           category: integration
-          # brands: the icon ships in custom_components/theme_studio/brand.
-          ignore: brands
