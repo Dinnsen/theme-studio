@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
-import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,14 +16,6 @@ CLI_PATH = (
     / "theme_studio"
     / "scripts"
     / "theme_studio_cli.py"
-)
-PACKAGE_PATH = (
-    ROOT
-    / "custom_components"
-    / "theme_studio"
-    / "templates"
-    / "packages"
-    / "theme_studio_dynamic.yaml"
 )
 
 
@@ -147,49 +138,3 @@ def test_save_preset_updates_only_active_variant(tmp_path, monkeypatch, capsys) 
     assert result["ok"] is True
     assert saved["light"]["base_color"] == "#eeeeee"
     assert saved["dark"]["base_color"] == "#000000"
-
-
-def test_package_uses_integration_services_for_file_operations() -> None:
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-
-    assert "live-json" not in package
-    assert "shell_command" not in package
-    assert "theme_studio_cli.py" not in package
-    assert "- service: theme_studio.generate" in package
-    assert "- service: theme_studio.save\n" in package
-    assert "- service: theme_studio.load\n" in package
-    assert "- service: theme_studio.save_as_new" in package
-    assert "Save as new handles loading the newly created user theme" in package
-
-
-def test_package_has_no_per_variant_mirror_helpers() -> None:
-    """Since v0.9.0 the theme file is the only store for light and dark values."""
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-
-    assert "theme_studio_light_" not in package
-    assert "theme_studio_dark_" not in package
-    assert "theme_studio.save_preset" not in package
-    assert "theme_studio.copy_preset" not in package
-
-
-def test_autoload_flows_do_not_save_inactive_variant_helpers() -> None:
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-    preset_autoload = package.split("- id: theme_studio_autoload_dark_on_select", 1)[1].split(
-        "- id: theme_studio_autoload_user_theme_on_select", 1
-    )[0]
-    user_autoload = package.split("- id: theme_studio_autoload_user_theme_on_select", 1)[1].split(
-        "- id: theme_studio_apply_default_when_none_selected", 1
-    )[0]
-
-    for section in (preset_autoload, user_autoload):
-        assert "button.theme_studio_theme_load_light_theme" in section
-        assert "button.theme_studio_theme_load_dark_theme" in section
-        assert "button.theme_studio_theme_save_light_theme" not in section
-        assert "button.theme_studio_theme_save_dark_theme" not in section
-
-
-def test_package_has_no_subprocess_sections() -> None:
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-    top_level = set(re.findall(r"^([a-z_]+):\s*$", package, re.M))
-
-    assert top_level == {"template", "script", "automation"}

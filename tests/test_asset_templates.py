@@ -11,8 +11,6 @@ TEMPLATES = INTEGRATION / "templates"
 
 REQUIRED_TEMPLATE_DIRS = [
     TEMPLATES,
-    TEMPLATES / "packages",
-    TEMPLATES / "lovelace",
     TEMPLATES / "themes",
     TEMPLATES / "theme_studio",
     TEMPLATES / "theme_studio" / "presets",
@@ -21,9 +19,7 @@ REQUIRED_TEMPLATE_DIRS = [
 ]
 
 REQUIRED_TEMPLATE_FILES = [
-    TEMPLATES / "packages" / "theme_studio_dynamic.yaml",
-    TEMPLATES / "lovelace" / "theme_studio_dashboard.yaml",
-    TEMPLATES / "themes" / "theme_studio_dynamic.yaml",
+    TEMPLATES / "themes" / "theme_studio_standard.yaml",
     TEMPLATES / "theme_studio" / "scripts" / "theme_studio_cli.py",
     TEMPLATES / "theme_studio" / "user_themes" / ".gitkeep",
 ]
@@ -76,3 +72,10 @@ def test_no_user_theme_json_files_are_bundled() -> None:
     user_theme_dir = TEMPLATES / "theme_studio" / "user_themes"
     json_files = list(user_theme_dir.glob("*.json"))
     assert not json_files, f"Do not bundle user theme files: {json_files}"
+
+
+def test_classic_dashboard_is_no_longer_bundled() -> None:
+    assert not (TEMPLATES / "packages").exists()
+    assert not (TEMPLATES / "lovelace").exists()
+    assert not (TEMPLATES / "themes" / "theme_studio_dynamic.yaml").exists()
+    assert not (INTEGRATION / "helpers.json").exists()

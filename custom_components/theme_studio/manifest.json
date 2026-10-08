@@ -1,13 +1,6 @@
 {
   "domain": "theme_studio",
   "name": "Theme Studio",
-  "after_dependencies": [
-    "input_boolean",
-    "input_button",
-    "input_number",
-    "input_select",
-    "input_text"
-  ],
   "codeowners": [
     "@Dinnsen"
   ],
@@ -23,5 +16,5 @@
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/Dinnsen/theme-studio/issues",
   "requirements": [],
-  "version": "0.13.0"
+  "version": "1.0.0"
 }

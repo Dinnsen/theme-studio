@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Theme Studio",
-        "description": "Install Theme Studio services and asset bootstrapper.",
+        "description": "Theme Studio adds its own page to the sidebar, where you create, edit and apply themes. Nothing else needs to be set up.",
         "data": {
           "overwrite": "Overwrite existing managed files",
           "backup": "Create backups before overwriting"
@@ -22,7 +22,7 @@
     "step": {
       "init": {
         "title": "Theme Studio options",
-        "description": "Control how Theme Studio reinstalls managed assets, whether its panel is shown, and how themes and fonts reach Home Assistant.",
+        "description": "Control how Theme Studio updates its bundled presets and themes, whether its panel is shown, and how themes and fonts reach Home Assistant.",
         "data": {
           "overwrite": "Overwrite existing managed files",
           "backup": "Create backups before overwriting",
@@ -59,10 +59,6 @@
         }
       }
     },
-    "generate": {
-      "name": "Generate live theme",
-      "description": "Build Theme Studio Dynamic from the current editor values and reload themes if it changed."
-    },
     "save_preset": {
       "name": "Save user theme",
       "description": "Save the editor values as a user theme.",
@@ -70,20 +66,6 @@
         "payload": {
           "name": "Payload",
           "description": "Theme name, active variant and the light/dark settings."
-        }
-      }
-    },
-    "copy_preset": {
-      "name": "Copy preset",
-      "description": "Create a new user theme from a preset or user theme.",
-      "fields": {
-        "source": {
-          "name": "Source",
-          "description": "Preset or user theme to copy."
-        },
-        "name": {
-          "name": "Name",
-          "description": "Name of the new user theme."
         }
       }
     },
@@ -107,62 +89,6 @@
         }
       }
     },
-    "refresh_catalogs": {
-      "name": "Refresh catalogs",
-      "description": "Re-read presets, user themes and background images."
-    },
-    "copy_variant": {
-      "name": "Copy variant",
-      "description": "Copy the saved light or dark variant to the other one and open it in the studio. Lightness is mirrored and light/dark-specific colours are reset to auto, so the copy stays readable. Save the theme to keep it.",
-      "fields": {
-        "source": {
-          "name": "Source",
-          "description": "Variant to copy from: light or dark."
-        }
-      }
-    },
-    "save": {
-      "name": "Save",
-      "description": "Save the studio editor into the selected user theme. Only the loaded variant (light or dark) is written; built-in presets are never changed.",
-      "fields": {
-        "variant": {
-          "name": "Variant",
-          "description": "light or dark. Defaults to the loaded variant."
-        },
-        "name": {
-          "name": "Name",
-          "description": "User theme to save into. Defaults to the selected user theme."
-        }
-      }
-    },
-    "load": {
-      "name": "Load",
-      "description": "Load a variant of a preset or user theme into the studio editor.",
-      "fields": {
-        "variant": {
-          "name": "Variant",
-          "description": "light or dark. Defaults to the loaded variant."
-        },
-        "name": {
-          "name": "Name",
-          "description": "Preset or user theme. Defaults to the selected one."
-        }
-      }
-    },
-    "save_as_new": {
-      "name": "Save as new",
-      "description": "Create a new user theme: the editor becomes the loaded variant, the other variant comes from the selected theme. Never overwrites a theme.",
-      "fields": {
-        "name": {
-          "name": "Name",
-          "description": "Name of the new user theme. Defaults to the theme name field in the studio."
-        }
-      }
-    },
-    "undo": {
-      "name": "Undo",
-      "description": "Return the studio editor to the previous step (up to 25 steps since Home Assistant started)."
-    },
     "export_user_theme": {
       "name": "Export user theme",
       "description": "Write a user theme to /config/www/theme_studio/exports and return it as JSON and as a share string. A notification links to the file.",
@@ -175,7 +101,7 @@
     },
     "import_user_theme": {
       "name": "Import user theme",
-      "description": "Create a new user theme from JSON or a share string. Without data, every .json/.txt file in /config/theme_studio/imports is imported. Existing user themes are never overwritten; a name that is taken gets a number.",
+      "description": "Create a new user theme from JSON or a share code. Without data, every .json/.txt file in /config/theme_studio/imports is imported. Existing user themes are never overwritten; a name that is taken gets a number.",
       "fields": {
         "data": {
           "name": "Data",
@@ -189,39 +115,15 @@
     },
     "theme_from_image": {
       "name": "Theme from image",
-      "description": "Create a new user theme with a light and a dark variant from the colours of a background image, check its contrast and open it in the studio. Nothing existing is changed.",
+      "description": "Create a new user theme with a light and a dark variant from the colours of a background image and check its contrast. Nothing existing is changed.",
       "fields": {
         "image": {
           "name": "Image",
-          "description": "File name in /config/www/background. Defaults to the selected background image."
+          "description": "File name in /config/www/background."
         },
         "name": {
           "name": "Name",
           "description": "Name of the new user theme. Defaults to 'From' followed by the image name."
-        }
-      }
-    },
-    "palette_from_image": {
-      "name": "Colours from image",
-      "description": "Read the main colours of a background image and suggest a base colour, an accent and the background contrast.",
-      "fields": {
-        "image": {
-          "name": "Image",
-          "description": "File name in /config/www/background. Defaults to the selected background image."
-        },
-        "apply": {
-          "name": "Apply",
-          "description": "Put the suggestions into the studio editor. Undo brings the previous colours back."
-        }
-      }
-    },
-    "set_options": {
-      "name": "Set options",
-      "description": "Replace the options of a Theme Studio select.",
-      "fields": {
-        "options": {
-          "name": "Options",
-          "description": "New list of options."
         }
       }
     }
@@ -233,14 +135,8 @@
     "invalid_payload": {
       "message": "The payload must be an object with the theme settings."
     },
-    "invalid_option": {
-      "message": "{option} is not an option of {entity_id}."
-    },
     "preset_not_found": {
       "message": "Preset or user theme {name} was not found ({error})."
-    },
-    "nothing_to_undo": {
-      "message": "There is nothing to undo."
     },
     "user_theme_not_found": {
       "message": "User theme {name} was not found."
@@ -250,6 +146,16 @@
     },
     "image_not_readable": {
       "message": "Could not read image {image}: {error}"
+    }
+  },
+  "issues": {
+    "classic_dashboard_removed": {
+      "title": "Theme Studio: restart to finish removing the old dashboard",
+      "description": "Theme Studio 1.0 no longer has the YAML dashboard, its package or the theme Theme Studio Dynamic; everything is done in the Theme Studio panel in the sidebar. These files were renamed to `<file>.bak_<date>` so they no longer load: {files}.\n\nRestart Home Assistant to unload the old scripts, automations and template sensors. If a dashboard or your profile used the theme Theme Studio Dynamic, choose another theme, for example Theme Studio Standard. Your user themes were not changed."
+    },
+    "classic_dashboard_configured": {
+      "title": "Theme Studio: remove the old dashboard from configuration.yaml",
+      "description": "`configuration.yaml` still adds the Theme Studio dashboard (`theme_studio_dashboard.yaml`), which was removed in Theme Studio 1.0. Delete the `theme-studio` block under `lovelace: dashboards:` and restart Home Assistant. This message goes away by itself afterwards."
     }
   }
 }

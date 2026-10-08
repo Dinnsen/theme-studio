@@ -1,4 +1,4 @@
-"""Regression tests for the generated theme and package wiring (v0.5.0)."""
+"""Regression tests for the generated themes."""
 
 from __future__ import annotations
 
@@ -11,9 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TEMPLATES = ROOT / "custom_components" / "theme_studio" / "templates"
 CLI_PATH = TEMPLATES / "theme_studio" / "scripts" / "theme_studio_cli.py"
 PRESET_DIR = TEMPLATES / "theme_studio" / "presets"
-PACKAGE_PATH = TEMPLATES / "packages" / "theme_studio_dynamic.yaml"
-DASHBOARD_PATH = TEMPLATES / "lovelace" / "theme_studio_dashboard.yaml"
-BUNDLED_THEME_PATH = TEMPLATES / "themes" / "theme_studio_dynamic.yaml"
+BUNDLED_THEME_PATH = TEMPLATES / "themes" / "theme_studio_standard.yaml"
 
 REMOVED_PREFIXES = (
     "card-mod-",
@@ -96,46 +94,10 @@ def test_accent_palette_matches_home_assistant_steps() -> None:
 
 def test_bundled_theme_is_current() -> None:
     text = BUNDLED_THEME_PATH.read_text(encoding="utf-8")
-    assert text.startswith("Theme Studio Dynamic:\n")
+    assert text.startswith("Theme Studio Standard:\n")
     for prefix in REMOVED_PREFIXES:
         assert f"\n  {prefix}" not in text, prefix
     assert "  ha-color-primary-50:" in text
-
-
-def test_every_called_theme_studio_service_is_registered() -> None:
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-    services_yaml = (ROOT / "custom_components" / "theme_studio" / "services.yaml").read_text(encoding="utf-8")
-    declared = set(re.findall(r"^([a-z_]+):", services_yaml, re.M))
-    called = set(re.findall(r"service: theme_studio\.([a-z_]+)", package))
-    assert called
-    assert called <= declared, f"Undeclared services: {sorted(called - declared)}"
-
-
-def test_delete_flow_passes_explicit_theme_name() -> None:
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-    block = package.split("- service: theme_studio.delete_user_theme\n", 1)[1]
-    assert block.startswith('    data:\n      name: "{{ delete_name | trim }}"\n')
-
-
-def test_managed_preset_index_is_never_rewritten() -> None:
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-    assert "presets/index.json" not in package
-
-
-def test_default_theme_is_only_set_when_enabled() -> None:
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-    assert package.count("frontend.set_theme") == package.count(
-        "entity_id: switch.theme_studio_set_as_default_theme"
-    )
-
-
-def test_dashboard_views_use_dynamic_theme_and_no_legacy_vars() -> None:
-    dashboard = DASHBOARD_PATH.read_text(encoding="utf-8")
-    views = dashboard.split("\nviews:", 1)[1]
-    view_starts = re.findall(r"^  - (?:title|type): ", views, re.M)
-    assert views.count("    theme: Theme Studio Dynamic") == len(view_starts)
-    for legacy in ("--d1nnsen-", "--my-", "ha-textfield", "--bubble-slider-main-background-color"):
-        assert legacy not in dashboard, legacy
 
 
 def test_bundled_standard_theme_matches_default_preset(tmp_path) -> None:
@@ -157,27 +119,6 @@ def test_theme_does_not_blur_every_card() -> None:
     for name, variant, values in build_preset_variants(cli):
         assert "ha-card-backdrop-filter" not in values, f"{name}/{variant}"
         assert "ha-dialog-surface-backdrop-filter" not in values, f"{name}/{variant}"
-
-
-def test_editor_helpers_survive_restart() -> None:
-    helpers = json.loads(
-        (ROOT / "custom_components" / "theme_studio" / "helpers.json").read_text(encoding="utf-8")
-    )["helpers"]
-    reset_on_start = {helper["key"] for helper in helpers if helper.get("reset_on_start")}
-    assert reset_on_start == {
-        "theme_studio_busy",
-        "theme_studio_busy_message",
-        "theme_studio_pending_new_theme_name",
-        "theme_studio_picker_red",
-        "theme_studio_picker_green",
-        "theme_studio_picker_blue",
-    }
-
-
-def test_default_preset_is_not_forced_over_a_selected_user_theme() -> None:
-    package = PACKAGE_PATH.read_text(encoding="utf-8")
-    block = package.split("- id: theme_studio_apply_default_when_none_selected", 1)[1].split("\n- id:", 1)[0]
-    assert "text.theme_studio_selected_user_theme" in block
 
 
 def contrast_of(cli, values, key):
@@ -234,15 +175,6 @@ def test_custom_icon_switch_reaches_the_theme() -> None:
     settings["use_custom_icon_color"] = "off"
     values = cli.build(cli.namespace_from_settings(settings, "/tmp/unused.yaml"))
     assert values["state-icon-color"] != "#123456"
-
-
-def test_bundled_dynamic_theme_matches_engine() -> None:
-    spec = importlib.util.spec_from_file_location(
-        "regenerate_bundled_themes", ROOT / "scripts" / "regenerate_bundled_themes.py"
-    )
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    assert BUNDLED_THEME_PATH.read_text(encoding="utf-8") == module.dynamic_theme(module.load_cli())
 
 
 def test_every_built_in_preset_passes_contrast() -> None:
