@@ -159,7 +159,15 @@ def async_setup_services(hass: HomeAssistant) -> None:
 
     async def delete_user_theme(call: ServiceCall) -> ServiceResponse:
         engine = _engine(hass)
-        result = await hass.async_add_executor_job(engine.delete_user_theme, call.data["name"])
+        # Same as Delete in the panel: a .bak copy of the user theme is kept.
+        slug = engine.cli.slugify(call.data["name"])
+        result = await hass.async_add_executor_job(engine.delete_theme, slug)
+        if not result.get("ok"):
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="user_theme_not_found",
+                translation_placeholders={"name": call.data["name"]},
+            )
         await async_reload_themes(hass)
         return result
 

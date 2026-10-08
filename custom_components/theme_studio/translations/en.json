@@ -71,7 +71,7 @@
     },
     "delete_user_theme": {
       "name": "Delete user theme",
-      "description": "Delete a user theme and its built theme file.",
+      "description": "Delete a user theme and its built theme file. A copy of the user theme is kept with a .bak ending, as in the panel.",
       "fields": {
         "name": {
           "name": "Name",
