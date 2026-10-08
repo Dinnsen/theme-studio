@@ -651,6 +651,13 @@
       "options": ["none", "soft_veil", "mesh_glow", "vignette", "aurora", "aurora_vertical", "spotlight", "diagonal_fade", "topographic", "mist", "frost", "dual_orb", "soft_stripes", "cinematic", "halo"]
     },
     {
+      "key": "background_attachment",
+      "control": "select",
+      "label": "Background when scrolling",
+      "default": "fixed",
+      "options": ["fixed", "scroll"]
+    },
+    {
       "key": "preview_mode",
       "control": "select",
       "label": "Preview mode",

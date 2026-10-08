@@ -339,6 +339,16 @@ export const SECTIONS: Section[] = [
         controls: [
           { type: "slider", key: "background_contrast", label: "Image visibility", ends: ["Page colour", "Full image"] },
           { type: "images" },
+          {
+            type: "segmented",
+            key: "background_attachment",
+            label: "When you scroll",
+            options: [
+              ["fixed", "Stays put"],
+              ["scroll", "Scrolls with the page"],
+            ],
+            hint: "Stays put keeps the background still behind the cards. Scrolls with the page moves it up with them.",
+          },
         ],
       },
       {

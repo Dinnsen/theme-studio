@@ -1724,7 +1724,7 @@ export class ThemeStudioPanel extends LitElement {
         <div class="fwrap">
           <div class="flabel">${variant === "light" ? "Light" : "Dark"}</div>
           ${data
-            ? html`<div class="frame ${device}" style=${styleMap(themeStyle(data.variables))}>${renderMock()}</div>`
+            ? html`<div class="frame ${device}" style=${styleMap(themeStyle(data.variables))}>${renderMock(data.variables["theme-studio-background-attachment"] === "scroll")}</div>`
             : html`<div class="frame ${device}"><div class="loading">Loading…</div></div>`}
         </div>
       `;
