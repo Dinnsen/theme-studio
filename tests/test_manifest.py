@@ -41,3 +41,10 @@ def test_manifest_links_are_not_placeholders() -> None:
 
     assert "example" not in data.get("documentation", "")
     assert "example" not in data.get("issue_tracker", "")
+
+
+def test_changelog_has_the_manifest_version() -> None:
+    """The Release workflow takes the release notes from this section."""
+    version = json.loads(MANIFEST.read_text(encoding="utf-8"))["version"]
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert f"## [{version}]" in changelog
