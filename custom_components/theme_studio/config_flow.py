@@ -8,14 +8,30 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.core import callback
+from homeassistant.helpers.selector import (
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 
 from .const import (
+    CONF_LANGUAGE,
     CONF_LOAD_FONTS,
     CONF_PANEL_ADMIN_ONLY,
     CONF_REGISTER_THEMES,
     CONF_SHOW_PANEL,
     DOMAIN,
+    LANGUAGE_AUTO,
+    LANGUAGES,
     TITLE,
+)
+
+LANGUAGE_SELECTOR = SelectSelector(
+    SelectSelectorConfig(
+        options=[LANGUAGE_AUTO, *LANGUAGES],
+        translation_key=CONF_LANGUAGE,
+        mode=SelectSelectorMode.DROPDOWN,
+    )
 )
 
 
@@ -38,6 +54,7 @@ class ThemeStudioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data={
                     "overwrite": user_input.get("overwrite", True),
                     "backup": user_input.get("backup", True),
+                    CONF_LANGUAGE: user_input.get(CONF_LANGUAGE, LANGUAGE_AUTO),
                 },
             )
 
@@ -47,6 +64,7 @@ class ThemeStudioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 {
                     vol.Optional("overwrite", default=True): bool,
                     vol.Optional("backup", default=True): bool,
+                    vol.Optional(CONF_LANGUAGE, default=LANGUAGE_AUTO): LANGUAGE_SELECTOR,
                 }
             ),
             errors={},
@@ -110,6 +128,10 @@ class ThemeStudioOptionsFlow(config_entries.OptionsFlow):
                         CONF_LOAD_FONTS,
                         default=data.get(CONF_LOAD_FONTS, True),
                     ): bool,
+                    vol.Optional(
+                        CONF_LANGUAGE,
+                        default=data.get(CONF_LANGUAGE, LANGUAGE_AUTO),
+                    ): LANGUAGE_SELECTOR,
                 }
             ),
         )

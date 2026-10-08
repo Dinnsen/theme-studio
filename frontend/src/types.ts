@@ -4,6 +4,8 @@ export interface Hass {
   user?: { is_admin?: boolean };
   selectedTheme?: { theme?: string } | null;
   fetchWithAuth?(path: string, init?: RequestInit): Promise<Response>;
+  language?: string;
+  locale?: { language?: string };
 }
 
 export type SettingValue = string | number | boolean;

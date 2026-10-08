@@ -6,7 +6,11 @@
         "description": "Theme Studio adds its own page to the sidebar, where you create, edit and apply themes. Nothing else needs to be set up.",
         "data": {
           "overwrite": "Overwrite existing managed files",
-          "backup": "Create backups before overwriting"
+          "backup": "Create backups before overwriting",
+          "language": "Language"
+        },
+        "data_description": {
+          "language": "The language of the Theme Studio panel, its guide and its notifications. Automatic follows each person's Home Assistant language; anyone can still pick another one in the panel's guide."
         }
       }
     },
@@ -29,7 +33,11 @@
           "show_panel": "Show the Theme Studio panel in the sidebar",
           "panel_admin_only": "Only administrators can open the panel",
           "register_themes": "Add Theme Studio's themes to Home Assistant (no YAML needed)",
-          "load_fonts": "Load the fonts that come with Theme Studio"
+          "load_fonts": "Load the fonts that come with Theme Studio",
+          "language": "Language"
+        },
+        "data_description": {
+          "language": "The language of the Theme Studio panel, its guide and its notifications. Automatic follows each person's Home Assistant language; anyone can still pick another one in the panel's guide."
         }
       }
     }
@@ -156,6 +164,20 @@
     "classic_dashboard_configured": {
       "title": "Theme Studio: remove the old dashboard from configuration.yaml",
       "description": "`configuration.yaml` still adds the Theme Studio dashboard (`theme_studio_dashboard.yaml`), which was removed in Theme Studio 1.0. Delete the `theme-studio` block under `lovelace: dashboards:` and restart Home Assistant. This message goes away by itself afterwards."
+    }
+  },
+  "selector": {
+    "language": {
+      "options": {
+        "auto": "Automatic (follow Home Assistant)",
+        "da": "Dansk",
+        "de": "Deutsch",
+        "en": "English",
+        "es": "Español",
+        "fr": "Français",
+        "nb": "Norsk (bokmål)",
+        "sv": "Svenska"
+      }
     }
   }
 }

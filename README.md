@@ -15,6 +15,7 @@
   <img alt="Home Assistant 2026.3+" src="https://img.shields.io/badge/Home%20Assistant-2026.3%2B-18BCF2?style=for-the-badge&logo=homeassistant&logoColor=white">
   <a href="https://github.com/Dinnsen/theme-studio/actions/workflows/tests.yml"><img alt="Tests" src="https://img.shields.io/github/actions/workflow/status/Dinnsen/theme-studio/tests.yml?branch=main&label=tests&style=for-the-badge"></a>
   <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/github/license/Dinnsen/theme-studio?style=for-the-badge"></a>
+  <a href="https://buymeacoffee.com/dinnsen"><img alt="Buy Me a Coffee" src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge"></a>
 </p>
 
 <p align="center">
@@ -34,6 +35,7 @@
 - **Use a theme** for yourself or for everyone with one button.
 - **Share** a theme as a short code or a file, and import one from someone else.
 - **Fonts included** and served by your own Home Assistant, with no request to Google.
+- **Seven languages:** Danish, German, English, Spanish, French, Norwegian and Swedish, with a guided tour for first-time users.
 - Generated themes work on their own: no card-mod needed.
 
 ## Contents
@@ -43,6 +45,7 @@
 - [Installation](#installation)
 - [Updating from 0.x](#updating-from-0x)
 - [The Theme Studio panel](#the-theme-studio-panel)
+- [Guide and languages](#guide-and-languages)
 - [Options](#options)
 - [What Theme Studio changes](#what-theme-studio-changes)
 - [File structure](#file-structure)
@@ -129,8 +132,20 @@ Theme Studio adds its own page to the sidebar: **Theme Studio** with a palette i
 - **Share:** copy a share code or download a theme file. **Import** on the start page takes a share code or a file and makes a new theme; nothing is overwritten.
 - *Make Dark from Light* copies one variant into the other on purpose, with the lightness turned around.
 - Works on phones, tablets and computers, also in the Home Assistant app, and follows Home Assistant's dark mode. Only administrators can change themes.
+- **?** opens the [guide](#guide-and-languages) and the language picker.
 
 The panel's source lives in [`frontend/`](frontend/); see its README for how it is built.
+
+## Guide and languages
+
+The first time an administrator opens the panel, a short welcome offers two guides:
+
+- **Quick start** (7 steps): make a theme, pick the base colour, Light and Dark, check readability, the preview and *Use theme*.
+- **All functions** (30 steps): every button and setting, chapter by chapter, from the theme list to the contrast check.
+
+Each step highlights the button or setting it explains and shows a small animated drawing of it. *Next*, *Back* and *Skip* (or the arrow keys and Esc) move through it. On a phone the explanation slides up from the bottom so the highlighted part stays visible. The guide never changes your themes. Skip it, and it is always under the **?** button in the top bar (on a phone: next to the filter on the start page and at the end of the section chips in the editor).
+
+**Languages:** Danish, German, English, Spanish, French, Norwegian (bokmål) and Swedish, for the whole panel, the guide, the integration's settings and the notifications from the export and import services. By default the panel follows each person's Home Assistant language (anything else falls back to English). The *Language* option sets one language for everyone, and each person can still pick their own on the guide's welcome; that choice is remembered for their user on every device.
 
 ## Options
 
@@ -144,6 +159,7 @@ Settings → Devices & services → Theme Studio → *Configure*:
 | Only administrators can open the panel | on | Turn off to let every user open it. |
 | Add Theme Studio's themes to Home Assistant (no YAML needed) | on | Theme Studio puts its themes into Home Assistant's theme list and adds them again after *Reload themes*. It uses Home Assistant's internal theme list; if a future version changes it, Theme Studio logs a warning and you can use the YAML line instead. |
 | Load the fonts that come with Theme Studio | on | Turn off if you load fonts yourself. |
+| Language | Automatic | The language of the panel, its guide and the notifications. *Automatic* follows each person's Home Assistant language. Also asked when you add the integration. |
 
 Each user can also hide or move the panel with Home Assistant's own *Edit sidebar*.
 

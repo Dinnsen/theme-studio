@@ -61,9 +61,11 @@ To try a change in Home Assistant, copy `custom_components/theme_studio` into `/
 
 ## Releases
 
-1. Update `version` in `custom_components/theme_studio/manifest.json` and add the version to `CHANGELOG.md`.
-2. Merge to `main` and wait for the checks.
-3. Push a tag `vX.Y.Z` that matches the manifest. The *Release* workflow checks the version and publishes the GitHub release with the notes from the changelog; HACS picks it up from there.
+1. Update `version` in `custom_components/theme_studio/manifest.json` and add a `## [X.Y.Z]` section to `CHANGELOG.md` (a test checks that it is there).
+2. Merge to `main`.
+3. That's it: when *Tests*, *Validate* and *Panel* have passed for the commit on `main`, the *Release* workflow tags `vX.Y.Z` and publishes the GitHub release with that section of the changelog as notes. HACS picks it up from there. If a check fails, nothing is released; fix it and the next green commit releases the version.
+
+A version that already has a release is skipped, so merging without a version change releases nothing. *Actions → Release → Run workflow* releases the manifest version of a given commit (for a version that was skipped), and a tag pushed by hand still works.
 
 ## Licence
 

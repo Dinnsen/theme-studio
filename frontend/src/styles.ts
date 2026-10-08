@@ -77,6 +77,10 @@ export const panelStyles = css`
     color: var(--ts-ink);
     --mdc-icon-button-size: 44px;
   }
+  img.logo {
+    object-fit: cover;
+    display: block;
+  }
   .logo {
     width: 40px;
     height: 40px;

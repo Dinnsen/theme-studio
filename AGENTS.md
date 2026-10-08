@@ -45,7 +45,8 @@ custom_components/theme_studio/
   manifest.json
   services.yaml
   strings.json
-  translations/
+  translations/       config flow, options and services in every language
+  messages/           notification texts in every language (messages.py)
   brand/
   engine.py           theme engine used by the panel (runs the bundled CLI)
   settings.json       per-variant theme settings the panel edits
@@ -313,6 +314,19 @@ Rules:
   - update docs and tests
 - When removing a setting:
   - verify nothing still references it; existing user themes may still contain it and must keep loading.
+
+---
+
+# Languages and the guide
+
+Theme Studio speaks Danish, German, English, Spanish, French, Norwegian (bokmål) and Swedish.
+
+- When adding or changing a text in the panel:
+  - add the key to `frontend/src/locales/en.json` and to every other file in `frontend/src/locales/` (`da`, `de`, `es`, `fr`, `nb`, `sv`), with the same `{placeholders}`
+  - use it through `t("key")` from `frontend/src/i18n.ts`; never hardcode visible text
+  - the same goes for `strings.json` and `translations/*.json` (config flow, options, services) and for `messages/*.json` (notifications)
+  - `tests/test_translations.py` checks that every language has every key
+- When adding a button or setting the guide should explain, mark it with `data-tour="…"` and add a step in `frontend/src/tour.ts` with its texts (`tour.<id>.title` / `.body`) in every locale.
 
 ---
 

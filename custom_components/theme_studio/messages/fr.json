@@ -1,0 +1,8 @@
+{
+  "export_title": "Theme Studio : {name} exporté",
+  "export_download": "Télécharger {file}",
+  "export_share": "Code de partage (collez-le dans Importer du panneau Theme Studio) :",
+  "import_title": "Import Theme Studio",
+  "import_nothing": "Rien n'a été importé.",
+  "import_folder_hint": "Placez des fichiers .json ou des fichiers .txt contenant un code de partage dans `/config/theme_studio/imports/`."
+}

@@ -18,6 +18,12 @@ CONF_SHOW_PANEL = "show_panel"
 CONF_PANEL_ADMIN_ONLY = "panel_admin_only"
 CONF_REGISTER_THEMES = "register_themes"
 CONF_LOAD_FONTS = "load_fonts"
+CONF_LANGUAGE = "language"
+
+# Languages of the panel, its guide and the notifications. "auto" follows
+# Home Assistant (each person's own language in the panel).
+LANGUAGE_AUTO = "auto"
+LANGUAGES = ("da", "de", "en", "es", "fr", "nb", "sv")
 
 # Paths relative to the Home Assistant config directory.
 PRESET_DIR = ("theme_studio", "presets")

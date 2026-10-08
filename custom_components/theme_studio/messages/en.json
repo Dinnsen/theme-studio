@@ -1,0 +1,8 @@
+{
+  "export_title": "Theme Studio: {name} exported",
+  "export_download": "Download {file}",
+  "export_share": "Share code (paste it into Import in the Theme Studio panel):",
+  "import_title": "Theme Studio import",
+  "import_nothing": "Nothing imported.",
+  "import_folder_hint": "Put .json or share-code .txt files in `/config/theme_studio/imports/`."
+}
