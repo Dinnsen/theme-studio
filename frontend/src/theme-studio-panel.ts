@@ -363,6 +363,11 @@ export class ThemeStudioPanel extends LitElement {
     return match ? decodeURIComponent(match[1]) : undefined;
   }
 
+  /** Phone width. Dialogs sit outside the .shell container, so they cannot use its container queries. */
+  private get _narrow(): boolean {
+    return this._size.width > 0 && this._size.width < 720;
+  }
+
   private get _canEdit(): boolean {
     return this.hass?.user?.is_admin !== false;
   }
@@ -1298,14 +1303,14 @@ export class ThemeStudioPanel extends LitElement {
 
   private _renderWelcome(): TemplateResult {
     const current = this._language();
-    const narrow = this._size.width > 0 && this._size.width < 720;
+    const narrow = this._narrow;
     const choice = (kind: TourKind, main: boolean) => html`<button class="tour-choice ${main ? "main" : ""}" @click=${() => void this._showStep(kind, 0)}>
       <span class="tour-meta">${t(`tour.${kind}.meta`, { count: TOURS[kind].length })}</span>
       <strong>${icon(kind === "quick" ? "wand" : "grid", 18)}${t(`tour.${kind}`)}</strong>
       <span class="hint">${t(`tour.${kind}.desc`)}</span>
     </button>`;
     return html`
-      <div class="scrim tour-scrim ${narrow ? "sheet" : ""}">
+      <div class="scrim ${narrow ? "narrow" : ""}">
         <div class="dialog tour-welcome" role="dialog" aria-modal="true" aria-labelledby="ts-welcome" tabindex="-1">
           <div class="dhead">
             <div>
@@ -2203,7 +2208,7 @@ export class ThemeStudioPanel extends LitElement {
       ${icon(glyph, 22)}<span class="ot">${title}</span><span class="hint">${text}</span>
     </button>`;
     return html`
-      <div class="scrim" @click=${this._closeDialog}>
+      <div class="scrim ${this._narrow ? "narrow" : ""}" @click=${this._closeDialog}>
         <div class="dialog" role="dialog" aria-modal="true" aria-label=${t("new.title")} @click=${(event: Event) => event.stopPropagation()}>
           <div class="dhead">
             <div>
@@ -2217,7 +2222,7 @@ export class ThemeStudioPanel extends LitElement {
             ${option("colour", t("new.colour"), t("new.colour_hint"), "palette")}
             ${option("image", t("new.image"), t("new.image_hint"), "image")}
           </div>
-          ${this._size.width > 0 && this._size.width < 720 && this._canEdit
+          ${this._narrow && this._canEdit
             ? html`<div class="opts one">
                 <button class="opt" @click=${() => (this._dialog = "import")}>
                   ${icon("download", 22)}<span class="ot">${t("lib.import_label")}</span><span class="hint">${t("new.import_hint")}</span>
@@ -2307,7 +2312,7 @@ export class ThemeStudioPanel extends LitElement {
       ${icon(glyph, 22)}<span class="ot">${title}</span><span class="hint">${text}</span>
     </button>`;
     return html`
-      <div class="scrim" @click=${this._closeDialog}>
+      <div class="scrim ${this._narrow ? "narrow" : ""}" @click=${this._closeDialog}>
         <div class="dialog" role="dialog" aria-modal="true" aria-label=${t("editor.use")} @click=${(event: Event) => event.stopPropagation()}>
           <div class="dhead">
             <div>
@@ -2342,7 +2347,7 @@ export class ThemeStudioPanel extends LitElement {
 
   private _renderImportDialog(): TemplateResult {
     return html`
-      <div class="scrim" @click=${this._closeDialog}>
+      <div class="scrim ${this._narrow ? "narrow" : ""}" @click=${this._closeDialog}>
         <div class="dialog" role="dialog" aria-modal="true" aria-label=${t("import.title")} @click=${(event: Event) => event.stopPropagation()}>
           <div class="dhead">
             <div>
@@ -2392,7 +2397,7 @@ export class ThemeStudioPanel extends LitElement {
   private _renderDeleteDialog(): TemplateResult {
     const name = this._edit?.name ?? "";
     return html`
-      <div class="scrim" @click=${this._closeDialog}>
+      <div class="scrim ${this._narrow ? "narrow" : ""}" @click=${this._closeDialog}>
         <div class="dialog" role="alertdialog" aria-modal="true" aria-label=${t("editor.delete")} @click=${(event: Event) => event.stopPropagation()}>
           <div class="dhead">
             <div>

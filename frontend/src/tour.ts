@@ -711,15 +711,6 @@ export const tourStyles = css`
   .tour-welcome:focus {
     outline: none;
   }
-  .tour-scrim.sheet {
-    align-items: flex-end;
-    padding: 0;
-  }
-  .tour-scrim.sheet .dialog {
-    border-radius: 22px 22px 0 0;
-    width: 100%;
-    max-height: 88vh;
-  }
   .chips .btn.help {
     min-height: 40px;
     width: 40px;
