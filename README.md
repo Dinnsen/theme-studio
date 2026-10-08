@@ -31,7 +31,7 @@
 - **Readable by default:** every text and icon colour is checked for contrast (WCAG), with a one-click fix.
 - **Built-in presets** to start from; the first change makes your own copy.
 - **Surfaces, borders, shadows, glass blur, backgrounds, overlays and fonts**, all previewed live.
-- **Use a theme** on this device or for everyone with one button.
+- **Use a theme** for yourself or for everyone with one button.
 - **Share** a theme as a short code or a file, and import one from someone else.
 - **Fonts included** and served by your own Home Assistant, with no request to Google.
 - Generated themes work on their own: no card-mod needed.
@@ -125,7 +125,7 @@ Theme Studio adds its own page to the sidebar: **Theme Studio** with a palette i
 - **Same for Light and Dark:** in Surfaces, Background and Type one switch applies a change to both variants. It is off by default and remembered per theme in the browser.
 - **Check:** all 14 text and icon pairs. *Use Auto* switches the manual colours of a pair that is hard to read back to automatic.
 - **Saving is automatic.** Built-in presets are never changed: the first change makes your own copy. Undo and Redo work for everything you did since you opened the theme. The first save of a theme each time Home Assistant starts keeps a `.bak_YYYYMMDD_HHMMSS` copy next to it, and deleting a theme keeps one too.
-- **Use theme** writes the theme file and uses it on this device, or makes it the default theme for everyone (this device then follows the default too; people who picked their own theme in their profile keep it). After more changes, use it again to update it.
+- **Use theme** writes the theme file and either sets it in your profile (*Just me*, on all your devices) or makes it the default theme for everyone (*Everyone*: your profile then follows the default; other people who picked their own theme in their profile keep it). After more changes, use it again to update it.
 - **Share:** copy a share code or download a theme file. **Import** on the start page takes a share code or a file and makes a new theme; nothing is overwritten.
 - *Make Dark from Light* copies one variant into the other on purpose, with the lightness turned around.
 - Works on phones, tablets and computers, also in the Home Assistant app, and follows Home Assistant's dark mode. Only administrators can change themes.
@@ -234,8 +234,8 @@ No. It only adds themes. A theme is used when you pick it in your profile, set i
 **Can I edit a built-in preset?**
 Yes: open it and change anything. Theme Studio makes your own copy on the first change; the preset itself stays as it is.
 
-**Why does my theme look different on another device?**
-*Use theme → This device* only changes the browser or app you are using. *Everyone* sets the default theme for all users; a user who picked another theme in their profile keeps it.
+**Why does someone still see another theme after *Everyone*?**
+Home Assistant keeps the theme you pick per user, and that choice wins over the default theme. *Use theme → Just me* sets it for your user; *Everyone* sets the default theme and makes your user follow it. Other users who picked a theme in their profile keep it until they choose *Use default theme* there.
 
 **Where are my themes stored, and how do I back them up?**
 In `/config/theme_studio/user_themes/` as JSON files. They are part of every Home Assistant backup. To move one to another installation, use *Share* and *Import*.

@@ -2,6 +2,11 @@
 
 All notable changes to Theme Studio. Versions follow [semantic versioning](https://semver.org/); the version is the one in `custom_components/theme_studio/manifest.json`.
 
+## [1.0.4] - 2026-10-08
+
+### Fixed
+- *Use theme* now also sets the theme in your Home Assistant profile, which is stored per user and wins over the default theme. *Everyone* makes your profile follow the new default; *Just me* (was *This device*) sets the theme for your user on all your devices. Before, an older choice in the profile could hide the change.
+
 ## [1.0.3] - 2026-10-08
 
 ### Fixed
@@ -107,6 +112,7 @@ Theme Studio is now the panel in the sidebar. Installing it is HACS, restart, ad
 
 Earlier versions (0.1–0.4, April–May 2026) built the original YAML dashboard and theme generator.
 
+[1.0.4]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.4
 [1.0.3]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.3
 [1.0.2]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.2
 [1.0.1]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.1
