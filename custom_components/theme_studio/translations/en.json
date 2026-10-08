@@ -151,7 +151,7 @@
   "issues": {
     "classic_dashboard_removed": {
       "title": "Theme Studio: restart to finish removing the old dashboard",
-      "description": "Theme Studio 1.0 no longer has the YAML dashboard, its package or the theme Theme Studio Dynamic; everything is done in the Theme Studio panel in the sidebar. These files were renamed to `<file>.bak_<date>` so they no longer load: {files}.\n\nRestart Home Assistant to unload the old scripts, automations and template sensors. If a dashboard or your profile used the theme Theme Studio Dynamic, choose another theme, for example Theme Studio Standard. Your user themes were not changed."
+      "description": "Theme Studio 1.0 no longer has the YAML dashboard, its package or the theme Theme Studio Dynamic; everything is done in the Theme Studio panel in the sidebar. These files were renamed with a .bak_ ending and the date, so they no longer load: {files}.\n\nRestart Home Assistant to unload the old scripts, automations and template sensors. If a dashboard or your profile used the theme Theme Studio Dynamic, choose another theme, for example Theme Studio Standard. Your user themes were not changed."
     },
     "classic_dashboard_configured": {
       "title": "Theme Studio: remove the old dashboard from configuration.yaml",
