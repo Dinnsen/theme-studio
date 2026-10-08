@@ -106,7 +106,7 @@
   "ctl.preview_mode": "Estilo",
   "ctl.color_model": "Modelo de color",
   "ctl.color_model.hint": "Uniforme mantiene los tonos igual de claros en todos los colores, así un tema amarillo y uno azul se sienten iguales.",
-  "ctl.surface_lift": "Realce de superficies",
+  "ctl.surface_lift": "Luminosidad de las superficies",
   "ctl.accent_contrast": "Contraste del acento",
   "ctl.accent_hue_shift": "Cambio de matiz del acento",
   "ctl.accent_saturation": "Saturación del acento",

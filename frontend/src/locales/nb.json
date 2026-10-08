@@ -106,7 +106,7 @@
   "ctl.preview_mode": "Stil",
   "ctl.color_model": "Fargemodell",
   "ctl.color_model.hint": "Jevn holder nyansene like lyse på tvers av farger, så et gult og et blått tema føles like.",
-  "ctl.surface_lift": "Flateløft",
+  "ctl.surface_lift": "Flatenes lyshet",
   "ctl.accent_contrast": "Aksentkontrast",
   "ctl.accent_hue_shift": "Aksentens fargeskift",
   "ctl.accent_saturation": "Aksentmetning",

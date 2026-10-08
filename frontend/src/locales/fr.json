@@ -106,7 +106,7 @@
   "ctl.preview_mode": "Style",
   "ctl.color_model": "Modèle de couleur",
   "ctl.color_model.hint": "Uniforme garde des teintes aussi lumineuses d'une couleur à l'autre : un thème jaune et un thème bleu donnent la même impression.",
-  "ctl.surface_lift": "Relief des surfaces",
+  "ctl.surface_lift": "Luminosité des surfaces",
   "ctl.accent_contrast": "Contraste de l'accent",
   "ctl.accent_hue_shift": "Décalage de teinte de l'accent",
   "ctl.accent_saturation": "Saturation de l'accent",

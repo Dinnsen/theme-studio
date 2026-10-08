@@ -106,7 +106,7 @@
   "ctl.preview_mode": "Stil",
   "ctl.color_model": "Färgmodell",
   "ctl.color_model.hint": "Jämn håller nyanserna lika ljusa över alla färger, så ett gult och ett blått tema känns likadana.",
-  "ctl.surface_lift": "Ytornas lyft",
+  "ctl.surface_lift": "Ytornas ljushet",
   "ctl.accent_contrast": "Accentkontrast",
   "ctl.accent_hue_shift": "Accentens nyansskifte",
   "ctl.accent_saturation": "Accentmättnad",

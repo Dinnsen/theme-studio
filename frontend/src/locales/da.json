@@ -106,7 +106,7 @@
   "ctl.preview_mode": "Stil",
   "ctl.color_model": "Farvemodel",
   "ctl.color_model.hint": "Jævn holder nuancerne lige lyse på tværs af farver, så et gult og et blåt tema føles ens.",
-  "ctl.surface_lift": "Fladeløft",
+  "ctl.surface_lift": "Fladernes lyshed",
   "ctl.accent_contrast": "Accentkontrast",
   "ctl.accent_hue_shift": "Accent-farveskift",
   "ctl.accent_saturation": "Accentmætning",

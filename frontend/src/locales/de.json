@@ -106,7 +106,7 @@
   "ctl.preview_mode": "Stil",
   "ctl.color_model": "Farbmodell",
   "ctl.color_model.hint": "Gleichmäßig hält Farbtöne über alle Farben gleich hell, sodass sich ein gelbes und ein blaues Theme gleich anfühlen.",
-  "ctl.surface_lift": "Flächen abheben",
+  "ctl.surface_lift": "Helligkeit der Flächen",
   "ctl.accent_contrast": "Akzentkontrast",
   "ctl.accent_hue_shift": "Akzent-Farbtonverschiebung",
   "ctl.accent_saturation": "Akzentsättigung",
