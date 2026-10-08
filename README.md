@@ -119,7 +119,7 @@ These services were only used by the dashboard and are removed: `generate`, `sav
 Theme Studio adds its own page to the sidebar: **Theme Studio** with a palette icon.
 
 - **Your themes:** every built-in preset and user theme as a card with a light and a dark preview. The theme in use is marked.
-- **New theme:** from a preset or one of your themes, from one colour, or from a background image.
+- **New theme:** from a preset or one of your themes, from one colour, or from a background image (pick one or upload a new one).
 - **Edit** a theme and see it straight away on a phone, a tablet or a computer, in Light, Dark or both side by side. The preview uses the theme's real colours.
 - **Colours:** one base colour, sliders for contrast, saturation, tone and more, and every colour with the same *Auto / Manual* switch and its contrast. Manual colours are never changed by Theme Studio. *Colour model* picks how shades are calculated: **hsl** (classic) or **oklch**, which keeps the perceived brightness even across hues.
 - **Surfaces:** card and chip corners, opacity and glass blur, nine border styles and nine shadow styles shown as tiles (border tiles show only the border, shadow tiles only the shadow), size, opacity and colour of both, and whether Bubble cards and pop-ups get them.
