@@ -61,6 +61,7 @@ const HISTORY_LIMIT = 60;
 const TILE_DELAY = 250;
 const LINK_STORAGE = "theme-studio-linked";
 const UPLOAD_URL = "/api/theme_studio/background";
+const LOGO_URL = "/theme_studio_static/logo-mark.png";
 const USER_DATA_KEY = "theme_studio";
 const HELP_STEP: TourStep = { id: "help", chapter: "finish", screen: "library", targets: ["help"], limit: 1, side: "below", clip: "help" };
 const UPLOAD_ERRORS: Record<string, string> = {
@@ -1398,7 +1399,7 @@ export class ThemeStudioPanel extends LitElement {
       <div class="shell">
         <header class="bar">
           <ha-menu-button .hass=${this.hass} .narrow=${this.narrow}></ha-menu-button>
-          <div class="logo">${icon("palette", 22)}</div>
+          <img class="logo" src=${LOGO_URL} alt="" width="40" height="40" />
           <div class="titlebox">
             <div class="title">Theme Studio</div>
             <div class="status">${themes.length ? t("lib.themes_count", { count: themes.length }) : t("lib.tagline")}</div>

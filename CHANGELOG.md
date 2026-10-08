@@ -7,6 +7,7 @@ All notable changes to Theme Studio. Versions follow [semantic versioning](https
 ### Added
 - **Guide for first-time users.** A welcome the first time an administrator opens the panel, with a *Quick start* (7 steps) and a tour of *All functions* (30 steps). Each step highlights the button or setting it explains and shows a small animated drawing of it. *Next*, *Back*, *Skip*, arrow keys and Esc; on a phone the explanation slides up from the bottom. Always available again under the new **?** button.
 - **Languages:** Danish, German, English, Spanish, French, Norwegian (bokmål) and Swedish for the whole panel, the guide, the integration's settings and the export and import notifications. The panel follows each person's Home Assistant language by default.
+- The panel's top bar shows the Theme Studio logo.
 - *Language* option, also asked when the integration is added: *Automatic* or one language for everyone. Each person can still pick their own on the guide's welcome; it is stored with their Home Assistant user.
 
 ## [1.1.0] - 2026-10-08
