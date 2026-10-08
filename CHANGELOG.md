@@ -2,6 +2,11 @@
 
 All notable changes to Theme Studio. Versions follow [semantic versioning](https://semver.org/); the version is the one in `custom_components/theme_studio/manifest.json`.
 
+## [1.1.0] - 2026-10-08
+
+### Added
+- *Background → When you scroll*: the background **stays put** behind the cards (as before, the default) or **scrolls with the page**. When it scrolls, the image keeps the height of one screen at the top and the page colour carries on below it. Set per variant; the preview shows it too.
+
 ## [1.0.4] - 2026-10-08
 
 ### Fixed
@@ -112,6 +117,7 @@ Theme Studio is now the panel in the sidebar. Installing it is HACS, restart, ad
 
 Earlier versions (0.1–0.4, April–May 2026) built the original YAML dashboard and theme generator.
 
+[1.1.0]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.1.0
 [1.0.4]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.4
 [1.0.3]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.3
 [1.0.2]: https://github.com/Dinnsen/theme-studio/releases/tag/v1.0.2

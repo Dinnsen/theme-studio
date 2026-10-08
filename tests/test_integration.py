@@ -808,3 +808,25 @@ def test_built_themes_are_rebuilt_after_an_engine_change(tmp_path) -> None:
     # Themes that were never built are not built now.
     assert not (tmp_path / "themes" / "theme_studio" / "never_used.yaml").exists()
 
+
+
+def test_background_can_scroll_with_the_page(tmp_path) -> None:
+    """Fixed is the default and unchanged; scroll leaves out the word Home Assistant looks for."""
+    engine, _ = engine_for(tmp_path)
+    fixed = engine.preview({"base_color": "#3a7bd5"})["variables"]
+    scroll = engine.preview({"base_color": "#3a7bd5", "background_attachment": "scroll"})["variables"]
+    odd = engine.preview({"base_color": "#3a7bd5", "background_attachment": "sideways"})["variables"]
+
+    assert fixed["theme-studio-background-attachment"] == "fixed"
+    assert fixed["lovelace-background"].count(" fixed ") == 3
+    assert odd == fixed
+    assert scroll["theme-studio-background-attachment"] == "scroll"
+    assert "fixed" not in scroll["lovelace-background"]
+    # The image keeps the height of one screen instead of covering the whole page.
+    assert "max(100vh, 75vw)" in scroll["lovelace-background"]
+    assert {key: value for key, value in scroll.items() if "background" not in key} == {
+        key: value for key, value in fixed.items() if "background" not in key
+    }
+    # A theme saved before the setting existed still stays put.
+    for variant in ("light", "dark"):
+        assert engine.theme_detail("glass")[variant]["variables"]["theme-studio-background-attachment"] == "fixed"

@@ -991,6 +991,7 @@ def build(args):
     overlay_strength = clamp(float(args.background_overlay_strength), 1, 100)
     background_contrast = clamp(float(args.background_contrast), 0, 100)
     enable_header_blend = boolish(args.enable_header_blend)
+    background_attachment = background_attachment_value(getattr(args, 'background_attachment', ''))
     header_blend_height = clamp(float(args.header_blend_height), 80, 320)
     overlay_offset_y = clamp(float(args.overlay_offset_y), 0, 100)
     overlay_scale = clamp(float(args.overlay_scale), 50, 200)
@@ -1557,11 +1558,8 @@ def build(args):
         'theme-studio-overlay-offset-y': f'{round(overlay_offset_y)}',
         'theme-studio-overlay-scale': f'{round(overlay_scale)}',
         'theme-studio-overlay-spread': f'{round(overlay_spread)}',
-        'lovelace-background': (
-               "center top / cover no-repeat fixed var(--theme-studio-background-overlay), "
-            "center top / cover no-repeat fixed var(--theme-studio-background-scrim), "
-            "center top / cover no-repeat fixed var(--theme-studio-background-image)"
-        ),
+        'theme-studio-background-attachment': background_attachment,
+        'lovelace-background': lovelace_background_css(background_attachment),
         'bubble-main-background-color': bubble_bg,
         'bubble-button-main-background-color': bubble_bg,
         'bubble-box-shadow': bubble_fx_combined_css,
@@ -1598,6 +1596,39 @@ def build(args):
     }
     return vals
 
+BACKGROUND_ATTACHMENTS = ('fixed', 'scroll')
+
+
+def background_attachment_value(value) -> str:
+    """'scroll' lets the background move up with the cards; anything else keeps it still."""
+    value = str(value or '').strip().lower()
+    return value if value in BACKGROUND_ATTACHMENTS else 'fixed'
+
+
+def lovelace_background_css(attachment: str) -> str:
+    """The page background behind the cards.
+
+    With 'fixed', Home Assistant puts the background in a layer that stays
+    still while the cards scroll. With 'scroll' the layer is as tall as the
+    page and moves with it, so the image and its scrim keep the height of one
+    screen at the top (instead of being stretched over the whole page) and the
+    page colour carries on below them.
+    """
+    if attachment == 'scroll':
+        height = 'var(--theme-studio-background-height, max(100vh, 75vw))'
+        return (
+            "center top / cover no-repeat scroll var(--theme-studio-background-overlay), "
+            f"center top / 100% {height} no-repeat scroll var(--theme-studio-background-scrim), "
+            f"center top / auto {height} no-repeat scroll var(--theme-studio-background-image) "
+            "var(--primary-background-color)"
+        )
+    return (
+        "center top / cover no-repeat fixed var(--theme-studio-background-overlay), "
+        "center top / cover no-repeat fixed var(--theme-studio-background-scrim), "
+        "center top / cover no-repeat fixed var(--theme-studio-background-image)"
+    )
+
+
 def emit_value(key, value, indent=2):
     prefix = ' ' * indent
     if '\n' in str(value):
@@ -1606,7 +1637,7 @@ def emit_value(key, value, indent=2):
     escaped = str(value).replace('"', '\\"')
     return f'{prefix}{key}: "{escaped}"\n'
 
-SETTING_KEYS = ['color_model', 'base_color', 'custom_background_color', 'background_image_url', 'custom_text_color', 'custom_icon_color', 'custom_navbar_icon_color', 'navbar_bg_override', 'bubble_slider_color_override', 'bubble_slider_contrast', 'bubble_slider_hue_shift', 'bubble_slider_saturation', 'bubble_slider_opacity', 'accent_color_override', 'card_bg_override', 'bubble_bg_override', 'popup_bg_override', 'secondary_background_color_override', 'secondary_text_color_override', 'disabled_text_color_override', 'app_header_background_color_override', 'app_header_text_color_override', 'divider_color_override', 'sidebar_icon_color_override', 'state_icon_color_override', 'state_icon_active_color_override', 'primary_font_family', 'custom_font_family', 'custom_font_path', 'contrast', 'hue_shift', 'saturation', 'tone', 'accent_strength', 'neutrality', 'surface_lift', 'card_opacity', 'blur_strength', 'radius', 'chip_radius', 'overlay_contrast', 'background_contrast', 'header_blend_height', 'overlay_offset_y', 'overlay_scale', 'overlay_spread', 'accent_contrast', 'card_bg_contrast', 'bubble_bg_contrast', 'popup_bg_contrast', 'accent_hue_shift', 'accent_saturation', 'card_bg_hue_shift', 'card_bg_saturation', 'bubble_bg_hue_shift', 'bubble_bg_saturation', 'popup_bg_hue_shift', 'popup_bg_saturation', 'bubble_bg_opacity', 'popup_bg_opacity', 'navbar_bg_opacity', 'use_custom_background_color', 'use_background_image', 'enable_header_blend', 'use_custom_text_color', 'use_custom_icon_color', 'use_custom_navbar_icon_color', 'preview_toggle', 'use_custom_font', 'background_overlay', 'preview_mode']
+SETTING_KEYS = ['color_model', 'base_color', 'custom_background_color', 'background_image_url', 'custom_text_color', 'custom_icon_color', 'custom_navbar_icon_color', 'navbar_bg_override', 'bubble_slider_color_override', 'bubble_slider_contrast', 'bubble_slider_hue_shift', 'bubble_slider_saturation', 'bubble_slider_opacity', 'accent_color_override', 'card_bg_override', 'bubble_bg_override', 'popup_bg_override', 'secondary_background_color_override', 'secondary_text_color_override', 'disabled_text_color_override', 'app_header_background_color_override', 'app_header_text_color_override', 'divider_color_override', 'sidebar_icon_color_override', 'state_icon_color_override', 'state_icon_active_color_override', 'primary_font_family', 'custom_font_family', 'custom_font_path', 'contrast', 'hue_shift', 'saturation', 'tone', 'accent_strength', 'neutrality', 'surface_lift', 'card_opacity', 'blur_strength', 'radius', 'chip_radius', 'overlay_contrast', 'background_contrast', 'header_blend_height', 'overlay_offset_y', 'overlay_scale', 'overlay_spread', 'accent_contrast', 'card_bg_contrast', 'bubble_bg_contrast', 'popup_bg_contrast', 'accent_hue_shift', 'accent_saturation', 'card_bg_hue_shift', 'card_bg_saturation', 'bubble_bg_hue_shift', 'bubble_bg_saturation', 'popup_bg_hue_shift', 'popup_bg_saturation', 'bubble_bg_opacity', 'popup_bg_opacity', 'navbar_bg_opacity', 'use_custom_background_color', 'use_background_image', 'enable_header_blend', 'use_custom_text_color', 'use_custom_icon_color', 'use_custom_navbar_icon_color', 'preview_toggle', 'use_custom_font', 'background_overlay', 'preview_mode', 'background_attachment']
 
 def slugify(name: str) -> str:
     name = (name or '').strip().lower()
@@ -1691,6 +1722,7 @@ def namespace_from_settings(settings: dict, output_path: str):
         'use_custom_navbar_icon_color': settings.get('use_custom_navbar_icon_color', values.get('use_custom_navbar_icon_color', '')),
         'use_custom_font': settings.get('use_custom_font', values.get('use_custom_font', '')),
         'background_overlay': settings.get('background_overlay', values.get('background_overlay', '')),
+        'background_attachment': settings.get('background_attachment', values.get('background_attachment', '')),
         'border_type': settings.get('border_type', values.get('border_type', 'soft_hairline')),
         'shadow_type': settings.get('shadow_type', values.get('shadow_type', 'glass_glow')),
         'bubble_use_fx': settings.get('bubble_use_fx', values.get('bubble_use_fx', 'on')),
@@ -2036,7 +2068,8 @@ LIVE_ARGUMENT_KEYS = [
     'border_type', 'shadow_type', 'bubble_use_fx', 'popup_use_fx',
     'border_contrast', 'border_hue_shift', 'border_saturation',
     'border_opacity', 'border_size', 'shadow_contrast', 'shadow_hue_shift',
-    'shadow_saturation', 'shadow_opacity', 'shadow_size', 'color_model', 'output'
+    'shadow_saturation', 'shadow_opacity', 'shadow_size', 'color_model',
+    'background_attachment', 'output'
 ]
 
 def make_parser():
@@ -2047,6 +2080,8 @@ def make_parser():
     for k in LIVE_ARGUMENT_KEYS:
         if k == 'color_model':
             p_live.add_argument('--color_model', default='hsl', choices=COLOR_MODELS)
+        elif k == 'background_attachment':
+            p_live.add_argument('--background_attachment', default='fixed', choices=BACKGROUND_ATTACHMENTS)
         else:
             p_live.add_argument(f'--{k}', required=True)
     p_live.set_defaults(func=cmd_live)

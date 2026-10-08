@@ -6,9 +6,9 @@ import { icon, playIcon } from "./icons";
  * preview shows exactly what Home Assistant will show. The variables are set
  * on the surrounding frame; nothing here has colours of its own.
  */
-export function renderMock(): TemplateResult {
+export function renderMock(scrolls = false): TemplateResult {
   return html`
-    <div class="mock">
+    <div class="mock ${scrolls ? "scrolls" : ""}">
       <div class="m-scroll">
         <div class="m-head">
           <div class="m-headtext">
@@ -101,6 +101,16 @@ export const mockStyles = css`
     color: var(--primary-text-color);
     background: var(--lovelace-background, var(--primary-background-color));
     background-attachment: scroll;
+  }
+  /* "Scrolls with the page": the background moves with the content. Home
+     Assistant sizes it to one screen; here that is the preview's own height. */
+  .mock.scrolls {
+    container-type: size;
+    background: var(--primary-background-color);
+  }
+  .mock.scrolls .m-scroll {
+    background: var(--lovelace-background, var(--primary-background-color));
+    background-attachment: local;
   }
   .m-scroll {
     flex: 1;

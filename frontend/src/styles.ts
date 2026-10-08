@@ -496,6 +496,9 @@ export const panelStyles = css`
     overflow: hidden;
     flex: none;
     background: var(--primary-background-color);
+    /* One screen in a background that scrolls with the page: the preview's
+       height instead of the browser window's (see .mock.scrolls). */
+    --theme-studio-background-height: max(100cqh, 75cqw);
   }
   .frame.phone {
     width: 340px;
