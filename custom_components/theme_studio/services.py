@@ -41,6 +41,7 @@ from .const import (
     SELECT_USER_THEMES,
 )
 from .engine import ThemeEngine
+from .theme_registry import async_reload_themes
 from .sharing import ImportError_
 from . import studio
 from .variants import VARIANTS, mirror_variant, other_variant
@@ -136,7 +137,7 @@ def _parse_payload(value: Any) -> dict[str, Any]:
 
 
 async def _reload_themes(hass: HomeAssistant) -> None:
-    await hass.services.async_call("frontend", "reload_themes", blocking=True)
+    await async_reload_themes(hass)
 
 
 def async_setup_services(hass: HomeAssistant) -> None:

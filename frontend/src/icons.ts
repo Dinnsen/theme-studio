@@ -32,6 +32,8 @@ const PATHS = {
   undo: "M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11",
   redo: "m15 14 5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13",
   upload: "M12 15V4M7 9l5-5 5 5M5 20h14",
+  download: "M12 4v11M7 10l5 5 5-5M5 20h14",
+  copy: "M9 9h10v11H9zM5 15V4h10",
   swap: "M7 7h11l-3-3M17 17H6l3 3",
   check: "m5 12 5 5 9-10",
   close: "M6 6l12 12M18 6 6 18",

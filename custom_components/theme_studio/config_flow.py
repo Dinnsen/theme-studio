@@ -9,7 +9,14 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 
-from .const import CONF_PANEL_ADMIN_ONLY, CONF_SHOW_PANEL, DOMAIN, TITLE
+from .const import (
+    CONF_LOAD_FONTS,
+    CONF_PANEL_ADMIN_ONLY,
+    CONF_REGISTER_THEMES,
+    CONF_SHOW_PANEL,
+    DOMAIN,
+    TITLE,
+)
 
 
 class ThemeStudioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -94,6 +101,14 @@ class ThemeStudioOptionsFlow(config_entries.OptionsFlow):
                     vol.Optional(
                         CONF_PANEL_ADMIN_ONLY,
                         default=data.get(CONF_PANEL_ADMIN_ONLY, True),
+                    ): bool,
+                    vol.Optional(
+                        CONF_REGISTER_THEMES,
+                        default=data.get(CONF_REGISTER_THEMES, True),
+                    ): bool,
+                    vol.Optional(
+                        CONF_LOAD_FONTS,
+                        default=data.get(CONF_LOAD_FONTS, True),
                     ): bool,
                 }
             ),

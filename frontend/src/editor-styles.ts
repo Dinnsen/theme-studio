@@ -618,6 +618,31 @@ export const editorStyles = css`
   .image.upload.busy {
     opacity: 0.6;
   }
+  .opts.two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .share-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .text-input.area {
+    height: auto;
+    padding: 10px 12px;
+    resize: vertical;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  .file-btn {
+    position: relative;
+    align-self: flex-start;
+  }
+  .file-btn input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
   .toast {
     position: fixed;
     left: 50%;

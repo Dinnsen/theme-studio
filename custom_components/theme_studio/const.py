@@ -19,6 +19,8 @@ PANEL_STATIC_URL = "/theme_studio_static"
 PANEL_MODULE = "theme-studio-panel.js"
 CONF_SHOW_PANEL = "show_panel"
 CONF_PANEL_ADMIN_ONLY = "panel_admin_only"
+CONF_REGISTER_THEMES = "register_themes"
+CONF_LOAD_FONTS = "load_fonts"
 
 # Paths relative to the Home Assistant config directory.
 PRESET_DIR = ("theme_studio", "presets")

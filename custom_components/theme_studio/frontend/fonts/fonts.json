@@ -1,0 +1,44 @@
+[
+  {
+    "family": "Inter",
+    "weight": "300 700",
+    "file": "inter.woff",
+    "licence": "inter-OFL.txt"
+  },
+  {
+    "family": "Quicksand",
+    "weight": "300 700",
+    "file": "quicksand.woff",
+    "licence": "quicksand-OFL.txt"
+  },
+  {
+    "family": "Josefin Sans",
+    "weight": "300 700",
+    "file": "josefin-sans.woff",
+    "licence": "josefin-sans-OFL.txt"
+  },
+  {
+    "family": "Orbitron",
+    "weight": "400 700",
+    "file": "orbitron.woff",
+    "licence": "orbitron-OFL.txt"
+  },
+  {
+    "family": "Iosevka Charon Mono",
+    "weight": "400",
+    "file": "iosevka-charon-mono-400.woff",
+    "licence": "iosevka-charon-mono-OFL.txt"
+  },
+  {
+    "family": "Iosevka Charon Mono",
+    "weight": "500",
+    "file": "iosevka-charon-mono-500.woff",
+    "licence": "iosevka-charon-mono-OFL.txt"
+  },
+  {
+    "family": "Iosevka Charon Mono",
+    "weight": "700",
+    "file": "iosevka-charon-mono-700.woff",
+    "licence": "iosevka-charon-mono-OFL.txt"
+  }
+]

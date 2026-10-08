@@ -17,6 +17,8 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 
 from .const import DOMAIN, SIGNAL_CATALOGS_CHANGED
 from .engine import ThemeEngine
+from .sharing import ImportError_
+from .theme_registry import async_reload_themes
 
 WS_THEMES = f"{DOMAIN}/themes"
 WS_THEME = f"{DOMAIN}/theme"
@@ -29,6 +31,9 @@ WS_SAVE = f"{DOMAIN}/theme/save"
 WS_NEW = f"{DOMAIN}/theme/new"
 WS_DELETE = f"{DOMAIN}/theme/delete"
 WS_BUILD = f"{DOMAIN}/theme/build"
+WS_USE = f"{DOMAIN}/theme/use"
+WS_EXPORT = f"{DOMAIN}/theme/export"
+WS_IMPORT = f"{DOMAIN}/theme/import"
 
 SETTING_VALUE = vol.Any(str, int, float, bool)
 SETTINGS = vol.All({vol.All(str, vol.Length(max=80)): SETTING_VALUE}, vol.Length(max=300))
@@ -262,8 +267,8 @@ async def ws_delete(
     result = await hass.async_add_executor_job(engine.delete_theme, msg["slug"])
     if _send_outcome(connection, msg, result):
         await _async_catalogs_changed(hass, engine)
-        if result.get("removed_theme_files") and hass.services.has_service("frontend", "reload_themes"):
-            await hass.services.async_call("frontend", "reload_themes", blocking=True)
+        if result.get("removed_theme_files"):
+            await async_reload_themes(hass)
 
 
 @websocket_api.websocket_command({vol.Required("type"): WS_BUILD, vol.Required("slug"): SLUG})
@@ -285,9 +290,86 @@ async def ws_build(
     if not result.get("ok", True):
         connection.send_error(msg["id"], "build_failed", str(result))
         return
-    if hass.services.has_service("frontend", "reload_themes"):
-        await hass.services.async_call("frontend", "reload_themes", blocking=True)
+    await async_reload_themes(hass)
     connection.send_result(msg["id"], {"ok": True, "name": name, **result})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): WS_USE,
+        vol.Required("slug"): SLUG,
+        vol.Required("scope"): vol.In(["device", "everyone"]),
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_use(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Build the theme file and, for everyone, make it Home Assistant's default theme.
+
+    "This device" is set by the panel itself, the way the profile page does it.
+    """
+    engine = _engine(hass)
+    if engine is None:
+        _not_loaded(connection, msg)
+        return
+    name = await hass.async_add_executor_job(engine.theme_name, msg["slug"])
+    if name is None:
+        connection.send_error(msg["id"], "not_found", f"No theme called {msg['slug']}")
+        return
+    result = await hass.async_add_executor_job(engine.build_theme, name)
+    if not result.get("ok", True):
+        connection.send_error(msg["id"], "build_failed", str(result))
+        return
+    theme_name = str(result.get("theme") or name)
+    await async_reload_themes(hass)
+    if msg["scope"] == "everyone":
+        for mode in ("light", "dark"):
+            await hass.services.async_call(
+                "frontend", "set_theme", {"name": theme_name, "mode": mode}, blocking=True
+            )
+    connection.send_result(msg["id"], {"ok": True, "name": name, "theme": theme_name, "scope": msg["scope"]})
+
+
+@websocket_api.websocket_command({vol.Required("type"): WS_EXPORT, vol.Required("slug"): SLUG})
+@websocket_api.async_response
+async def ws_export(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """A theme as a document and share code. Nothing is written to /config/www."""
+    engine = _engine(hass)
+    if engine is None:
+        _not_loaded(connection, msg)
+        return
+    result = await hass.async_add_executor_job(engine.export_theme, msg["slug"])
+    _send_outcome(connection, msg, result)
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): WS_IMPORT,
+        vol.Required("data"): vol.All(str, vol.Length(min=1, max=300_000)),
+        vol.Optional("name"): NAME,
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_import(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """A new user theme from a share code or an exported file. Never overwrites."""
+    engine = _engine(hass)
+    if engine is None:
+        _not_loaded(connection, msg)
+        return
+    try:
+        result = await hass.async_add_executor_job(engine.import_user_theme, msg["data"], msg.get("name"))
+    except ImportError_ as err:
+        connection.send_error(msg["id"], str(err), "This is not a Theme Studio theme")
+        return
+    if _send_outcome(connection, msg, result):
+        await _async_catalogs_changed(hass, engine)
 
 
 COMMANDS = (
@@ -302,6 +384,9 @@ COMMANDS = (
     ws_new,
     ws_delete,
     ws_build,
+    ws_use,
+    ws_export,
+    ws_import,
 )
 
 

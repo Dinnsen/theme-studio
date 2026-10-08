@@ -39,8 +39,14 @@ def load_module(name: str):
     if "homeassistant.core" not in sys.modules:
         core = types.ModuleType("homeassistant.core")
         core.HomeAssistant = object
+        core.Event = object
+        core.callback = lambda func: func
         sys.modules.setdefault("homeassistant", types.ModuleType("homeassistant"))
         sys.modules["homeassistant.core"] = core
+    if "homeassistant.const" not in sys.modules:
+        const = types.ModuleType("homeassistant.const")
+        const.EVENT_THEMES_UPDATED = "themes_updated"
+        sys.modules["homeassistant.const"] = const
     full_name = f"{PKG}.{name}"
     if full_name in sys.modules:
         return sys.modules[full_name]
@@ -740,3 +746,139 @@ def test_panel_background_upload_is_checked_and_never_overwrites(tmp_path) -> No
     engine_module = load_module("engine")
     big = b"0" * (engine_module.MAX_BACKGROUND_BYTES + 1)
     assert engine.save_background("big.png", big)["reason"] == "too_large"
+
+
+def test_bundled_fonts_and_their_stylesheet() -> None:
+    fonts = load_module("fonts")
+    bundled = fonts.bundled_fonts()
+    families = {entry["family"] for entry in bundled}
+    assert families == {"Inter", "Quicksand", "Josefin Sans", "Orbitron", "Iosevka Charon Mono"}
+    for entry in bundled:
+        assert (fonts.FONTS_DIR / entry["file"]).stat().st_size < 200_000
+        assert (fonts.FONTS_DIR / entry["licence"]).is_file()
+    css = fonts.fonts_css([("My Font", "/local/fonts/my-font.woff2")], "1")
+    assert css.count("@font-face") == len(bundled) + 1
+    assert 'font-family:"Josefin Sans"' in css and "/theme_studio_static/fonts/" in css
+    assert 'src:url("/local/fonts/my-font.woff2") format("woff2")' in css
+    # The loader module the integration registers is there too.
+    assert (COMPONENT / "frontend" / fonts.LOADER_FILE).is_file()
+
+
+def test_custom_fonts_only_take_safe_values(tmp_path) -> None:
+    fonts = load_module("fonts")
+    good = {"use_custom_font": "on", "custom_font_family": "My Font", "custom_font_path": "/local/fonts/a.woff2"}
+    assert fonts.custom_font(good) == ("My Font", "/local/fonts/a.woff2")
+    assert fonts.custom_font({**good, "use_custom_font": "off"}) is None
+    for path in ("/local/../secrets.yaml", "javascript:alert(1)", '/local/a.woff2") ; x("', "/api/a.woff2", "/local/a.css"):
+        assert fonts.custom_font({**good, "custom_font_path": path}) is None, path
+    assert fonts.custom_font({**good, "custom_font_family": 'Bad"Name'}) is None
+
+    engine, _ = engine_for(tmp_path)
+    engine.new_theme("glass", "Fonty")
+    engine.save_theme("fonty", None, {"dark": good})
+    assert engine.custom_fonts() == [("My Font", "/local/fonts/a.woff2")]
+
+
+def test_export_writes_nothing_and_imports_back(tmp_path) -> None:
+    engine, _ = engine_for(tmp_path)
+    engine.new_theme("glass", "Shared")
+    exported = engine.export_theme("shared")
+    assert exported["ok"] and exported["share_string"].startswith("TS1:")
+    assert exported["document"]["name"] == "Shared"
+    assert not (tmp_path / "www" / "theme_studio" / "exports").exists()
+    assert engine.export_theme("glass")["ok"]  # presets can be shared too
+    imported = engine.import_user_theme(exported["share_string"])
+    assert imported["name"] == "Shared (2)"
+    assert engine.export_theme("nope")["reason"] == "not_found"
+
+
+class _FakeBus:
+    def __init__(self) -> None:
+        self.fired: list[str] = []
+        self.listeners = []
+
+    def async_listen(self, event, handler):
+        self.listeners.append(handler)
+        return lambda: self.listeners.remove(handler)
+
+    def async_fire(self, event, data=None) -> None:
+        self.fired.append(event)
+
+
+class _FakeStore:
+    def __init__(self, data) -> None:
+        self.data = data
+
+    async def async_load(self):
+        return self.data
+
+
+class _FakeHass:
+    def __init__(self, data) -> None:
+        self.data = data
+        self.bus = _FakeBus()
+
+    async def async_add_executor_job(self, func, *args):
+        return func(*args)
+
+
+def test_theme_registry_adds_themes_and_survives_reload(tmp_path) -> None:
+    import asyncio
+
+    registry_module = load_module("theme_registry")
+    engine, _ = engine_for(tmp_path)
+    engine.new_theme("glass", "Evening")
+    engine.build_theme("Evening")
+    hass = _FakeHass(
+        {
+            "frontend_themes": {"Other": {"primary-color": "red"}},
+            "frontend_default_theme": "default",
+            "frontend_themes_store": _FakeStore({"frontend_default_theme": "Evening"}),
+        }
+    )
+    registry = registry_module.ThemeRegistry(hass, engine.config_dir)
+
+    assert asyncio.run(registry.async_start())
+
+    themes = hass.data["frontend_themes"]
+    assert {"Evening", "Theme Studio Standard", "Theme Studio Dynamic", "Other"} <= set(themes)
+    assert set(themes["Evening"]["modes"]) == {"light", "dark"}
+    assert all(isinstance(value, str) for value in themes["Evening"]["modes"]["dark"].values())
+    # A saved default that Home Assistant dropped at start-up is restored.
+    assert hass.data["frontend_default_theme"] == "Evening"
+    assert hass.bus.fired == ["themes_updated"]
+
+    # "Reload themes" replaces the list with the YAML themes only.
+    hass.data["frontend_themes"] = {"Other": {"primary-color": "red"}}
+    registry._handle_themes_updated(None)
+    assert "Evening" in hass.data["frontend_themes"]
+    assert hass.bus.fired == ["themes_updated", "themes_updated"]
+    # Its own event changes nothing more, so there is no loop.
+    registry._handle_themes_updated(None)
+    assert len(hass.bus.fired) == 2
+
+    # A deleted theme leaves the list again; themes from YAML stay.
+    engine.delete_theme("evening")
+    asyncio.run(registry.async_refresh())
+    assert "Evening" not in hass.data["frontend_themes"]
+    assert "Other" in hass.data["frontend_themes"]
+
+    registry.async_stop()
+    assert not hass.bus.listeners
+
+
+def test_theme_registry_stays_off_when_unsupported(tmp_path) -> None:
+    import asyncio
+
+    registry_module = load_module("theme_registry")
+    hass = _FakeHass({})
+    registry = registry_module.ThemeRegistry(hass, tmp_path)
+    assert asyncio.run(registry.async_start()) is False
+    assert registry.active is False
+
+
+def test_panel_options_include_themes_and_fonts() -> None:
+    const = load_module("const")
+    strings = json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))
+    options = strings["options"]["step"]["init"]["data"]
+    assert {const.CONF_REGISTER_THEMES, const.CONF_LOAD_FONTS} <= set(options)

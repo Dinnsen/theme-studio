@@ -172,6 +172,9 @@ export class ThemeStudioPanel extends LitElement {
     _newName: { state: true },
     _backgrounds: { state: true },
     _linked: { state: true },
+    _useScope: { state: true },
+    _importText: { state: true },
+    _inUse: { state: true },
     _tiles: { state: true },
   };
 
@@ -199,7 +202,10 @@ export class ThemeStudioPanel extends LitElement {
   declare _history: Snapshot[];
   declare _future: Snapshot[];
   declare _hexDraft?: string;
-  declare _dialog?: "new" | "delete";
+  declare _dialog?: "new" | "delete" | "use" | "import";
+  declare _useScope: "device" | "everyone";
+  declare _importText: string;
+  declare _inUse: { everyone: string[]; device?: string };
   declare _toast?: string;
   declare _busy: boolean;
   declare _newMode: NewMode;
@@ -250,6 +256,9 @@ export class ThemeStudioPanel extends LitElement {
     this._newColour = "#3A6EA5";
     this._newName = "";
     this._tiles = {};
+    this._useScope = "device";
+    this._importText = "";
+    this._inUse = { everyone: [] };
     this._linked = new Set();
     try {
       const stored = JSON.parse(window.localStorage.getItem(LINK_STORAGE) ?? "[]");
@@ -319,11 +328,39 @@ export class ThemeStudioPanel extends LitElement {
     try {
       const result = await this.hass.callWS<{ themes: ThemeCard[] }>({ type: "theme_studio/themes" });
       this._themes = result.themes;
+      void this._loadInUse();
     } catch (error) {
       this._error = errorText(error);
     } finally {
       this._loading = false;
     }
+  }
+
+  private async _loadInUse(): Promise<void> {
+    if (!this.hass) {
+      return;
+    }
+    try {
+      const result = await this.hass.callWS<{ default_theme?: string; default_dark_theme?: string | null }>({
+        type: "frontend/get_themes",
+      });
+      const everyone = [result.default_theme, result.default_dark_theme].filter(
+        (name): name is string => Boolean(name) && name !== "default",
+      );
+      this._inUse = { everyone, device: this.hass.selectedTheme?.theme };
+    } catch {
+      this._inUse = { everyone: [], device: this.hass.selectedTheme?.theme };
+    }
+  }
+
+  private _inUseText(name: string): string | undefined {
+    if (this._inUse.everyone.includes(name)) {
+      return "In use · everyone";
+    }
+    if (this._inUse.device === name) {
+      return "In use · this device";
+    }
+    return undefined;
   }
 
   private async _loadSchema(): Promise<void> {
@@ -626,17 +663,99 @@ export class ThemeStudioPanel extends LitElement {
     return card?.name ?? this._edit?.name ?? "";
   }
 
-  private async _build(): Promise<void> {
+  private async _use(): Promise<void> {
     if (!this.hass || !this._edit) {
       return;
     }
     this._busy = true;
+    const scope = this._useScope;
     try {
       await this._flush();
-      const result = await this.hass.callWS<{ name: string }>({ type: "theme_studio/theme/build", slug: this._edit.slug });
-      this._showToast(`“${result.name}” is updated in Home Assistant. Pick it in your profile to use it.`);
+      const result = await this.hass.callWS<{ name: string; theme: string }>({
+        type: "theme_studio/theme/use",
+        slug: this._edit.slug,
+        scope,
+      });
+      if (scope === "device") {
+        // The same event the profile page's theme picker sends.
+        this.dispatchEvent(new CustomEvent("settheme", { detail: { theme: result.theme }, bubbles: true, composed: true }));
+      }
+      this._dialog = undefined;
+      this._libraryStale = true;
+      this._inUse =
+        scope === "everyone"
+          ? { ...this._inUse, everyone: [result.theme] }
+          : { ...this._inUse, device: result.theme };
+      this._showToast(
+        scope === "everyone"
+          ? `“${result.theme}” is now the theme for everyone.`
+          : `“${result.theme}” is now used on this device.`,
+      );
     } catch (error) {
-      this._showToast(`Could not update the theme: ${errorText(error)}`);
+      this._showToast(`Could not use the theme: ${errorText(error)}`);
+    } finally {
+      this._busy = false;
+    }
+  }
+
+  private async _export(action: "copy" | "download"): Promise<void> {
+    if (!this.hass || !this._edit) {
+      return;
+    }
+    try {
+      await this._flush();
+      const result = await this.hass.callWS<{ name: string; file_name: string; document: unknown; share_string: string }>({
+        type: "theme_studio/theme/export",
+        slug: this._edit.slug,
+      });
+      if (action === "copy") {
+        try {
+          await navigator.clipboard.writeText(result.share_string);
+          this._showToast("Share code copied. Paste it into Import in another Theme Studio.");
+        } catch {
+          this._importText = result.share_string;
+          this._showToast("Copying is blocked here; the share code is in Import on the start page.");
+        }
+        return;
+      }
+      const blob = new Blob([`${JSON.stringify(result.document, null, 2)}\n`], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = result.file_name;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+      this._showToast(`${result.file_name} is downloaded.`);
+    } catch (error) {
+      this._showToast(`Could not share: ${errorText(error)}`);
+    }
+  }
+
+  private async _import(): Promise<void> {
+    if (!this.hass || !this._importText.trim()) {
+      return;
+    }
+    this._busy = true;
+    try {
+      const result = await this.hass.callWS<{ slug: string; name: string; renamed?: boolean }>({
+        type: "theme_studio/theme/import",
+        data: this._importText.trim(),
+      });
+      this._dialog = undefined;
+      this._importText = "";
+      this._libraryStale = true;
+      this._themes = undefined;
+      void this._loadThemes();
+      this._openTheme(result.slug);
+      this._showToast(
+        result.renamed ? `Imported as “${result.name}”, because the name was taken.` : `“${result.name}” is imported.`,
+      );
+    } catch (error) {
+      const record = error as { code?: string };
+      this._showToast(
+        record?.code && record.code !== "unknown_error"
+          ? "That is not a Theme Studio share code or theme file."
+          : `Could not import: ${errorText(error)}`,
+      );
     } finally {
       this._busy = false;
     }
@@ -857,6 +976,8 @@ export class ThemeStudioPanel extends LitElement {
       ${this._slug ? this._renderEditor(this._slug) : this._renderLibrary()}
       ${this._dialog === "new" ? this._renderNewDialog() : nothing}
       ${this._dialog === "delete" ? this._renderDeleteDialog() : nothing}
+      ${this._dialog === "use" ? this._renderUseDialog() : nothing}
+      ${this._dialog === "import" ? this._renderImportDialog() : nothing}
       ${this._toast ? html`<div class="toast" role="status">${this._toast}</div>` : nothing}
     `;
   }
@@ -885,6 +1006,11 @@ export class ThemeStudioPanel extends LitElement {
           <button class="btn icon" @click=${this._refresh} aria-label="Reload themes" title="Reload themes">
             ${icon("refresh")}
           </button>
+          ${this._canEdit
+            ? html`<button class="btn" aria-label="Import a theme" @click=${() => (this._dialog = "import")}>
+                ${icon("download", 18)}<span class="hide-p">Import</span>
+              </button>`
+            : nothing}
           ${this._canEdit
             ? html`<button
                 class="btn primary"
@@ -953,7 +1079,11 @@ export class ThemeStudioPanel extends LitElement {
             <div class="tname">${theme.name}</div>
             <div class="tsub">${theme.builtin ? "Built-in preset" : "Mine"}</div>
           </div>
-          ${failing ? html`<span class="badge warn">${failing} to check</span>` : nothing}
+          ${this._inUseText(theme.name)
+            ? html`<span class="badge">${this._inUseText(theme.name)}</span>`
+            : failing
+              ? html`<span class="badge warn">${failing} to check</span>`
+              : nothing}
         </div>
       </button>
     `;
@@ -1041,10 +1171,10 @@ export class ThemeStudioPanel extends LitElement {
           <div class="seg" role="group" aria-label="Variant to edit">
             ${this._variantButton("light", "Light")} ${this._variantButton("dark", "Dark")}
           </div>
-          ${edit && !edit.builtin && this._canEdit
+          ${edit && this._canEdit
             ? html`
-                <button class="btn primary" ?disabled=${this._busy} @click=${() => void this._build()} title="Write the theme file so Home Assistant uses your changes">
-                  ${icon("upload", 18)}<span class="hide-t">Update in HA</span>
+                <button class="btn primary" ?disabled=${this._busy} aria-label="Use theme" @click=${() => (this._dialog = "use")}>
+                  ${icon("check", 18)}<span class="hide-t">Use theme</span>
                 </button>
               `
             : nothing}
@@ -1701,6 +1831,98 @@ export class ThemeStudioPanel extends LitElement {
             <button class="btn" @click=${this._closeDialog}>Cancel</button>
             <button class="btn primary" ?disabled=${this._busy || (this._newMode === "image" && !this._newImage)} @click=${() => void this._createNew()}>
               Create and open
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  private _renderUseDialog(): TemplateResult {
+    const name = this._edit?.name ?? "";
+    const option = (scope: "device" | "everyone", glyph: "phone" | "home", title: string, text: string) => html`<button
+      class="opt ${this._useScope === scope ? "on" : ""}"
+      aria-pressed=${this._useScope === scope ? "true" : "false"}
+      @click=${() => (this._useScope = scope)}
+    >
+      ${icon(glyph, 22)}<span class="ot">${title}</span><span class="hint">${text}</span>
+    </button>`;
+    return html`
+      <div class="scrim" @click=${this._closeDialog}>
+        <div class="dialog" role="dialog" aria-modal="true" aria-label="Use theme" @click=${(event: Event) => event.stopPropagation()}>
+          <div class="dhead">
+            <div>
+              <h2 class="sh">Use “${name}”</h2>
+              <p class="sp">Light and Dark come together. Home Assistant switches between them with the device's dark mode.</p>
+            </div>
+            <button class="btn icon" aria-label="Close" @click=${this._closeDialog}>${icon("close", 18)}</button>
+          </div>
+          <div class="opts two">
+            ${option("device", "phone", "This device", "Only the browser or app you are using now.")}
+            ${option("everyone", "home", "Everyone", "The default theme for all users and devices.")}
+          </div>
+          <p class="hint">After more changes, use the theme again to update it everywhere it is used.</p>
+          <div class="field">
+            <div class="lbl">Share</div>
+            <div class="share-row">
+              <button class="btn" @click=${() => void this._export("copy")}>${icon("copy", 18)}Copy share code</button>
+              <button class="btn" @click=${() => void this._export("download")}>${icon("download", 18)}Download file</button>
+            </div>
+            <p class="hint">Others can import the code or file in their Theme Studio. It holds colours and settings only.</p>
+          </div>
+          <div class="dfoot">
+            <button class="btn" @click=${this._closeDialog}>Cancel</button>
+            <button class="btn primary" ?disabled=${this._busy} @click=${() => void this._use()}>
+              ${this._busy ? "Working…" : "Use theme"}
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  private _renderImportDialog(): TemplateResult {
+    return html`
+      <div class="scrim" @click=${this._closeDialog}>
+        <div class="dialog" role="dialog" aria-modal="true" aria-label="Import a theme" @click=${(event: Event) => event.stopPropagation()}>
+          <div class="dhead">
+            <div>
+              <h2 class="sh">Import a theme</h2>
+              <p class="sp">Paste a share code (TS1:…) or choose a theme file. It becomes a new theme; nothing is overwritten.</p>
+            </div>
+            <button class="btn icon" aria-label="Close" @click=${this._closeDialog}>${icon("close", 18)}</button>
+          </div>
+          <div class="field">
+            <label class="lbl" for="ts-import">Share code or file content</label>
+            <textarea
+              id="ts-import"
+              class="text-input area"
+              rows="5"
+              spellcheck="false"
+              placeholder="TS1:…"
+              .value=${this._importText}
+              @input=${(event: Event) => (this._importText = (event.target as HTMLTextAreaElement).value)}
+            ></textarea>
+          </div>
+          <label class="btn file-btn">
+            ${icon("upload", 18)}Choose file
+            <input
+              type="file"
+              accept=".json,.txt,application/json,text/plain"
+              @change=${async (event: Event) => {
+                const input = event.target as HTMLInputElement;
+                const file = input.files?.[0];
+                input.value = "";
+                if (file) {
+                  this._importText = (await file.text()).slice(0, 300000);
+                }
+              }}
+            />
+          </label>
+          <div class="dfoot">
+            <button class="btn" @click=${this._closeDialog}>Cancel</button>
+            <button class="btn primary" ?disabled=${this._busy || !this._importText.trim()} @click=${() => void this._import()}>
+              Import and open
             </button>
           </div>
         </div>
