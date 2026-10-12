@@ -155,7 +155,7 @@
     "primary_font_family": "Inter",
     "radius": 20.0,
     "saturation": 0.0,
-    "secondary_background_color_override": "#F6F6F2",
+    "secondary_background_color_override": "auto",
     "secondary_text_color_override": "#D3D3D3",
     "shadow_contrast": -5.0,
     "shadow_hue_shift": -180.0,

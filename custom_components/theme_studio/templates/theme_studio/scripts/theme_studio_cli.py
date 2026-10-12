@@ -1128,7 +1128,7 @@ def build(args):
     custom_font_family = (args.custom_font_family or '').strip()
     custom_font_path = (args.custom_font_path or '').strip()
 
-    resolved_primary_font_family = (
+    resolved_primary_font_family = font_stack(
         custom_font_family if use_custom_font and custom_font_family else primary_font_family
     )
 
@@ -1627,6 +1627,26 @@ def lovelace_background_css(attachment: str) -> str:
         "center top / cover no-repeat fixed var(--theme-studio-background-scrim), "
         "center top / cover no-repeat fixed var(--theme-studio-background-image)"
     )
+
+
+# Generic CSS families need no fallback; a named font (Inter, Quicksand, a custom
+# font) is only there where Theme Studio loads it, i.e. on Home Assistant's own
+# pages. Apps outside them (a panel in an iframe, a web app on the home screen)
+# would otherwise fall back to the browser's serif font.
+GENERIC_FONT_FAMILIES = {
+    'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'math', 'emoji', 'fangsong',
+    'system-ui', 'ui-sans-serif', 'ui-serif', 'ui-monospace', 'ui-rounded',
+}
+FALLBACK_FONT_STACK = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+
+
+def font_stack(family):
+    family = (family or '').strip()
+    if not family:
+        return 'sans-serif'
+    if ',' in family or family.lower() in GENERIC_FONT_FAMILIES:
+        return family
+    return f'{family}, {FALLBACK_FONT_STACK}'
 
 
 def emit_value(key, value, indent=2):

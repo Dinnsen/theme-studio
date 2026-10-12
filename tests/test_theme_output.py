@@ -186,3 +186,25 @@ def test_every_built_in_preset_passes_contrast() -> None:
             if not pair["ok"]:
                 failures.append(f"{name}/{variant}: {pair['key']} {pair['ratio']}:1 (needs {pair['minimum']}:1)")
     assert not failures, "\n".join(failures)
+
+
+def test_named_font_falls_back_to_a_sans_serif_font() -> None:
+    cli = load_cli_module()
+    assert cli.font_stack("Inter") == 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+    assert cli.font_stack("sans-serif") == "sans-serif"
+    assert cli.font_stack("system-ui") == "system-ui"
+    assert cli.font_stack("Inter, sans-serif") == "Inter, sans-serif"
+    assert cli.font_stack("") == "sans-serif"
+    for name, variant, values in build_preset_variants(cli):
+        assert values["primary-font-family"].endswith(("sans-serif", "serif", "monospace", "system-ui")), (
+            f"{name}/{variant}"
+        )
+
+
+def test_glass_dark_secondary_background_is_readable() -> None:
+    cli = load_cli_module()
+    preset = json.loads((PRESET_DIR / "glass.json").read_text(encoding="utf-8"))
+    values = cli.build(cli.namespace_from_settings(preset["dark"], "/tmp/unused.yaml"))
+    text = cli.parse_css_color(cli._resolve_var(values, values["primary-text-color"]))
+    background = cli.parse_css_color(cli._resolve_var(values, values["secondary-background-color"]))
+    assert cli.contrast_ratio(text, background) >= 4.5
