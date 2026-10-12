@@ -2,6 +2,12 @@
 
 All notable changes to Theme Studio. Versions follow [semantic versioning](https://semver.org/); the version is the one in `custom_components/theme_studio/manifest.json`.
 
+## [1.2.3] - 2026-10-12
+
+### Fixed
+- *Glass* in dark mode: the secondary background (`secondary-background-color`) was almost white, so white text on it could not be read, for example in panels and apps that use it for rows and boxes. It is now worked out from the theme's own colours, like in the other presets.
+- A theme with a named font (such as Inter or Quicksand) now falls back to the device's own sans-serif font where that font is not loaded, for example in a panel shown in a frame or a web app on a phone's home screen. Before, those showed the browser's serif font.
+
 ## [1.2.2] - 2026-10-08
 
 ### Added
