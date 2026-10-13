@@ -208,3 +208,21 @@ def test_glass_dark_secondary_background_is_readable() -> None:
     text = cli.parse_css_color(cli._resolve_var(values, values["primary-text-color"]))
     background = cli.parse_css_color(cli._resolve_var(values, values["secondary-background-color"]))
     assert cli.contrast_ratio(text, background) >= 4.5
+
+
+def test_every_built_in_preset_has_readable_secondary_background() -> None:
+    """Rows, boxes and fields on secondary-background-color must keep readable text."""
+    cli = load_cli_module()
+    failures = []
+    for name, variant, values in build_preset_variants(cli):
+        page = cli.composite(
+            cli.parse_css_color(cli._resolve_var(values, values["background-color"])), (1.0, 1.0, 1.0, 1.0)
+        )
+        background = cli.composite(
+            cli.parse_css_color(cli._resolve_var(values, values["secondary-background-color"])), page
+        )
+        text = cli.composite(cli.parse_css_color(cli._resolve_var(values, values["primary-text-color"])), background)
+        ratio = cli.contrast_ratio(text, background)
+        if ratio < 4.5:
+            failures.append(f"{name}/{variant}: {ratio:.2f}:1")
+    assert not failures, "\n".join(failures)

@@ -2,6 +2,16 @@
 
 All notable changes to Theme Studio. Versions follow [semantic versioning](https://semver.org/); the version is the one in `custom_components/theme_studio/manifest.json`.
 
+## [1.2.4] - 2026-10-13
+
+### Fixed
+- Text on the secondary background (`secondary-background-color`, used for rows, boxes and fields in panels and apps) is now readable in every built-in preset. The colour keeps each preset's own hue but is dark in dark mode and light in light mode:
+  - *Aurora* dark: deep violet instead of bright violet.
+  - *MD3* dark: deep rose instead of bright rose.
+  - *Vision* light: pale lilac instead of dark plum.
+  - *Dark Blue* and *Flavors* light: pale blue instead of mid blue.
+- A new test checks that every built-in preset keeps text on the secondary background at a contrast of at least 4.5:1.
+
 ## [1.2.3] - 2026-10-12
 
 ### Fixed
