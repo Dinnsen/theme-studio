@@ -225,6 +225,18 @@ card_mod:
     }
 ```
 
+### Cards that follow Theme Studio by themselves
+
+Custom cards can read these variables themselves. The cards that come with [EV Planner](https://github.com/Dinnsen/ha-ev-planner#themes) (0.8.0 and newer) do this, so they need no card-mod:
+
+| Theme Studio setting | Used by EV Planner for |
+| --- | --- |
+| Cards (`--ha-card-*`) | All its cards except the Bubble card |
+| Blur (`--theme-studio-card-backdrop-filter`) | The same cards and its pop-up (not the Bubble card, as Bubble Card has no blur either) |
+| Raised surface (`--theme-studio-soft-background-color`), chip radius (`--theme-studio-chip-radius`) | The chips and icon tiles inside the cards |
+| Bubble cards (`--bubble-*`) | Its Bubble card and mode menu, measure for measure like a Bubble Card button |
+| Pop-ups (`--bubble-pop-up-background-color`, `--theme-studio-popup-border-css`, `--theme-studio-popup-shadow-css`) and dialogs (`--ha-dialog-*`, `--mdc-dialog-scrim-color`) | Its pop-up |
+
 ## Services
 
 The panel does not need these; they are for your own automations and scripts.
@@ -242,7 +254,7 @@ The panel does not need these; they are for your own automations and scripts.
 ## FAQ
 
 **Do I need card-mod, Bubble Card or any other custom card?**
-No. The panel and the generated themes work without them. If you use Bubble Card, the themes style it too.
+No. The panel and the generated themes work without them. If you use Bubble Card, the themes style it too, as well as cards that read the same variables, such as EV Planner's (see [Cards that follow Theme Studio by themselves](#cards-that-follow-theme-studio-by-themselves)).
 
 **Does Theme Studio change my dashboards?**
 No. It only adds themes. A theme is used when you pick it in your profile, set it on a dashboard view, or press *Use theme*.
